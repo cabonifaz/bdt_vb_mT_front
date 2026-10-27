@@ -165,8 +165,8 @@ export function TalentsWorkspace() {
               aria-current={x.id === selectedId ? 'true' : undefined} data-testid="talent-card">
               <TalentPhoto fileId={x.photoId} name={fullName(x)} size={32} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="row" style={{ gap: 4, flexWrap: 'nowrap' }}>
-                  <span className="name" style={{ flex: 1 }}>{fullName(x)}</span>
+                <div className="row" style={{ gap: 4, flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+                  <span className="name" style={{ flex: 1 }} data-testid="talent-row-name">{fullName(x)}</span>
                   {x.isFavorite && <span className="fav on" style={{ fontSize: 12 }} aria-label={t('talents.favorite')}>♥</span>}
                 </div>
                 <div className="sub">{x.headline || '—'}</div>

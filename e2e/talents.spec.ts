@@ -229,3 +229,20 @@ test('seguridad: otro tenant/plataforma no accede al talento; filtros resisten i
   expect(r.status()).toBe(200);
   expect((await r.json()).total).toBe(0);
 });
+
+test('la lista muestra el nombre completo del talento (sin recortar con puntos)', async ({ page }) => {
+  const admin = await createFractalAdmin();
+  const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
+  const last = `Montenegro${stamp()}`;
+  const full = `María Fernanda Alejandra ${last} Villavicencio`;
+  expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: { Authorization: `Bearer ${tok}` },
+    data: { id: crypto.randomUUID(), firstName: 'María Fernanda Alejandra', lastName: last, secondLastName: 'Villavicencio' } })).status()).toBe(201);
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.getByLabel('Buscar').fill(last);
+  const name = page.getByTestId('talent-row-name').filter({ hasText: last });
+  await expect(name).toHaveText(full);
+  // no se recorta: el contenido cabe completo (en varias líneas si hace falta)
+  const clipped = await name.evaluate((el) => el.scrollWidth > el.clientWidth || getComputedStyle(el).textOverflow === 'ellipsis');
+  expect(clipped).toBe(false);
+  expect(await name.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(20); // ocupa más de una línea
+});

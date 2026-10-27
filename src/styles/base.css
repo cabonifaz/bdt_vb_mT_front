@@ -248,7 +248,7 @@ button.star { cursor: pointer; }
 .talent-row { display: flex; gap: var(--space-2); padding: 8px; border: 1px solid transparent; border-radius: var(--radius-md); text-decoration: none; color: inherit; align-items: flex-start; }
 .talent-row:hover { background: var(--color-surface-muted); }
 .talent-row.active { border-color: color-mix(in srgb, var(--brand-primary) 40%, white); background: color-mix(in srgb, var(--brand-primary) 8%, white); }
-.talent-row .name { font-weight: var(--weight-semibold); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.talent-row .name { font-weight: var(--weight-semibold); font-size: 13px; line-height: 1.3; white-space: normal; overflow-wrap: anywhere; } /* nombre completo, aunque ocupe varias líneas */
 .talent-row .sub { font-size: 11px; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 900px) {
   .ws { grid-template-columns: 1fr; height: auto; }
