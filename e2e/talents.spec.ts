@@ -21,8 +21,10 @@ test('alta en modal con TODAS las secciones y la ficha se abre sin perder la lis
   await dlg.getByLabel('Apellido paterno').fill(last);
   await dlg.getByLabel('Puesto / perfil').fill('Arquitecta de software');
   await dlg.getByLabel('Correo').fill(`lucia.${stamp()}@correo.test`);
-  await dlg.getByLabel('País').selectOption({ label: 'Perú' });
-  await dlg.getByLabel('Ciudad').fill('Arequipa');
+  await dlg.getByLabel('País de residencia').selectOption({ label: 'Perú' });
+  await dlg.getByLabel('Ciudad de residencia').fill('Arequipa');
+  await dlg.getByLabel('País de procedencia').selectOption({ label: 'Colombia' });
+  await dlg.getByLabel('Ciudad de procedencia').fill('Cali');
   await dlg.getByLabel('Planilla · Mínimo').fill('7000');
   await dlg.getByLabel('Planilla · Máximo').fill('9000');
 
@@ -76,6 +78,8 @@ test('alta en modal con TODAS las secciones y la ficha se abre sin perder la lis
 
   // ficha en el panel derecho con todas las secciones
   await expect(page.getByTestId('talent-name')).toHaveText(`Lucía ${last}`);
+  await expect(page.getByTestId('residence')).toHaveText(/Arequipa, Perú/);
+  await expect(page.getByTestId('origin')).toHaveText(/Cali, Colombia/);
   await expect(page.getByTestId('rates')).toContainText('9,000');
   await expect(page.locator('.ws-detail .chip', { hasText: 'Java' })).toBeVisible();
   await expect(page.locator('.ws-detail .chip', { hasText: custom })).toBeVisible();

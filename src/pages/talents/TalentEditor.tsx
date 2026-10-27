@@ -15,7 +15,7 @@ import { hasRates, type ProfileFacts } from '../../lib/completeness';
 
 type Main = {
   firstName: string; lastName: string; secondLastName: string; headline: string; docTypeId: string; docNumber: string;
-  email: string; phone: string; birthDate: string; countryId: string; city: string; linkedinUrl: string; githubUrl: string; summary: string;
+  email: string; phone: string; birthDate: string; countryId: string; city: string; originCountryId: string; originCity: string; linkedinUrl: string; githubUrl: string; summary: string;
   availabilityId: string; hasEquipment: '' | 'yes' | 'no';
 };
 type Tech = { id: string; skillId?: string; label: string; years: number };
@@ -38,7 +38,7 @@ function fromTalent(t?: Talent, label?: (l?: Record<string, string>) => string):
     main: {
       firstName: t?.firstName ?? '', lastName: t?.lastName ?? '', secondLastName: t?.secondLastName ?? '', headline: t?.headline ?? '',
       docTypeId: t?.docTypeId ?? '', docNumber: t?.docNumber ?? '', email: t?.email ?? '', phone: t?.phone ?? '', birthDate: t?.birthDate ?? '',
-      countryId: t?.countryId ?? '', city: t?.city ?? '', linkedinUrl: t?.linkedinUrl ?? '', githubUrl: t?.githubUrl ?? '',
+      countryId: t?.countryId ?? '', city: t?.city ?? '', originCountryId: t?.originCountryId ?? '', originCity: t?.originCity ?? '', linkedinUrl: t?.linkedinUrl ?? '', githubUrl: t?.githubUrl ?? '',
       summary: t?.summary ?? '', availabilityId: t?.availabilityId ?? '',
       hasEquipment: t?.hasEquipment === undefined || t?.hasEquipment === null ? '' : t.hasEquipment ? 'yes' : 'no',
     },
@@ -86,7 +86,7 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
       const body: Record<string, unknown> = {
         id: talentId, firstName: m.firstName.trim(), lastName: m.lastName.trim(), secondLastName: nz(m.secondLastName), headline: nz(m.headline),
         docTypeId: nz(m.docTypeId), docNumber: m.docNumber.trim(), email: m.email.trim(), phone: m.phone.trim(), birthDate: m.birthDate, countryId: nz(m.countryId),
-        city: nz(m.city), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availabilityId: nz(m.availabilityId),
+        city: nz(m.city), originCountryId: nz(m.originCountryId), originCity: nz(m.originCity), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availabilityId: nz(m.availabilityId),
         hasEquipment: m.hasEquipment === '' ? null : m.hasEquipment === 'yes',
       };
       if (editing) body.expectedVersion = talent!.version;
@@ -251,9 +251,12 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
           </div>
         </div>
         <Field label={t('talents.birthDate')} type="date" value={m.birthDate} max={maxBirth} onChange={f('birthDate')} />
-        <div className="field"><label htmlFor="ed-country">{t('talents.country')}</label>
+        <div className="field"><label htmlFor="ed-country">{t('talents.residenceCountry')}</label>
           <select id="ed-country" className="select" value={m.countryId} onChange={f('countryId')}><option value="">—</option>{opts('COUNTRY')}</select></div>
-        <Field label={t('talents.city')} maxLength={120} value={m.city} onChange={f('city')} />
+        <Field label={t('talents.residenceCity')} maxLength={120} value={m.city} onChange={f('city')} />
+        <div className="field"><label htmlFor="ed-ocountry">{t('talents.originCountry')}</label>
+          <select id="ed-ocountry" className="select" value={m.originCountryId} onChange={f('originCountryId')}><option value="">—</option>{opts('COUNTRY')}</select></div>
+        <Field label={t('talents.originCity')} maxLength={120} value={m.originCity} onChange={f('originCity')} />
       </div>
       <h4 className="muted">{t('talents.contact')}</h4>
       <div className="form-grid">

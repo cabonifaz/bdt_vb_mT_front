@@ -457,7 +457,14 @@
     "dniLooking": "Consultando…",
     "dniLookupHint": "Completar nombres y apellidos desde RENIEC",
     "dniFilled": "Nombres y apellidos completados desde RENIEC.",
-    "dniFilledBirth": "Nombres, apellidos y fecha de nacimiento completados desde RENIEC."
+    "dniFilledBirth": "Nombres, apellidos y fecha de nacimiento completados desde RENIEC.",
+    "residence": "Residencia",
+    "residenceCountry": "País de residencia",
+    "residenceCity": "Ciudad de residencia",
+    "origin": "Procedencia",
+    "originShort": "Procede de",
+    "originCountry": "País de procedencia",
+    "originCity": "Ciudad de procedencia"
   },
   "favorites": {
     "new": "Nueva colección",

@@ -457,7 +457,14 @@
     "dniLooking": "Looking up…",
     "dniLookupHint": "Fill in names from RENIEC",
     "dniFilled": "Names filled in from RENIEC.",
-    "dniFilledBirth": "Names and date of birth filled in from RENIEC."
+    "dniFilledBirth": "Names and date of birth filled in from RENIEC.",
+    "residence": "Residence",
+    "residenceCountry": "Country of residence",
+    "residenceCity": "City of residence",
+    "origin": "Origin",
+    "originShort": "From",
+    "originCountry": "Country of origin",
+    "originCity": "City of origin"
   },
   "favorites": {
     "new": "New collection",

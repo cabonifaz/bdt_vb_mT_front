@@ -101,7 +101,8 @@ export function TalentDetail() {
           </div>
           <div className="pf-sub">
             {x.headline && <span className="pf-headline">{x.headline}</span>}
-            {(x.city || x.country) && <span>{[x.city, label(x.country)].filter(Boolean).join(', ')}</span>}
+            {(x.city || x.country) && <span title={t('talents.residence')} data-testid="residence"><Icon name="mapPin" size={13} /> {[x.city, label(x.country)].filter(Boolean).join(', ')}</span>}
+            {(x.originCity || x.originCountry) && <span title={t('talents.origin')} data-testid="origin"><span className="muted">{t('talents.originShort')}:</span> {[x.originCity, label(x.originCountry)].filter(Boolean).join(', ')}</span>}
             <span className="row" style={{ gap: 4 }}><Stars value={x.avgRating} size={12} />{x.avgRating ? x.avgRating.toFixed(1) : ''}</span>
           </div>
           <div className="row" style={{ gap: 6, marginTop: 8 }}>

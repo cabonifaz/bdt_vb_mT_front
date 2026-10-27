@@ -23,7 +23,7 @@ export interface Rates {
 export interface Talent {
   id: string; firstName: string; lastName: string; secondLastName?: string; headline?: string;
   docTypeId?: string; docNumber?: string; email?: string; phone?: string; birthDate?: string; countryId?: string; country?: I18nLabel;
-  city?: string; linkedinUrl?: string; githubUrl?: string; summary?: string; availabilityId?: string; hasEquipment?: boolean;
+  city?: string; originCountryId?: string; originCountry?: I18nLabel; originCity?: string; linkedinUrl?: string; githubUrl?: string; summary?: string; availabilityId?: string; hasEquipment?: boolean;
   rates?: Rates; canSeeRates: boolean; photoId?: string; cvId?: string; avgRating?: number; status: string; source: string;
   version: number; createdAt: string; updatedAt: string;
   techSkills: { id: string; skillId: string; label: I18nLabel; years: number }[];
