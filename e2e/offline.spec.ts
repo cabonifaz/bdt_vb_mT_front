@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createFractalAdmin, uiLogin } from './helpers';
+import { API, createFractalAdmin, uiLogin } from './helpers';
 
 test('sin conexión se avisa al usuario y se sigue navegando con los datos cargados', async ({ page, context }) => {
   const admin = await createFractalAdmin();
@@ -19,7 +19,8 @@ test('sin conexión se avisa al usuario y se sigue navegando con los datos carga
   await expect(page.getByTestId('offline-banner')).toHaveCount(0);
 });
 
-test('el branding queda en caché local (IndexedDB) para abrir sin red', async ({ page }) => {
+test('el branding queda en caché local (IndexedDB) para abrir sin red', async ({ page, request }) => {
+  const b = await (await request.get(`${API}/api/v1/public/tenants/fractal`)).json();
   await page.goto('/fractal/login');
   await expect(page.getByTestId('tenant-logo')).toBeVisible();
   await expect.poll(() => page.evaluate(() => new Promise<string | null>((resolve) => {
@@ -31,5 +32,5 @@ test('el branding queda en caché local (IndexedDB) para abrir sin red', async (
       get.onsuccess = () => resolve(get.result?.colorPrimary ?? null);
     };
     req.onerror = () => resolve(null);
-  }))).toBe('#009688');
+  }))).toBe(b.colorPrimary);
 });

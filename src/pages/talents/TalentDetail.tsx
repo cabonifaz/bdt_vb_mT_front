@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ApiError, http } from '../../lib/api';
@@ -10,11 +10,12 @@ import {
 import { Button, Card, Field, Modal, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Chip, Stars, TalentPhoto } from '../../components/talents/bits';
+import { TalentEditor } from './TalentEditor';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
 export function TalentDetail() {
-  const { tenant = '', id = '' } = useParams();
+  const { id = '' } = useParams();
   const { t, i18n } = useTranslation();
   const { can } = useAuth();
   const label = useLabel();
@@ -25,7 +26,7 @@ export function TalentDetail() {
   const canWrite = can('talent.write');
   const q = useQuery({ queryKey: ['talent', id], queryFn: () => cachedGet<Talent>(`${TALENT_API}/${id}`) });
   const collections = useQuery({ queryKey: ['collections'], queryFn: () => cachedGet<Collection[]>('/api/v1/tenant/collections') });
-  const [modal, setModal] = useState<null | 'experience' | 'education' | 'language' | 'feedback' | 'collection'>(null);
+  const [modal, setModal] = useState<null | 'editor' | 'experience' | 'education' | 'language' | 'feedback' | 'collection'>(null);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
 
   const refresh = () => {
@@ -47,7 +48,7 @@ export function TalentDetail() {
   };
 
   if (q.isLoading) return <div className="page"><p className="muted">{t('common.loading')}</p></div>;
-  if (q.isError || !q.data) return <div className="page"><div className="alert alert-error" role="alert">{errText(q.error)}</div><Link to={`/${tenant}/talentos`}>← {t('talents.back')}</Link></div>;
+  if (q.isError || !q.data) return <div className="page"><div className="alert alert-error" role="alert">{errText(q.error)}</div></div>;
   const x = q.data;
   const name = fullName(x);
   const open = (m: typeof modal, item: Record<string, unknown> | null = null) => { setEditing(item); setModal(m); };
@@ -55,7 +56,6 @@ export function TalentDetail() {
 
   return (
     <div className="page">
-      <Link to={`/${tenant}/talentos`} className="muted">← {t('talents.back')}</Link>
       <Card>
         <div className="detail-header">
           <TalentPhoto fileId={x.photoId} name={name} size={88} />
@@ -70,7 +70,7 @@ export function TalentDetail() {
           <div className="row">
             <Button variant="secondary" onClick={() => open('collection')}>♥ {t('talents.addToCollection')}</Button>
             {x.cvId && <Button variant="secondary" onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')}>{t('talents.viewCv')}</Button>}
-            {canWrite && <Link className="btn btn-primary" to={`/${tenant}/talentos/${id}/editar`}>{t('talents.edit')}</Link>}
+            {canWrite && <Button onClick={() => open('editor')} data-testid="edit-talent">{t('talents.edit')}</Button>}
             {canWrite && <Button variant="ghost" onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))}>
               {x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}</Button>}
           </div>
@@ -177,6 +177,11 @@ export function TalentDetail() {
         <FilesCard talent={x} canWrite={canWrite} onChanged={refresh} />
       </div>
 
+      {modal === 'editor' && <TalentEditor talent={x} onClose={() => setModal(null)} onSaved={(_, offline) => {
+        setModal(null);
+        refresh();
+        if (offline) toast.info(t('talents.savedOffline')); else toast.success(t('talents.saved'));
+      }} />}
       {modal === 'experience' && <ExperienceModal item={editing} onClose={() => setModal(null)}
         onSave={(b) => run(() => http.put(`${TALENT_API}/${id}/experiences`, b, true), t('talents.saved'))} />}
       {modal === 'education' && <EducationModal item={editing} onClose={() => setModal(null)}

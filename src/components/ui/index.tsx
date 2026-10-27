@@ -100,23 +100,26 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 // ---------------------------------------------------------------- Modal (Esc cierra, foco atrapado al abrir)
-export function Modal({ title, open, onClose, children, footer }: {
-  title: string; open: boolean; onClose: () => void; children: ReactNode; footer?: ReactNode;
+export function Modal({ title, open, onClose, children, footer, wide, tabs, persistent }: {
+  title: string; open: boolean; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean; tabs?: ReactNode;
+  /** persistent: no se cierra con Esc ni clic afuera (formularios largos) */
+  persistent?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
     ref.current?.querySelector<HTMLElement>('input, select, button')?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !persistent) onClose(); };
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('keydown', onKey); prev?.focus(); };
-  }, [open, onClose]);
+  }, [open, onClose, persistent]);
   if (!open) return null;
   return (
-    <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label={title} ref={ref}>
+    <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget && !persistent) onClose(); }}>
+      <div className={`modal${wide ? ' modal-lg' : ''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref}>
         <div className="modal-header"><h3>{title}</h3></div>
+        {tabs}
         <div className="modal-body">{children}</div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>

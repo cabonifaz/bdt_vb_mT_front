@@ -85,7 +85,13 @@
     "apiKeys": "Integration API",
     "platform": "Platform",
     "tenants": "Tenants",
-    "approvals": "API key approvals"
+    "approvals": "API key approvals",
+    "menu": "Menu",
+    "pinMenu": "Pin menu",
+    "expand": "Expand menu",
+    "minimize": "Minimize",
+    "hide": "Hide menu",
+    "toggleMenu": "Show or hide the menu"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -310,6 +316,12 @@
     "yes": "Yes",
     "no": "No",
     "viewCv": "View CV",
-    "updated": "Updated"
+    "updated": "Updated",
+    "tabData": "Data",
+    "tabSkills": "Skills",
+    "saving": "Saving {{current}} of {{total}}…",
+    "fileNeedsConnection": "files can only be uploaded online",
+    "feedbackHint": "Optional: your first evaluation of the talent.",
+    "selectOne": "Select a talent from the list to see the profile."
   }
 }

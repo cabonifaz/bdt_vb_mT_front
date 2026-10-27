@@ -1,17 +1,22 @@
 import { test, expect } from '@playwright/test';
+import { API } from './helpers';
 
 test.describe('Tenant Fractal: marca e idioma', () => {
-  test('login muestra logo y colores de Fractal', async ({ page }) => {
+  test('login muestra logo, nombre y colores configurados por Fractal', async ({ page, request }) => {
+    // los colores los configura el admin del tenant: se comparan con el branding vigente
+    const b = await (await request.get(`${API}/api/v1/public/tenants/fractal`)).json();
     await page.goto('/fractal/login');
     const logo = page.getByTestId('tenant-logo');
     await expect(logo).toBeVisible();
-    await expect(logo).toHaveAttribute('src', '/tenants/fractal/logo.png');
+    await expect(logo).toHaveAttribute('src', b.logoUrl);
     const css = (v: string) => page.evaluate((name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim().toUpperCase(), v);
-    expect(await css('--brand-primary')).toBe('#009688');
-    expect(await css('--brand-secondary')).toBe('#0B85C3');
-    expect(await css('--brand-accent')).toBe('#FAAB34');
-    await expect(page).toHaveTitle('Fractal - Banco de talentos');
-    await expect(page.getByRole('button', { name: 'Ingresar' })).toHaveCSS('background-color', 'rgb(0, 150, 136)');
+    await expect.poll(() => css('--brand-primary')).toBe(b.colorPrimary.toUpperCase());
+    expect(await css('--brand-secondary')).toBe(b.colorSecondary.toUpperCase());
+    expect(await css('--brand-accent')).toBe(b.colorAccent.toUpperCase());
+    await expect(page).toHaveTitle(b.displayName);
+    const hex = b.colorPrimary.replace('#', '');
+    const rgb = `rgb(${parseInt(hex.slice(0, 2), 16)}, ${parseInt(hex.slice(2, 4), 16)}, ${parseInt(hex.slice(4, 6), 16)})`;
+    await expect(page.getByRole('button', { name: 'Ingresar' })).toHaveCSS('background-color', rgb);
   });
 
   test('la raíz redirige al login de Fractal', async ({ page }) => {

@@ -85,7 +85,13 @@
     "apiKeys": "API de integración",
     "platform": "Plataforma",
     "tenants": "Tenants",
-    "approvals": "Aprobación de API keys"
+    "approvals": "Aprobación de API keys",
+    "menu": "Menú",
+    "pinMenu": "Fijar menú",
+    "expand": "Expandir menú",
+    "minimize": "Minimizar",
+    "hide": "Ocultar menú",
+    "toggleMenu": "Mostrar u ocultar el menú"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -310,6 +316,12 @@
     "yes": "Sí",
     "no": "No",
     "viewCv": "Ver CV",
-    "updated": "Actualizado"
+    "updated": "Actualizado",
+    "tabData": "Datos",
+    "tabSkills": "Habilidades",
+    "saving": "Guardando {{current}} de {{total}}…",
+    "fileNeedsConnection": "los archivos solo se suben con conexión",
+    "feedbackHint": "Opcional: tu primera evaluación del talento.",
+    "selectOne": "Selecciona un talento de la lista para ver su ficha."
   }
 }
