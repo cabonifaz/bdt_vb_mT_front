@@ -425,3 +425,10 @@ svg.ss-btn { pointer-events: none; }
   .pf-head { flex-wrap: wrap; gap: var(--space-3); }
   .pf-actions { order: 3; width: 100%; flex-wrap: wrap; }
 }
+
+/* Modales con pestañas: tamaño fijo (las pestañas no se mueven en X/Y); solo el contenido hace scroll */
+.modal-tabbed { display: flex; flex-direction: column; height: min(760px, calc(100vh - 32px)); }
+.modal-tabbed > .modal-body { flex: 1; min-height: 0; overflow-y: auto; }
+.modal-tabbed > .modal-header, .modal-tabbed > .modal-footer, .modal-tabbed > div:has(> .tabs) { flex-shrink: 0; }
+.tab .count { min-width: 20px; display: inline-block; text-align: center; }
+@media (max-width: 900px) { .modal-tabbed { height: 92vh; } }

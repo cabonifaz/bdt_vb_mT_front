@@ -107,6 +107,7 @@ export function Modal({ title, open, onClose, children, footer, wide, tabs, pers
   persistent?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
@@ -119,10 +120,11 @@ export function Modal({ title, open, onClose, children, footer, wide, tabs, pers
   if (!open) return null;
   return (
     <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget && !persistent) onClose(); }}>
-      <div className={`modal${wide ? ' modal-lg' : ''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref}>
+      {/* con pestañas: alto fijo para que título, pestañas y botones no cambien de posición al cambiar de pestaña */}
+      <div className={`modal${wide ? ' modal-lg' : ''}${tabs ? ' modal-tabbed' : ''}`} role="dialog" aria-modal="true" aria-label={title} ref={ref}>
         <div className="modal-header"><h3>{title}</h3></div>
-        {tabs}
-        <div className="modal-body">{children}</div>
+        {tabs && <div onClick={(e) => { if ((e.target as HTMLElement).closest('[role=tab]')) bodyRef.current?.scrollTo({ top: 0 }); }}>{tabs}</div>}
+        <div className="modal-body" ref={bodyRef}>{children}</div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>

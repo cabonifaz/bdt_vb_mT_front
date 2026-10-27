@@ -112,12 +112,13 @@ export function InterviewEditor({ interview, preset, onClose, onSaved }: {
     } finally { setBusy(false); }
   };
 
+  // posiciones estables: los contadores siempre visibles y las pestañas que dependen del tipo van al final
   const tabs: { key: Tab; label: ReactNode; show: boolean }[] = [
     { key: 'general', label: t('interviews.tab.general'), show: true },
-    { key: 'interviewers', label: <>{t('interviews.tab.interviewers')}{interviewers.length > 0 && <span className="count">{interviewers.length}</span>}</>, show: true },
-    { key: 'questions', label: t('interviews.tab.questions'), show: isPhone },
+    { key: 'interviewers', label: <>{t('interviews.tab.interviewers')}<span className="count">{interviewers.length}</span></>, show: true },
     { key: 'evaluation', label: t('interviews.tab.evaluation'), show: editing },
-    { key: 'recordings', label: <>{t('interviews.tab.recordings')}{recordings.length > 0 && <span className="count">{recordings.length}</span>}</>, show: typeCode === 'VIRTUAL' },
+    { key: 'questions', label: t('interviews.tab.questions'), show: isPhone },
+    { key: 'recordings', label: <>{t('interviews.tab.recordings')}<span className="count">{recordings.length}</span></>, show: typeCode === 'VIRTUAL' },
   ];
   const f = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setV({ ...v, [k]: e.target.value });
   const opts = (table: string) => cat.byTable(table).map((x) => <option key={x.id} value={x.id}>{label(x.label)}</option>);
