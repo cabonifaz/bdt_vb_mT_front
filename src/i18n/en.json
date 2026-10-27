@@ -280,7 +280,12 @@
     "INTERVIEW_TYPE_REQUIRED": "Select the type.",
     "INTERVIEW_STAGE_REQUIRED": "Select the stage.",
     "INTERVIEW_STATUS_REQUIRED": "Select the status.",
-    "INTERVIEW_DATETIME_REQUIRED": "Enter date and time."
+    "INTERVIEW_DATETIME_REQUIRED": "Enter date and time.",
+    "INVALID_DNI": "The DNI must have 8 digits.",
+    "IDENTITY_NOT_FOUND": "The DNI was not found in RENIEC.",
+    "IDENTITY_NOT_CONFIGURED": "DNI lookup is not configured. Ask your administrator for the provider token.",
+    "IDENTITY_UNAVAILABLE": "The RENIEC service is not responding. Try again in a few minutes or enter the data manually.",
+    "INVALID_BIRTH_DATE": "The date of birth is not valid."
   },
   "talents": {
     "title": "Talents",
@@ -431,7 +436,13 @@
       "languages": "languages",
       "cv": "CV",
       "photo": "photo"
-    }
+    },
+    "birthDate": "Date of birth",
+    "dniLookup": "Look up",
+    "dniLooking": "Looking up…",
+    "dniLookupHint": "Fill in names from RENIEC",
+    "dniFilled": "Names filled in from RENIEC.",
+    "dniFilledBirth": "Names and date of birth filled in from RENIEC."
   },
   "favorites": {
     "new": "New collection",

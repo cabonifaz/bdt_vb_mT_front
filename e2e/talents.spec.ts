@@ -314,3 +314,29 @@ test('ficha: disponibilidad y equipo propio con un clic, % de perfil completo y 
   await expect(dlg).toHaveCount(0);
   await expect(page.getByTestId('rates')).toContainText(/PEN|USD/);
 });
+
+test('DNI: consulta RENIEC completa nombres, apellidos y fecha de nacimiento', async ({ page }) => {
+  const admin = await createFractalAdmin();
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.goto('/fractal/talentos');
+  const dlg = await openNewTalent(page);
+  await dlg.getByLabel('Tipo de documento').selectOption({ label: 'DNI' });
+  const btn = dlg.getByTestId('dni-lookup');
+  await dlg.getByLabel('N.º de documento').fill('4602789');
+  await expect(btn).toBeDisabled();                          // solo con 8 dígitos
+
+  // sin token en el servidor: mensaje claro, sin romper el formulario
+  await dlg.getByLabel('N.º de documento').fill('46027897');
+  await btn.click();
+  await expect(page.getByText(/consulta de DNI no está configurada/)).toBeVisible();
+
+  // con proveedor (respuesta simulada): se completan los datos
+  await page.route('**/api/v1/tenant/identity/dni/46027897', (r) => r.fulfill({ json: {
+    documentNumber: '46027897', firstName: 'Maria Del Pilar', lastName: 'Quispe', secondLastName: 'Ñahui', birthDate: '1990-03-15', provider: 'factiliza' } }));
+  await btn.click();
+  await expect(dlg.getByLabel('Nombres')).toHaveValue('Maria Del Pilar');
+  await expect(dlg.getByLabel('Apellido paterno')).toHaveValue('Quispe');
+  await expect(dlg.getByLabel('Apellido materno')).toHaveValue('Ñahui');
+  await expect(dlg.getByLabel('Fecha de nacimiento')).toHaveValue('1990-03-15');
+  await expect(page.getByText(/fecha de nacimiento completados desde RENIEC/)).toBeVisible();
+});

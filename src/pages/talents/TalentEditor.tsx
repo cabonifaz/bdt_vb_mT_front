@@ -6,6 +6,8 @@ import { ApiError, http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { TALENT_API, useLabel, useMasters, type Rates, type Talent } from '../../lib/talents';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
+import { useToast } from '../../components/ui/Toast';
+import { Search } from 'lucide-react';
 import { Chip, Stars } from '../../components/talents/bits';
 import { Loader } from '../../components/ui/Loader';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
@@ -13,7 +15,7 @@ import { hasRates, type ProfileFacts } from '../../lib/completeness';
 
 type Main = {
   firstName: string; lastName: string; secondLastName: string; headline: string; docTypeId: string; docNumber: string;
-  email: string; phone: string; countryId: string; city: string; linkedinUrl: string; githubUrl: string; summary: string;
+  email: string; phone: string; birthDate: string; countryId: string; city: string; linkedinUrl: string; githubUrl: string; summary: string;
   availabilityId: string; hasEquipment: '' | 'yes' | 'no';
 };
 type Tech = { id: string; skillId?: string; label: string; years: number };
@@ -35,7 +37,7 @@ function fromTalent(t?: Talent, label?: (l?: Record<string, string>) => string):
   return {
     main: {
       firstName: t?.firstName ?? '', lastName: t?.lastName ?? '', secondLastName: t?.secondLastName ?? '', headline: t?.headline ?? '',
-      docTypeId: t?.docTypeId ?? '', docNumber: t?.docNumber ?? '', email: t?.email ?? '', phone: t?.phone ?? '',
+      docTypeId: t?.docTypeId ?? '', docNumber: t?.docNumber ?? '', email: t?.email ?? '', phone: t?.phone ?? '', birthDate: t?.birthDate ?? '',
       countryId: t?.countryId ?? '', city: t?.city ?? '', linkedinUrl: t?.linkedinUrl ?? '', githubUrl: t?.githubUrl ?? '',
       summary: t?.summary ?? '', availabilityId: t?.availabilityId ?? '',
       hasEquipment: t?.hasEquipment === undefined || t?.hasEquipment === null ? '' : t.hasEquipment ? 'yes' : 'no',
@@ -83,7 +85,7 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
     if (!mainSaved) {
       const body: Record<string, unknown> = {
         id: talentId, firstName: m.firstName.trim(), lastName: m.lastName.trim(), secondLastName: nz(m.secondLastName), headline: nz(m.headline),
-        docTypeId: nz(m.docTypeId), docNumber: m.docNumber.trim(), email: m.email.trim(), phone: m.phone.trim(), countryId: nz(m.countryId),
+        docTypeId: nz(m.docTypeId), docNumber: m.docNumber.trim(), email: m.email.trim(), phone: m.phone.trim(), birthDate: m.birthDate, countryId: nz(m.countryId),
         city: nz(m.city), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availabilityId: nz(m.availabilityId),
         hasEquipment: m.hasEquipment === '' ? null : m.hasEquipment === 'yes',
       };
@@ -208,6 +210,27 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
     set('rates', next);
   };
   const opts = (table: string) => masters.byTable(table).map((x) => <option key={x.id} value={x.id}>{label(x.label)}</option>);
+  // DNI: autocompletar nombres, apellidos y fecha de nacimiento desde RENIEC (proveedor configurado en el servidor)
+  const toast = useToast();
+  const errText = useErrorText();
+  const [looking, setLooking] = useState(false);
+  const dniType = masters.byTable('DOC_IDENTITY_TYPE').find((x) => x.code === 'DNI');
+  const isDni = !!dniType && (m.docTypeId === dniType.id || (!m.docTypeId && /^\d+$/.test(m.docNumber)));
+  const canLookup = isDni && /^\d{8}$/.test(m.docNumber.trim());
+  const maxBirth = new Date(Date.now() - 14 * 365.25 * 864e5).toISOString().slice(0, 10);
+  const lookup = async () => {
+    setLooking(true);
+    try {
+      const p = await http.get<{ firstName: string; lastName: string; secondLastName: string; birthDate?: string }>(`/api/v1/tenant/identity/dni/${m.docNumber.trim()}`);
+      set('main', { ...m, docTypeId: m.docTypeId || dniType!.id, firstName: p.firstName || m.firstName, lastName: p.lastName || m.lastName,
+        secondLastName: p.secondLastName || m.secondLastName, birthDate: p.birthDate || m.birthDate });
+      toast.success(p.birthDate ? t('talents.dniFilledBirth') : t('talents.dniFilled'));
+    } catch (e) {
+      toast.error(errText(e));
+    } finally {
+      setLooking(false);
+    }
+  };
   return (
     <div className="stack">
       <h4 className="muted">{t('talents.personal')}</h4>
@@ -217,7 +240,17 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
         <Field label={t('talents.secondLastName')} maxLength={100} value={m.secondLastName} onChange={f('secondLastName')} />
         <div className="field"><label htmlFor="ed-doctype">{t('talents.docType')}</label>
           <select id="ed-doctype" className="select" value={m.docTypeId} onChange={f('docTypeId')}><option value="">—</option>{opts('DOC_IDENTITY_TYPE')}</select></div>
-        <Field label={t('talents.docNumber')} maxLength={30} value={m.docNumber} onChange={f('docNumber')} />
+        <div className="field"><label htmlFor="ed-docnum">{t('talents.docNumber')}</label>
+          <div className="input-action">
+            <input id="ed-docnum" className="input" maxLength={30} value={m.docNumber} onChange={f('docNumber')}
+              inputMode={isDni ? 'numeric' : undefined} onKeyDown={(e) => { if (e.key === 'Enter' && canLookup) { e.preventDefault(); lookup(); } }} />
+            {isDni && (
+              <button type="button" className="btn btn-outline btn-sm" onClick={lookup} disabled={!canLookup || looking} data-testid="dni-lookup"
+                title={t('talents.dniLookupHint')}><Search size={15} />{looking ? t('talents.dniLooking') : t('talents.dniLookup')}</button>
+            )}
+          </div>
+        </div>
+        <Field label={t('talents.birthDate')} type="date" value={m.birthDate} max={maxBirth} onChange={f('birthDate')} />
         <div className="field"><label htmlFor="ed-country">{t('talents.country')}</label>
           <select id="ed-country" className="select" value={m.countryId} onChange={f('countryId')}><option value="">—</option>{opts('COUNTRY')}</select></div>
         <Field label={t('talents.city')} maxLength={120} value={m.city} onChange={f('city')} />
