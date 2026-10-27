@@ -109,7 +109,8 @@ export function Modal({ title, open, onClose, children, footer, wide, tabs, pers
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
-    ref.current?.querySelector<HTMLElement>('input, select, button')?.focus();
+    // foco inicial en el primer campo del contenido (no en las pestañas ni en botones de la cabecera)
+    (ref.current?.querySelector<HTMLElement>('.modal-body input, .modal-body select, .modal-body textarea') ?? ref.current?.querySelector<HTMLElement>('input, select, button'))?.focus();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !persistent) onClose(); };
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('keydown', onKey); prev?.focus(); };
