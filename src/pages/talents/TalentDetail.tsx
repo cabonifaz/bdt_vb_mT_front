@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -7,10 +7,12 @@ import { useAuth } from '../../providers/auth';
 import {
   cachedGet, fetchFileBlob, fullName, TALENT_API, useLabel, useMasters, yearsLabel, type Collection, type Talent,
 } from '../../lib/talents';
-import { Button, Card, Field, Modal, StatusBadge, formatDate, useErrorText } from '../../components/ui';
+import { Button, Field, Modal, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Chip, Stars, TalentPhoto } from '../../components/talents/bits';
 import { TalentEditor } from './TalentEditor';
+import { ContactBar, RatesLine } from '../../components/talents/ContactBar';
+import { Icon } from '../../components/ui/Icon';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -54,127 +56,118 @@ export function TalentDetail() {
   const open = (m: typeof modal, item: Record<string, unknown> | null = null) => { setEditing(item); setModal(m); };
   const del = (section: string, itemId: string) => run(() => http.del(`${TALENT_API}/sections/${section}/${itemId}`));
 
+  const curr = (cid?: string) => masters.byTable('CURRENCY').find((c) => c.id === cid)?.code;
+  const isFav = x.collections.length > 0;
   return (
-    <div className="page">
-      <Card>
-        <div className="detail-header">
-          <TalentPhoto fileId={x.photoId} name={name} size={88} />
-          <div className="stack" style={{ gap: 4, flex: 1, minWidth: 240 }}>
-            <div className="row"><h1 data-testid="talent-name">{name}</h1>{x.status === 'ARCHIVED' && <StatusBadge status="DISABLED" />}</div>
-            {x.headline && <div style={{ fontSize: 16, fontWeight: 500 }}>{x.headline}</div>}
-            <div className="row muted">
-              {(x.city || x.country) && <span>{[x.city, label(x.country)].filter(Boolean).join(', ')}</span>}
-              <Stars value={x.avgRating} /><span>{x.avgRating ? x.avgRating.toFixed(1) : '—'}</span>
-            </div>
+    <div className="pf">
+      <header className="pf-head">
+        <TalentPhoto fileId={x.photoId} name={name} size={64} />
+        <div className="pf-id">
+          <div className="row" style={{ gap: 8 }}>
+            <h1 data-testid="talent-name">{name}</h1>
+            {x.status === 'ARCHIVED' && <StatusBadge status="DISABLED" />}
           </div>
-          <div className="row">
-            <Button variant="secondary" onClick={() => open('collection')}>♥ {t('talents.addToCollection')}</Button>
-            {x.cvId && <Button variant="secondary" onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')}>{t('talents.viewCv')}</Button>}
-            {canWrite && <Button onClick={() => open('editor')} data-testid="edit-talent">{t('talents.edit')}</Button>}
-            {canWrite && <Button variant="ghost" onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))}>
-              {x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}</Button>}
+          <div className="pf-sub">
+            {x.headline && <span className="pf-headline">{x.headline}</span>}
+            {(x.city || x.country) && <span>{[x.city, label(x.country)].filter(Boolean).join(', ')}</span>}
+            <span className="row" style={{ gap: 4 }}><Stars value={x.avgRating} size={12} />{x.avgRating ? x.avgRating.toFixed(1) : ''}</span>
           </div>
+          <div className="row" style={{ gap: 6, marginTop: 8 }}>
+            <ContactBar items={[
+              { key: 'email', icon: 'mail', label: t('talents.email'), value: x.email, href: x.email ? `mailto:${x.email}` : undefined, actionLabel: t('talents.write') },
+              { key: 'phone', icon: 'phone', label: t('talents.phone'), value: x.phone, href: x.phone ? `tel:${x.phone.replace(/\s/g, '')}` : undefined, actionLabel: t('talents.call') },
+              { key: 'doc', icon: 'idcard', label: t('talents.docNumber'), value: x.docNumber ? `${label(masters.byTable('DOC_IDENTITY_TYPE').find((d) => d.id === x.docTypeId)?.label)} ${x.docNumber}`.trim() : undefined },
+              { key: 'linkedin', icon: 'linkedin', label: t('talents.linkedin'), value: x.linkedinUrl, href: x.linkedinUrl, actionLabel: t('talents.open') },
+              { key: 'github', icon: 'github', label: t('talents.github'), value: x.githubUrl, href: x.githubUrl, actionLabel: t('talents.open') },
+            ]} />
+            {x.availability && <span className="meta-chip" title={t('talents.availability')}><Icon name="clock" size={13} />{x.availability}</span>}
+            {x.hasEquipment !== undefined && x.hasEquipment !== null && (
+              <span className="meta-chip" title={t('talents.hasEquipment')}><Icon name="laptop" size={13} />{x.hasEquipment ? t('talents.ownEquipment') : t('talents.noEquipment')}</span>
+            )}
+          </div>
+          {x.canSeeRates && (
+            <RatesLine rates={x.rates} modality={label(masters.byTable('BILLING_MODALITY').find((m) => m.id === x.rates?.modalityId)?.label) || undefined}
+              payrollCurrency={curr(x.rates?.payrollCurrencyId)} rxhCurrency={curr(x.rates?.rxhCurrencyId)} />
+          )}
         </div>
-      </Card>
-
-      <div className="detail-grid">
-        <Card title={t('talents.contact')}>
-          <dl className="kv">
-            <dt>{t('talents.email')}</dt><dd>{x.email || '—'}</dd>
-            <dt>{t('talents.phone')}</dt><dd>{x.phone || '—'}</dd>
-            <dt>{t('talents.docNumber')}</dt><dd>{x.docNumber ? `${label(masters.byTable('DOC_IDENTITY_TYPE').find((d) => d.id === x.docTypeId)?.label)} ${x.docNumber}` : '—'}</dd>
-            <dt>{t('talents.linkedin')}</dt><dd>{x.linkedinUrl ? <a href={x.linkedinUrl} target="_blank" rel="noopener noreferrer">{x.linkedinUrl}</a> : '—'}</dd>
-            <dt>{t('talents.github')}</dt><dd>{x.githubUrl ? <a href={x.githubUrl} target="_blank" rel="noopener noreferrer">{x.githubUrl}</a> : '—'}</dd>
-            <dt>{t('talents.availability')}</dt><dd>{x.availability || '—'}</dd>
-            <dt>{t('talents.hasEquipment')}</dt><dd>{x.hasEquipment === undefined || x.hasEquipment === null ? '—' : x.hasEquipment ? t('talents.yes') : t('talents.no')}</dd>
-          </dl>
-        </Card>
-
-        <Card title={t('talents.rates')}>
-          {!x.canSeeRates ? <p className="muted">{t('talents.ratesHidden')}</p> : x.rates ? (
-            <dl className="kv" data-testid="rates">
-              <dt>{t('talents.modality')}</dt><dd>{label(masters.byTable('BILLING_MODALITY').find((m) => m.id === x.rates?.modalityId)?.label) || '—'}</dd>
-              <dt>{t('talents.payroll')}</dt><dd>{money(x.rates.payrollMin, x.rates.payrollMax, masters.byTable('CURRENCY').find((c) => c.id === x.rates?.payrollCurrencyId)?.code)}</dd>
-              <dt>{t('talents.rxh')}</dt><dd>{money(x.rates.rxhMin, x.rates.rxhMax, masters.byTable('CURRENCY').find((c) => c.id === x.rates?.rxhCurrencyId)?.code)}</dd>
-              {x.rates.notes && <><dt>{t('talents.notes')}</dt><dd>{x.rates.notes}</dd></>}
-            </dl>
-          ) : <p className="muted">{t('talents.empty')}</p>}
-        </Card>
-
-        {x.summary && <div className="span-2"><Card title={t('talents.summary')}><p className="pre">{x.summary}</p></Card></div>}
-
-        <SkillsCard title={t('talents.skills')} table="TECH_SKILL" withYears canWrite={canWrite}
-          items={x.techSkills.map((s) => ({ id: s.id, name: label(s.label), years: s.years }))}
-          onAdd={(skill, years) => run(() => http.put(`${TALENT_API}/${id}/tech-skills`, { id: crypto.randomUUID(), ...skill, years }, true))}
-          onRemove={(sid) => del('tech-skills', sid)} />
-        <SkillsCard title={t('talents.softSkills')} table="SOFT_SKILL" canWrite={canWrite}
-          items={x.softSkills.map((s) => ({ id: s.id, name: label(s.label) }))}
-          onAdd={(skill) => run(() => http.post(`${TALENT_API}/${id}/soft-skills`, { id: crypto.randomUUID(), ...skill }, true))}
-          onRemove={(sid) => del('soft-skills', sid)} />
-
-        <div className="span-2">
-          <Card title={t('talents.experience')} actions={canWrite && <Button size="sm" variant="secondary" onClick={() => open('experience')}>{t('talents.addExperience')}</Button>}>
-            <div className="item-list">
-              {x.experiences.length === 0 && <p className="muted">{t('talents.empty')}</p>}
-              {x.experiences.map((e) => (
-                <div key={e.id} className="item-row" data-testid="experience-row">
-                  <div className="grow">
-                    <strong>{e.position}</strong> · {e.company}
-                    <div className="muted">{e.startDate.slice(0, 7)} — {e.isCurrent ? t('talents.present') : e.endDate?.slice(0, 7)} · {yearsLabel(e.months, t)}</div>
-                    {e.functions && <p className="pre" style={{ marginTop: 6 }}>{e.functions}</p>}
-                  </div>
-                  {canWrite && <RowActions onEdit={() => open('experience', e)} onDelete={() => del('experiences', e.id)} />}
-                </div>
-              ))}
-            </div>
-          </Card>
+        <div className="pf-actions">
+          <IconButton icon="heart" label={t('talents.addToCollection')} active={isFav} onClick={() => open('collection')} testId="fav-talent" />
+          {x.cvId && <IconButton icon="file" label={t('talents.viewCv')} onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')} />}
+          {canWrite && <IconButton icon="archive" label={x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}
+            onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))} />}
+          {canWrite && <button className="btn btn-primary btn-sm" onClick={() => open('editor')} data-testid="edit-talent"><Icon name="edit" size={15} />{t('talents.edit')}</button>}
         </div>
+      </header>
 
-        <Card title={t('talents.educationTitle')} actions={canWrite && <Button size="sm" variant="secondary" onClick={() => open('education')}>{t('talents.addEducation')}</Button>}>
-          <div className="item-list">
-            {x.educations.length === 0 && <p className="muted">{t('talents.empty')}</p>}
-            {x.educations.map((d) => (
-              <div key={d.id} className="item-row">
+      <div className="pf-body">
+        <div className="pf-main">
+          {x.summary && <Section title={t('talents.summary')}><p className="pre pf-text">{x.summary}</p></Section>}
+
+          <Section title={t('talents.experience')} onAdd={canWrite ? () => open('experience') : undefined} addLabel={t('talents.addExperience')}>
+            {x.experiences.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
+            {x.experiences.map((e) => (
+              <div key={e.id} className="pf-item" data-testid="experience-row">
                 <div className="grow">
-                  <strong>{d.career}</strong>{d.grade && <> · {label(d.grade)}</>}
-                  <div className="muted">{d.institution}</div>
-                  <div className="muted">{fmtEdu(d.startDate, d.datePrecision)} — {d.isCurrent ? t('talents.present') : fmtEdu(d.endDate, d.datePrecision)}</div>
+                  <div className="pf-item-title">{e.position} <span className="muted">· {e.company}</span></div>
+                  <div className="pf-item-meta">{e.startDate.slice(0, 7)} — {e.isCurrent ? t('talents.present') : e.endDate?.slice(0, 7)} · {yearsLabel(e.months, t)}</div>
+                  {e.functions && <p className="pre pf-text" style={{ marginTop: 4 }}>{e.functions}</p>}
+                </div>
+                {canWrite && <RowActions onEdit={() => open('experience', e)} onDelete={() => del('experiences', e.id)} />}
+              </div>
+            ))}
+          </Section>
+
+          <Section title={t('talents.educationTitle')} onAdd={canWrite ? () => open('education') : undefined} addLabel={t('talents.addEducation')}>
+            {x.educations.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
+            {x.educations.map((d) => (
+              <div key={d.id} className="pf-item">
+                <div className="grow">
+                  <div className="pf-item-title">{d.career}{d.grade && <span className="muted"> · {label(d.grade)}</span>}</div>
+                  <div className="pf-item-meta">{d.institution} · {fmtEdu(d.startDate, d.datePrecision)} — {d.isCurrent ? t('talents.present') : fmtEdu(d.endDate, d.datePrecision)}</div>
                 </div>
                 {canWrite && <RowActions onEdit={() => open('education', d)} onDelete={() => del('educations', d.id)} />}
               </div>
             ))}
-          </div>
-        </Card>
+          </Section>
 
-        <Card title={t('talents.languages')} actions={canWrite && <Button size="sm" variant="secondary" onClick={() => open('language')}>{t('talents.addLanguage')}</Button>}>
-          <div className="item-list">
-            {x.languages.length === 0 && <p className="muted">{t('talents.empty')}</p>}
-            {x.languages.map((l) => (
-              <div key={l.id} className="item-row">
-                <div className="grow"><strong>{label(l.language)}</strong> · {label(l.level)} <Stars value={l.stars} size={13} /></div>
-                {canWrite && <RowActions onEdit={() => open('language', l)} onDelete={() => del('languages', l.id)} />}
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card title={t('talents.feedback')} actions={<Button size="sm" variant="secondary" onClick={() => open('feedback')}>{t('talents.addFeedback')}</Button>}>
-          <div className="item-list">
-            {x.feedback.length === 0 && <p className="muted">{t('talents.empty')}</p>}
+          <Section title={t('talents.feedback')} onAdd={() => open('feedback')} addLabel={t('talents.addFeedback')}>
+            {x.feedback.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
             {x.feedback.map((f) => (
-              <div key={f.id} className="item-row">
+              <div key={f.id} className="pf-item">
                 <div className="grow">
-                  <div className="row"><Stars value={f.stars} size={13} /><strong>{f.authorName}</strong><span className="muted">{formatDate(f.createdAt, i18n.language)}</span></div>
-                  <p className="pre" style={{ marginTop: 4 }}>{f.comment}</p>
+                  <div className="pf-item-meta row" style={{ gap: 8 }}><Stars value={f.stars} size={11} /><span>{f.authorName}</span><span>{formatDate(f.createdAt, i18n.language)}</span></div>
+                  <p className="pre pf-text" style={{ marginTop: 2 }}>{f.comment}</p>
                 </div>
                 {(f.isMine || f.canDelete) && <RowActions onEdit={f.isMine ? () => open('feedback', f) : undefined}
                   onDelete={f.canDelete ? () => run(() => http.del(`${TALENT_API}/feedback/${f.id}`)) : undefined} />}
               </div>
             ))}
-          </div>
-        </Card>
+          </Section>
+        </div>
 
-        <FilesCard talent={x} canWrite={canWrite} onChanged={refresh} />
+        <aside className="pf-aside">
+          <SkillsSection title={t('talents.skills')} table="TECH_SKILL" withYears canWrite={canWrite}
+            items={x.techSkills.map((sk) => ({ id: sk.id, name: label(sk.label), years: sk.years }))}
+            onAdd={(skill, years) => run(() => http.put(`${TALENT_API}/${id}/tech-skills`, { id: crypto.randomUUID(), ...skill, years }, true))}
+            onRemove={(sid) => del('tech-skills', sid)} />
+          <SkillsSection title={t('talents.softSkills')} table="SOFT_SKILL" canWrite={canWrite}
+            items={x.softSkills.map((sk) => ({ id: sk.id, name: label(sk.label) }))}
+            onAdd={(skill) => run(() => http.post(`${TALENT_API}/${id}/soft-skills`, { id: crypto.randomUUID(), ...skill }, true))}
+            onRemove={(sid) => del('soft-skills', sid)} />
+
+          <Section title={t('talents.languages')} onAdd={canWrite ? () => open('language') : undefined} addLabel={t('talents.addLanguage')}>
+            {x.languages.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
+            {x.languages.map((l) => (
+              <div key={l.id} className="pf-item compact">
+                <div className="grow"><span className="pf-item-title">{label(l.language)}</span> <span className="pf-item-meta">· {label(l.level)}</span></div>
+                <Stars value={l.stars} size={11} />
+                {canWrite && <RowActions onEdit={() => open('language', l)} onDelete={() => del('languages', l.id)} />}
+              </div>
+            ))}
+          </Section>
+
+          <FilesSection talent={x} canWrite={canWrite} onChanged={refresh} />
+        </aside>
       </div>
 
       {modal === 'editor' && <TalentEditor talent={x} onClose={() => setModal(null)} onSaved={(_, offline) => {
@@ -196,12 +189,6 @@ export function TalentDetail() {
   );
 }
 
-function money(min?: number, max?: number, cur?: string) {
-  if (min === undefined && max === undefined) return '—';
-  const f = (n?: number) => (n === undefined ? '…' : n.toLocaleString());
-  return `${cur ?? ''} ${f(min)} – ${f(max)}`.trim();
-}
-
 function fmtEdu(d?: string, precision?: string) {
   if (!d) return '—';
   return precision === 'YEAR' ? d.slice(0, 4) : d.slice(0, 7);
@@ -210,15 +197,37 @@ function fmtEdu(d?: string, precision?: string) {
 function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete?: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="row" style={{ gap: 4, alignItems: 'flex-start' }}>
-      {onEdit && <Button size="sm" variant="ghost" onClick={onEdit}>{t('talents.edit').split(' ')[0]}</Button>}
-      {onDelete && <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(t('talents.confirmDelete'))) onDelete(); }}>{t('talents.delete')}</Button>}
+    <div className="pf-row-actions">
+      {onEdit && <button type="button" className="icon-ghost" onClick={onEdit} aria-label={t('talents.edit')} title={t('talents.edit')}><Icon name="edit" size={15} /></button>}
+      {onDelete && <button type="button" className="icon-ghost danger" onClick={() => { if (window.confirm(t('talents.confirmDelete'))) onDelete(); }}
+        aria-label={t('talents.delete')} title={t('talents.delete')}><Icon name="trash" size={15} /></button>}
     </div>
   );
 }
 
+function IconButton({ icon, label, onClick, active, testId }: { icon: string; label: string; onClick: () => void; active?: boolean; testId?: string }) {
+  return (
+    <button type="button" className={`icon-ghost bordered${active ? ' on' : ''}`} onClick={onClick} aria-label={label} title={label} data-testid={testId}>
+      <Icon name={icon} size={17} />
+    </button>
+  );
+}
+
+/** Sección minimalista: título pequeño, separador fino y botón + (abre modal). */
+function Section({ title, onAdd, addLabel, children }: { title: string; onAdd?: () => void; addLabel?: string; children: ReactNode }) {
+  return (
+    <section className="pf-section">
+      <header>
+        <h3>{title}</h3>
+        {onAdd && <button type="button" className="icon-ghost" onClick={onAdd} aria-label={addLabel ?? title} title={addLabel ?? title}><Icon name="plus" size={16} /></button>}
+      </header>
+      {children}
+    </section>
+  );
+}
+
 // ---------------------------------------------------------------- Habilidades
-function SkillsCard({ title, table, items, withYears, canWrite, onAdd, onRemove }: {
+function SkillsSection({ title, table, items, withYears, canWrite, onAdd, onRemove }: {
   title: string; table: string; withYears?: boolean; canWrite: boolean;
   items: { id: string; name: string; years?: number }[];
   onAdd: (skill: { skillId?: string; label?: string }, years?: number) => Promise<boolean>; onRemove: (id: string) => void;
@@ -226,17 +235,17 @@ function SkillsCard({ title, table, items, withYears, canWrite, onAdd, onRemove 
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
-    <Card title={title} actions={canWrite && <Button size="sm" variant="secondary" onClick={() => setOpen(true)} data-testid={`add-${table}`}>{t('talents.addSkill')}</Button>}>
+    <Section title={title} onAdd={canWrite ? () => setOpen(true) : undefined} addLabel={`${t('talents.addSkill')} · ${title}`}>
       <div className="chips">
-        {items.length === 0 && <span className="muted">{t('talents.empty')}</span>}
-        {items.map((s) => (
-          <Chip key={s.id} onRemove={canWrite ? () => onRemove(s.id) : undefined} removeLabel={`${t('talents.delete')} ${s.name}`}>
-            {s.name}{withYears && <small>{s.years}a</small>}
+        {items.length === 0 && <span className="pf-empty">{t('talents.empty')}</span>}
+        {items.map((sk) => (
+          <Chip key={sk.id} onRemove={canWrite ? () => onRemove(sk.id) : undefined} removeLabel={`${t('talents.delete')} ${sk.name}`}>
+            {sk.name}{withYears && <small>{sk.years}a</small>}
           </Chip>
         ))}
       </div>
       {open && <SkillModal title={title} table={table} withYears={withYears} onClose={() => setOpen(false)} onAdd={onAdd} />}
-    </Card>
+    </Section>
   );
 }
 
@@ -404,23 +413,11 @@ function CollectionModal({ talent, collections, onClose, onChanged }: { talent: 
 }
 
 // ---------------------------------------------------------------- Archivos
-function FilesCard({ talent, canWrite, onChanged }: { talent: Talent; canWrite: boolean; onChanged: () => void }) {
+function FilesSection({ talent, canWrite, onChanged }: { talent: Talent; canWrite: boolean; onChanged: () => void }) {
   const { t, i18n } = useTranslation();
   const toast = useToast();
   const errText = useErrorText();
-  const [category, setCategory] = useState('CV');
-  const [busy, setBusy] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
-  const upload = async (file: File) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    setBusy(true);
-    try {
-      await http.post(`${TALENT_API}/${talent.id}/files?category=${category}`, fd);
-      toast.success(t('talents.saved'));
-      onChanged();
-    } catch (e) { toast.error(errText(e)); } finally { setBusy(false); }
-  };
+  const [open, setOpen] = useState(false);
   const download = async (f: Talent['files'][number]) => {
     try {
       const url = URL.createObjectURL(await fetchFileBlob(f.id));
@@ -430,46 +427,55 @@ function FilesCard({ talent, canWrite, onChanged }: { talent: Talent; canWrite: 
     } catch (e) { toast.error(errText(e)); }
   };
   return (
-    <div className="span-2">
-      <Card title={t('talents.files')}>
-        <div className="stack">
-          {canWrite && (
-            <div className="row" style={{ alignItems: 'flex-end' }}>
-              <div className="field" style={{ width: 240 }}>
-                <label htmlFor="file-cat">{t('talents.category')}</label>
-                <select id="file-cat" className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
-                  {CATEGORIES.map((c) => <option key={c} value={c}>{t(`talents.categories.${c}`)}</option>)}
-                </select>
-              </div>
-              <input ref={input} type="file" hidden data-testid="talent-file-input"
-                accept={category === 'PHOTO' ? 'image/png,image/jpeg,image/webp' : '.pdf,.doc,.docx,image/png,image/jpeg'}
-                onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) upload(f); }} />
-              <Button variant="secondary" loading={busy} onClick={() => input.current?.click()}>{t('talents.upload')}</Button>
-              <span className="muted" style={{ fontSize: 12 }}>{t('talents.fileHint')}</span>
-            </div>
-          )}
-          <div className="table-wrap">
-            <table className="table">
-              <thead><tr><th>{t('common.name')}</th><th>{t('talents.category')}</th><th>{t('common.createdAt')}</th><th>{t('common.actions')}</th></tr></thead>
-              <tbody>
-                {talent.files.map((f) => (
-                  <tr key={f.id} data-testid="file-row">
-                    <td>{f.name}</td><td>{t(`talents.categories.${f.category}`, f.category)}</td><td>{formatDate(f.createdAt, i18n.language)}</td>
-                    <td className="row" style={{ gap: 4 }}>
-                      <Button size="sm" variant="ghost" onClick={() => download(f)}>{t('talents.download')}</Button>
-                      {canWrite && <Button size="sm" variant="ghost" onClick={async () => {
-                        if (!window.confirm(t('talents.confirmDelete'))) return;
-                        try { await http.del(`${TALENT_API}/files/${f.id}`); onChanged(); } catch (e) { toast.error(errText(e)); }
-                      }}>{t('talents.delete')}</Button>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {talent.files.length === 0 && <div className="empty">{t('talents.empty')}</div>}
+    <Section title={t('talents.files')} onAdd={canWrite ? () => setOpen(true) : undefined} addLabel={t('talents.upload')}>
+      {talent.files.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
+      {talent.files.map((f) => (
+        <div key={f.id} className="pf-item compact" data-testid="file-row">
+          <Icon name="file" size={15} />
+          <div className="grow" style={{ minWidth: 0 }}>
+            <button type="button" className="link-btn" onClick={() => download(f)} title={t('talents.download')}>{f.name}</button>
+            <div className="pf-item-meta">{t(`talents.categories.${f.category}`, f.category)} · {formatDate(f.createdAt, i18n.language)}</div>
           </div>
+          {canWrite && <RowActions onDelete={async () => {
+            try { await http.del(`${TALENT_API}/files/${f.id}`); onChanged(); } catch (e) { toast.error(errText(e)); }
+          }} />}
         </div>
-      </Card>
-    </div>
+      ))}
+      {open && <UploadModal talentId={talent.id} onClose={() => setOpen(false)} onDone={() => { setOpen(false); onChanged(); }} />}
+    </Section>
+  );
+}
+
+function UploadModal({ talentId, onClose, onDone }: { talentId: string; onClose: () => void; onDone: () => void }) {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const errText = useErrorText();
+  const [category, setCategory] = useState('CV');
+  const [file, setFile] = useState<File | null>(null);
+  return (
+    <SectionModal title={t('talents.upload')} onClose={onClose} valid={!!file} onSubmit={async () => {
+      const fd = new FormData();
+      fd.append('file', file!);
+      try {
+        await http.post(`${TALENT_API}/${talentId}/files?category=${category}`, fd);
+        toast.success(t('talents.saved'));
+        onDone();
+        return true;
+      } catch (e) { toast.error(errText(e)); return false; }
+    }}>
+      <div className="field">
+        <label htmlFor="file-cat">{t('talents.category')}</label>
+        <select id="file-cat" className="select" value={category} onChange={(e) => setCategory(e.target.value)}>
+          {CATEGORIES.map((c) => <option key={c} value={c}>{t(`talents.categories.${c}`)}</option>)}
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor="file-in">{t('talents.files')}</label>
+        <input id="file-in" type="file" data-testid="talent-file-input"
+          accept={category === 'PHOTO' ? 'image/png,image/jpeg,image/webp' : '.pdf,.doc,.docx,image/png,image/jpeg'}
+          onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        <span className="hint">{t('talents.fileHint')}</span>
+      </div>
+    </SectionModal>
   );
 }

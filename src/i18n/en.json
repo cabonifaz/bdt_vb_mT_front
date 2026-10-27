@@ -324,6 +324,14 @@
     "saving": "Saving {{current}} of {{total}}…",
     "fileNeedsConnection": "files can only be uploaded online",
     "feedbackHint": "Optional: your first evaluation of the talent.",
-    "selectOne": "Select a talent from the list to see the profile."
+    "selectOne": "Select a talent from the list to see the profile.",
+    "write": "Write",
+    "call": "Call",
+    "open": "Open",
+    "noData": "no data",
+    "ownEquipment": "Own equipment",
+    "noEquipment": "No equipment",
+    "rxhShort": "Invoice",
+    "noRates": "No salary expectation recorded"
   }
 }

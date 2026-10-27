@@ -184,7 +184,8 @@ test('el reclutador no ve tarifas ni puede fijarlas', async ({ page }) => {
   const rec = await createFractalAdmin('RECRUITER');
   await uiLogin(page, 'fractal', rec.email, rec.password);
   await page.goto(`/fractal/talentos/${id}`);
-  await expect(page.getByText('No tienes permiso para ver tarifas.')).toBeVisible();
+  await expect(page.getByTestId('talent-name')).toBeVisible();
+  await expect(page.getByTestId('rates')).toHaveCount(0); // sin permiso no se muestra la línea de tarifas
   await expect(page.getByText('6,000')).toHaveCount(0);
   await page.getByTestId('edit-talent').click();
   await expect(page.getByRole('dialog').getByLabel('Planilla · Mínimo')).toHaveCount(0);
@@ -245,4 +246,26 @@ test('la lista muestra el nombre completo del talento (sin recortar con puntos)'
   const clipped = await name.evaluate((el) => el.scrollWidth > el.clientWidth || getComputedStyle(el).textOverflow === 'ellipsis');
   expect(clipped).toBe(false);
   expect(await name.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(20); // ocupa más de una línea
+});
+
+test('contacto en íconos: el dato solo se ve al hacer clic; tarifas en una línea', async ({ page }) => {
+  const admin = await createFractalAdmin();
+  const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
+  const id = crypto.randomUUID();
+  const email = `contacto.${stamp()}@correo.test`;
+  expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: { Authorization: `Bearer ${tok}` },
+    data: { id, firstName: 'Rosa', lastName: `Contacto${stamp()}`, email, phone: '999888777', rates: { payrollMin: 4000, payrollMax: 5000 } } })).status()).toBe(201);
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.goto(`/fractal/talentos/${id}`);
+  await expect(page.getByTestId('talent-name')).toBeVisible();
+  await expect(page.getByText(email)).toHaveCount(0);           // oculto hasta hacer clic
+  await expect(page.getByTestId('contact-github')).toBeDisabled(); // sin dato: atenuado
+  await page.getByTestId('contact-email').click();
+  await expect(page.getByTestId('contact-pop-email')).toContainText(email);
+  await expect(page.getByTestId('contact-pop-email').getByRole('link', { name: 'Escribir' })).toHaveAttribute('href', `mailto:${email}`);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('contact-pop-email')).toHaveCount(0);
+  await page.getByTestId('contact-phone').click();
+  await expect(page.getByTestId('contact-pop-phone')).toContainText('999888777');
+  await expect(page.getByTestId('rates')).toContainText('4,000 – 5,000');
 });

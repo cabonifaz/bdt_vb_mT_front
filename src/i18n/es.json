@@ -324,6 +324,14 @@
     "saving": "Guardando {{current}} de {{total}}…",
     "fileNeedsConnection": "los archivos solo se suben con conexión",
     "feedbackHint": "Opcional: tu primera evaluación del talento.",
-    "selectOne": "Selecciona un talento de la lista para ver su ficha."
+    "selectOne": "Selecciona un talento de la lista para ver su ficha.",
+    "write": "Escribir",
+    "call": "Llamar",
+    "open": "Abrir",
+    "noData": "sin dato",
+    "ownEquipment": "Equipo propio",
+    "noEquipment": "Sin equipo",
+    "rxhShort": "RxH",
+    "noRates": "Sin expectativa salarial registrada"
   }
 }

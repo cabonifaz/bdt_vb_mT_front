@@ -15,6 +15,21 @@ const paths: Record<string, string> = {
   plus: 'M12 5v14M5 12h14',
   x: 'M18 6L6 18M6 6l12 12',
   filter: 'M3 5h18l-7 8v6l-4 2v-8z',
+  mail: 'M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM3 7l9 6 9-6',
+  phone: 'M8 3H5a1 1 0 0 0-1 1 16 16 0 0 0 16 16 1 1 0 0 0 1-1v-3l-4-1.5-2 2a12 12 0 0 1-5.5-5.5l2-2z',
+  idcard: 'M3 6h18v12H3zM7 10h4M7 14h6M16 10.5a1.5 1.5 0 1 0 0 .01',
+  linkedin: 'M4 4h16v16H4zM8 10v6M8 7.5v.01M12 16v-3.5a2 2 0 0 1 4 0V16M12 10v6',
+  github: 'M9 19c-4 1.3-4-2-6-2.5M15 21v-3.5a3 3 0 0 0-.9-2.4c3-.3 6-1.5 6-6.5a5 5 0 0 0-1.3-3.5 4.7 4.7 0 0 0-.1-3.5s-1.1-.3-3.6 1.3a12 12 0 0 0-6.2 0C6.3 2.7 5.2 3 5.2 3a4.7 4.7 0 0 0-.1 3.5A5 5 0 0 0 3.8 10c0 5 3 6.2 6 6.5a3 3 0 0 0-.9 2.4V21',
+  clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2',
+  laptop: 'M5 5h14v10H5zM2 19h20',
+  wallet: 'M3 7a2 2 0 0 1 2-2h13v4M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2zM16 14.5v.01',
+  copy: 'M9 9h11v11H9zM5 15H4V4h11v1',
+  edit: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',
+  trash: 'M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6',
+  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',
+  file: 'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h4',
+  archive: 'M3 4h18v4H3zM5 8v12h14V8M10 12h4',
+  external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
 };
 
 export function Icon({ name, size = 20, title }: { name: keyof typeof paths | string; size?: number; title?: string }) {
