@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { http } from '../../lib/api';
 import { Button, Card, CopyButton, Field, Modal, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
+import { Loader } from '../../components/ui/Loader';
 
 interface Tenant { id: string; slug: string; name: string; legalName?: string; taxId?: string; status: string; userCount: number; createdAt: string }
 interface Created { tenant: Tenant; adminInvitation?: { invitation: { email: string }; link?: string } }
@@ -70,6 +71,7 @@ export function Tenants() {
               ))}
             </tbody>
           </table>
+          {list.isLoading && <Loader />}
           {list.data?.items.length === 0 && <div className="empty">{t('common.empty')}</div>}
         </div>
       </Card>

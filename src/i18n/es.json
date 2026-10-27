@@ -28,7 +28,9 @@
     "typeMin_other": "Escribe al menos {{count}} caracteres",
     "noResults": "Sin resultados",
     "moreResults_one": "{{count}} más: sigue escribiendo para filtrar",
-    "moreResults_other": "{{count}} más: sigue escribiendo para filtrar"
+    "moreResults_other": "{{count}} más: sigue escribiendo para filtrar",
+    "savingDots": "Guardando…",
+    "uploading": "Subiendo archivo…"
   },
   "status": {
     "ACTIVE": "Activo",

@@ -8,6 +8,7 @@ import { Button, Card, Field, Modal, StatusBadge, useErrorText } from '../../com
 import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
 import { fold } from '../../components/ui/SearchSelect';
+import { Loader } from '../../components/ui/Loader';
 
 /** Catálogo de clientes del tenant (se usa en lista negra y entrevistas). */
 export function Clients() {
@@ -43,6 +44,7 @@ export function Clients() {
               ))}
             </tbody>
           </table>
+          {list.isLoading && <Loader />}
           {list.data?.length === 0 && <div className="empty">{t('clients.empty')}</div>}
           {!!list.data?.length && rows.length === 0 && <div className="empty">{t('common.noResults')}</div>}
         </div>

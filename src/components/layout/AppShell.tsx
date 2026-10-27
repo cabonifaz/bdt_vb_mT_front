@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
+import { Loader } from '../ui/Loader';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../providers/auth';
 import { assetUrl, useTheme } from '../../providers/theme';
@@ -116,7 +117,7 @@ export function AppShell({ base, sections, platform = false }: {
           <span className="spacer" />
           <UserMenu onLogout={async () => { const slug = user?.tenantSlug ?? ''; await logout(); nav(platform ? '/admin/login' : `/${slug}/login`); }} />
         </header>
-        <main className="content"><Outlet /></main>
+        <main className="content"><Suspense fallback={<Loader variant="panel" />}><Outlet /></Suspense></main>
       </div>
     </div>
   );

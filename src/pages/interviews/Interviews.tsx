@@ -14,6 +14,7 @@ import { InterviewEditor } from './InterviewEditor';
 import { InterviewFiles } from './InterviewFiles';
 import { SearchSelect } from '../../components/ui/SearchSelect';
 import { WsBack } from '../../components/layout/WsBack';
+import { Loader } from '../../components/ui/Loader';
 
 const PAGE = 25;
 
@@ -105,7 +106,7 @@ export function InterviewDetail({ id, tenant }: { id: string; tenant: string }) 
   const errText = useErrorText();
   const [editing, setEditing] = useState(false);
   const q = useQuery({ queryKey: ['interview', id], queryFn: () => http.get<Interview>(`/api/v1/tenant/interviews/${id}`) });
-  if (q.isLoading) return <div className="pf"><p className="muted">{t('common.loading')}</p></div>;
+  if (q.isLoading) return <Loader />;
   if (q.isError || !q.data) return <div className="pf"><div className="alert alert-error">{errText(q.error)}</div></div>;
   const x = q.data;
   const isPhone = x.typeCode === 'PHONE';

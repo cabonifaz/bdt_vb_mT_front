@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { API_URL, http } from '../../lib/api';
 import { Button, Card, CopyButton, Field, Modal, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
+import { Loader } from '../../components/ui/Loader';
 
 export interface ApiKey {
   id: string; tenantSlug: string; tenantName: string; name: string; prefix: string; scopes: string[];
@@ -59,6 +60,7 @@ export function ApiKeys() {
               ))}
             </tbody>
           </table>
+          {keys.isLoading && <Loader />}
           {keys.data?.length === 0 && <div className="empty">{t('common.empty')}</div>}
         </div>
       </Card>

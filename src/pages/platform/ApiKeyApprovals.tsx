@@ -4,6 +4,7 @@ import { http } from '../../lib/api';
 import { Button, Card, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import type { ApiKey } from '../tenant/ApiKeys';
+import { Loader } from '../../components/ui/Loader';
 
 export function ApiKeyApprovals() {
   const { t, i18n } = useTranslation();
@@ -40,6 +41,7 @@ export function ApiKeyApprovals() {
               ))}
             </tbody>
           </table>
+          {keys.isLoading && <Loader />}
           {keys.data?.length === 0 && <div className="empty">{t('common.empty')}</div>}
         </div>
       </Card>

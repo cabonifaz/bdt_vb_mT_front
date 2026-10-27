@@ -18,6 +18,7 @@ import { Link, useNavigate } from 'react-router';
 import { ContactBar, RatesLine } from '../../components/talents/ContactBar';
 import { Icon } from '../../components/ui/Icon';
 import { Check, Heart, Plus, Search, X } from 'lucide-react';
+import { Loader } from '../../components/ui/Loader';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -62,7 +63,7 @@ export function TalentDetail() {
     }
   };
 
-  if (q.isLoading) return <div className="page"><p className="muted">{t('common.loading')}</p></div>;
+  if (q.isLoading) return <Loader />;
   if (q.isError || !q.data) return <div className="page"><div className="alert alert-error" role="alert">{errText(q.error)}</div></div>;
   const x = q.data;
   const name = fullName(x);
@@ -330,8 +331,8 @@ function SkillModal({ title, table, withYears, onClose, onAdd }: {
 }
 
 // ---------------------------------------------------------------- Modales de secciones
-function SectionModal({ title, onClose, onSubmit, children, valid = true }: {
-  title: string; onClose: () => void; onSubmit: () => Promise<boolean>; children: ReactNode; valid?: boolean;
+function SectionModal({ title, onClose, onSubmit, children, valid = true, busyLabel }: {
+  title: string; onClose: () => void; onSubmit: () => Promise<boolean>; children: ReactNode; valid?: boolean; busyLabel?: string;
 }) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
@@ -339,7 +340,7 @@ function SectionModal({ title, onClose, onSubmit, children, valid = true }: {
     <Modal open title={title} onClose={onClose} footer={<>
       <Button variant="secondary" onClick={onClose}>{t('common.cancel')}</Button>
       <Button loading={busy} disabled={!valid} onClick={async () => { setBusy(true); const ok = await onSubmit(); setBusy(false); if (ok) onClose(); }}>{t('common.save')}</Button>
-    </>}>{children}</Modal>
+    </>}>{children}{busy && <Loader variant="overlay" label={busyLabel ?? t('common.savingDots')} />}</Modal>
   );
 }
 
@@ -555,7 +556,7 @@ function UploadModal({ talentId, onClose, onDone }: { talentId: string; onClose:
   const [category, setCategory] = useState('CV');
   const [file, setFile] = useState<File | null>(null);
   return (
-    <SectionModal title={t('talents.upload')} onClose={onClose} valid={!!file} onSubmit={async () => {
+    <SectionModal title={t('talents.upload')} onClose={onClose} valid={!!file} busyLabel={t('common.uploading')} onSubmit={async () => {
       const fd = new FormData();
       fd.append('file', file!);
       try {

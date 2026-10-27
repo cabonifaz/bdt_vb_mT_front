@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, Outlet, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { Icon } from '../../components/ui/Icon';
 import { Chip, Pagination, Stars, TalentPhoto } from '../../components/talents/bits';
 import { TalentEditor } from './TalentEditor';
 import { WsBack } from '../../components/layout/WsBack';
+import { Loader } from '../../components/ui/Loader';
 
 const PAGE_SIZE = 25;
 
@@ -160,7 +161,7 @@ export function TalentsWorkspace() {
 
         <nav className="ws-list" aria-label={t('talents.title')} aria-busy={list.isFetching || undefined}>
           {list.isError && <div className="alert alert-error" role="alert">{errText(list.error)}</div>}
-          {list.isLoading && <p className="muted">{t('common.loading')}</p>}
+          {list.isLoading && <Loader />}
           {list.data?.items.map((x) => (
             <Link key={x.id} to={`/${tenant}/talentos/${x.id}`} className={`talent-row${x.id === selectedId ? ' active' : ''}`}
               aria-current={x.id === selectedId ? 'true' : undefined} data-testid="talent-card">
@@ -189,7 +190,7 @@ export function TalentsWorkspace() {
 
       <section className="ws-detail" aria-live="polite">
         {selectedId && <WsBack to={`/${tenant}/talentos`} label={t('nav.talents')} />}
-        <Outlet />
+        <Suspense fallback={<Loader />}><Outlet /></Suspense>
       </section>
 
       {creating && <TalentEditor onClose={() => setCreating(false)} onSaved={(id, offline) => {

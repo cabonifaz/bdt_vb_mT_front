@@ -28,7 +28,9 @@
     "typeMin_other": "Type at least {{count}} characters",
     "noResults": "No results",
     "moreResults_one": "{{count}} more: keep typing to filter",
-    "moreResults_other": "{{count}} more: keep typing to filter"
+    "moreResults_other": "{{count}} more: keep typing to filter",
+    "savingDots": "Saving…",
+    "uploading": "Uploading file…"
   },
   "status": {
     "ACTIVE": "Active",

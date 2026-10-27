@@ -10,6 +10,7 @@ import { Icon } from '../../components/ui/Icon';
 import { Stars, TalentPhoto } from '../../components/talents/bits';
 import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
 import { WsBack } from '../../components/layout/WsBack';
+import { Loader } from '../../components/ui/Loader';
 
 const COLL_API = '/api/v1/tenant/collections';
 
@@ -136,7 +137,7 @@ function CollectionTalents({ tenant, collection, onChanged }: { tenant: string; 
   const removeTalent = async (talentId: string) => {
     try { await http.del(`${COLL_API}/${collection.id}/talents/${talentId}`); onChanged(); q.refetch(); } catch (e) { toast.error(errText(e)); }
   };
-  if (q.isLoading) return <p className="muted">{t('common.loading')}</p>;
+  if (q.isLoading) return <Loader />;
   return (
     <section className="pf-section">
       <header><h3>{t('nav.talents')}</h3><span className="spacer" />

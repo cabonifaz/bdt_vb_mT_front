@@ -6,6 +6,7 @@ import { useInterviewCatalogs, type Interview } from '../../lib/modules';
 import { Button, Modal, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
+import { Loader } from '../../components/ui/Loader';
 
 /** Archivos de la entrevista (cifrados en el servidor); la subida se hace en modal. */
 export function InterviewFiles({ interview, canWrite, onChanged }: { interview: Interview; canWrite: boolean; onChanged: () => void }) {
@@ -67,6 +68,7 @@ function UploadInterviewFile({ interviewId, types, onClose, onDone }: { intervie
       }}>{t('common.save')}</Button>
     </>}>
       {error && <div className="alert alert-error">{error}</div>}
+      {busy && <Loader variant="overlay" label={t('common.uploading')} />}
       <div className="field"><label htmlFor="ivf-type">{t('talents.category')}</label>
         <select id="ivf-type" className="select" value={typeId} onChange={(e) => setTypeId(e.target.value)}>{types.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
       <div className="field"><label htmlFor="ivf-file">{t('talents.files')}</label>

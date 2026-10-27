@@ -4,6 +4,7 @@ import { http } from '../../lib/api';
 import { ALLOWED_FONTS, applyBranding, assetUrl, useTheme, type Branding as B } from '../../providers/theme';
 import { Button, Card, ColorField, Field, SelectField, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
+import { Loader } from '../../components/ui/Loader';
 
 type Form = Pick<B, 'displayName' | 'colorPrimary' | 'colorPrimaryHover' | 'colorSecondary' | 'colorAccent' | 'colorSidebar' | 'fontFamily'>;
 
@@ -29,7 +30,7 @@ export function Branding() {
   useEffect(() => { if (form) applyBranding(form); }, [form]);
   useEffect(() => () => { if (saved.current) applyBranding(saved.current); }, []);
 
-  if (!form || !branding) return <div className="page"><p className="muted">{t('common.loading')}</p></div>;
+  if (!form || !branding) return <Loader />;
   const set = (k: keyof Form) => (v: string) => setForm({ ...form, [k]: v });
 
   const save = async () => {
@@ -66,6 +67,7 @@ export function Branding() {
       <div className="page-header">
         <div><h1>{t('branding.title')}</h1><p className="muted">{t('branding.subtitle')}</p></div>
         <Button onClick={save} loading={busy} data-testid="save-branding">{t('common.save')}</Button>
+        {busy && <Loader variant="overlay" label={t('common.savingDots')} />}
       </div>
       {error && <div className="alert alert-error" role="alert">{error}</div>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>

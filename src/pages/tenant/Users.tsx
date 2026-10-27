@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { http } from '../../lib/api';
 import { Button, Card, CopyButton, Field, Modal, SelectField, StatusBadge, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
+import { Loader } from '../../components/ui/Loader';
 
 interface User { id: string; email: string; fullName: string; status: string; roles: string[]; lastLoginAt?: string; createdAt: string }
 interface Invitation { id: string; email: string; role: string; status: string; expiresAt: string; createdAt: string }
@@ -72,6 +73,7 @@ export function Users({ base = '/api/v1/tenant', query = '', roles = TENANT_ROLE
               ))}
             </tbody>
           </table>
+          {users.isLoading && <Loader />}
           {users.data?.items.length === 0 && <div className="empty">{t('common.empty')}</div>}
         </div>
       </Card>
@@ -90,6 +92,7 @@ export function Users({ base = '/api/v1/tenant', query = '', roles = TENANT_ROLE
               ))}
             </tbody>
           </table>
+          {invites.isLoading && <Loader />}
           {invites.data?.length === 0 && <div className="empty">{t('common.empty')}</div>}
         </div>
       </Card>

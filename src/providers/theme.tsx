@@ -58,6 +58,22 @@ function applyMeta(b: Branding) {
   if (fav) fav.href = b.faviconUrl ? assetUrl(b.faviconUrl) : assetUrl(b.logoUrl);
 }
 
+type BrandLite = Pick<Branding, 'slug' | 'displayName' | 'logoUrl' | 'colorPrimary' | 'colorSecondary'>;
+const brandKey = (slug: string) => `bdt:brand:${slug}`;
+
+/**
+ * Último branding conocido del tenant de la URL, leído de forma síncrona (localStorage) para que
+ * las pantallas de carga muestren su logo desde el primer instante. Solo datos públicos de marca.
+ */
+export function lastBrand(): BrandLite | null {
+  const slug = window.location.pathname.split('/')[1];
+  if (!slug || slug === 'admin') return null;
+  try {
+    const raw = localStorage.getItem(brandKey(slug));
+    return raw ? (JSON.parse(raw) as BrandLite) : null;
+  } catch { return null; }
+}
+
 interface ThemeCtx {
   branding: Branding | null;
   error: string | null;
@@ -76,6 +92,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyBranding(b);
     applyMeta(b);
     offlineCache.set(`branding:${b.slug}`, b);
+    try {
+      const lite: BrandLite = { slug: b.slug, displayName: b.displayName, logoUrl: b.logoUrl, colorPrimary: b.colorPrimary, colorSecondary: b.colorSecondary };
+      localStorage.setItem(brandKey(b.slug), JSON.stringify(lite));
+    } catch { /* almacenamiento no disponible: el loader usa el genérico */ }
   }, []);
 
   const load = useCallback(async (slug: string) => {

@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { Suspense, lazy, useEffect, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -8,20 +8,45 @@ import { SyncProvider } from './providers/sync';
 import { TalentFiltersProvider } from './providers/talentFilters';
 import { ToastProvider } from './components/ui/Toast';
 import { AppShell } from './components/layout/AppShell';
-import { Login } from './pages/auth/Login';
-import { AcceptInvitation } from './pages/auth/AcceptInvitation';
-import { Home } from './pages/tenant/Home';
-import { Branding } from './pages/tenant/Branding';
-import { Users } from './pages/tenant/Users';
-import { ApiKeys } from './pages/tenant/ApiKeys';
-import { TalentPlaceholder, TalentsWorkspace } from './pages/talents/TalentsWorkspace';
-import { TalentDetail } from './pages/talents/TalentDetail';
-import { Favorites } from './pages/favorites/Favorites';
-import { Blacklist } from './pages/blacklist/Blacklist';
-import { Interviews } from './pages/interviews/Interviews';
-import { Clients } from './pages/clients/Clients';
-import { Tenants } from './pages/platform/Tenants';
-import { ApiKeyApprovals } from './pages/platform/ApiKeyApprovals';
+import { Loader } from './components/ui/Loader';
+
+// páginas con carga diferida (code splitting): mientras llegan se muestra el loader con el logo del tenant.
+// Con sesión iniciada se precargan todas en segundo plano para que la navegación funcione sin conexión.
+const pages = {
+  login: () => import('./pages/auth/Login'),
+  acceptInvitation: () => import('./pages/auth/AcceptInvitation'),
+  home: () => import('./pages/tenant/Home'),
+  branding: () => import('./pages/tenant/Branding'),
+  users: () => import('./pages/tenant/Users'),
+  apiKeys: () => import('./pages/tenant/ApiKeys'),
+  talentsWorkspace: () => import('./pages/talents/TalentsWorkspace'),
+  talentDetail: () => import('./pages/talents/TalentDetail'),
+  favorites: () => import('./pages/favorites/Favorites'),
+  blacklist: () => import('./pages/blacklist/Blacklist'),
+  interviews: () => import('./pages/interviews/Interviews'),
+  clients: () => import('./pages/clients/Clients'),
+  tenants: () => import('./pages/platform/Tenants'),
+  apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
+};
+const prefetchPages = () => {
+  const run = () => Object.values(pages).forEach((load) => { load().catch(() => { /* se reintenta al navegar */ }); });
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run); else setTimeout(run, 1500);
+};
+const Login = lazy(() => pages.login().then((m) => ({ default: m.Login })));
+const AcceptInvitation = lazy(() => pages.acceptInvitation().then((m) => ({ default: m.AcceptInvitation })));
+const Home = lazy(() => pages.home().then((m) => ({ default: m.Home })));
+const Branding = lazy(() => pages.branding().then((m) => ({ default: m.Branding })));
+const Users = lazy(() => pages.users().then((m) => ({ default: m.Users })));
+const ApiKeys = lazy(() => pages.apiKeys().then((m) => ({ default: m.ApiKeys })));
+const TalentsWorkspace = lazy(() => pages.talentsWorkspace().then((m) => ({ default: m.TalentsWorkspace })));
+const TalentPlaceholder = lazy(() => pages.talentsWorkspace().then((m) => ({ default: m.TalentPlaceholder })));
+const TalentDetail = lazy(() => pages.talentDetail().then((m) => ({ default: m.TalentDetail })));
+const Favorites = lazy(() => pages.favorites().then((m) => ({ default: m.Favorites })));
+const Blacklist = lazy(() => pages.blacklist().then((m) => ({ default: m.Blacklist })));
+const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Interviews })));
+const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
+const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
+const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
 
 const DEFAULT_TENANT = (import.meta.env.VITE_DEFAULT_TENANT as string | undefined) ?? 'fractal';
 
@@ -34,8 +59,7 @@ const queryClient = new QueryClient({
 });
 
 function Splash() {
-  const { t } = useTranslation();
-  return <div style={{ display: 'grid', placeItems: 'center', height: '100%' }} className="muted">{t('common.loading')}</div>;
+  return <Loader variant="screen" delay={0} />;
 }
 
 function NotFound() {
@@ -49,6 +73,7 @@ function TenantArea({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
   const { load, branding } = useTheme();
   useEffect(() => { if (branding?.slug !== tenant) load(tenant); }, [tenant, branding?.slug, load]);
+  useEffect(() => { if (user) prefetchPages(); }, [user]);
   if (!ready) return <Splash />;
   if (!user) return <Navigate to={`/${tenant}/login`} replace />;
   if (user.isPlatform) return <Navigate to="/admin" replace />;
@@ -59,6 +84,7 @@ function TenantArea({ children }: { children: ReactNode }) {
 
 function PlatformArea({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
+  useEffect(() => { if (user) prefetchPages(); }, [user]);
   if (!ready) return <Splash />;
   if (!user) return <Navigate to="/admin/login" replace />;
   if (!user.isPlatform) return <Navigate to={homePath(user)} replace />;
@@ -136,6 +162,7 @@ export default function App() {
           <AuthProvider>
             <SyncProvider>
               <BrowserRouter>
+                <Suspense fallback={<Splash />}>
                 <Routes>
                   <Route path="/" element={<Navigate to={`/${DEFAULT_TENANT}/login`} replace />} />
                   <Route path="/404" element={<NotFound />} />
@@ -145,6 +172,7 @@ export default function App() {
                   <Route path="/:tenant/login" element={<Login />} />
                   <Route path="/:tenant/*" element={<TenantRoutes />} />
                 </Routes>
+                </Suspense>
               </BrowserRouter>
             </SyncProvider>
           </AuthProvider>

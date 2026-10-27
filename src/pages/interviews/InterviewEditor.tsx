@@ -10,6 +10,7 @@ import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { Icon } from '../../components/ui/Icon';
 import { Stars } from '../../components/talents/bits';
 import { SearchSelect } from '../../components/ui/SearchSelect';
+import { Loader } from '../../components/ui/Loader';
 
 export interface InterviewPreset { talentId: string; talentName: string; typeCode?: string; stageCode?: string }
 type Tab = 'general' | 'interviewers' | 'questions' | 'evaluation' | 'recordings';
@@ -134,6 +135,7 @@ export function InterviewEditor({ interview, preset, onClose, onSaved }: {
         <Button variant="secondary" onClick={onClose} disabled={busy}>{t('common.cancel')}</Button>
         <Button onClick={() => save(false)} loading={busy} disabled={problems.length > 0} data-testid="save-interview">{t('common.save')}</Button>
       </>}>
+      {busy && <Loader variant="overlay" label={t('common.savingDots')} />}
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
       {tab === 'general' && <div className="stack">

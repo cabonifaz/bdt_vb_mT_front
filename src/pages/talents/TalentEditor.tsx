@@ -7,6 +7,7 @@ import { useAuth } from '../../providers/auth';
 import { TALENT_API, useLabel, useMasters, type Rates, type Talent } from '../../lib/talents';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { Chip, Stars } from '../../components/talents/bits';
+import { Loader } from '../../components/ui/Loader';
 
 type Main = {
   firstName: string; lastName: string; secondLastName: string; headline: string; docTypeId: string; docNumber: string;
@@ -160,6 +161,7 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
         <Button variant="secondary" onClick={onClose} disabled={busy}>{t('common.cancel')}</Button>
         <Button onClick={save} loading={busy} disabled={!valid} data-testid="save-talent">{t('common.save')}</Button>
       </>}>
+      {busy && <Loader variant="overlay" label={progress || t('common.savingDots')} />}
       {errors.length > 0 && <div className="alert alert-error" role="alert"><ul style={{ margin: 0, paddingLeft: 18 }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
       {tab === 'data' && <DataTab d={d} set={set} canRates={canRates} />}
       {tab === 'skills' && <SkillsTab d={d} set={set} />}
