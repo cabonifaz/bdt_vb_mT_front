@@ -1,0 +1,107 @@
+{
+  "app": { "name": "Banco de Talentos" },
+  "common": {
+    "save": "Guardar", "cancel": "Cancelar", "close": "Cerrar", "create": "Crear", "loading": "Cargando…",
+    "actions": "Acciones", "status": "Estado", "name": "Nombre", "email": "Correo", "role": "Rol",
+    "createdAt": "Creado", "copy": "Copiar", "copied": "Copiado", "search": "Buscar", "empty": "No hay registros todavía.",
+    "language": "Idioma", "logout": "Cerrar sesión", "retry": "Reintentar", "yes": "Sí", "no": "No"
+  },
+  "status": {
+    "ACTIVE": "Activo", "SUSPENDED": "Suspendido", "CANCELLED": "Cancelado", "DISABLED": "Deshabilitado",
+    "INVITED": "Invitado", "LOCKED": "Bloqueado", "PENDING": "Pendiente", "ACCEPTED": "Aceptada",
+    "REVOKED": "Revocada", "EXPIRED": "Vencida", "ENABLED": "Habilitada"
+  },
+  "roles": {
+    "SUPER_ADMIN": "Super administrador", "TENANT_ADMIN": "Administrador", "RECRUITER": "Reclutador",
+    "COMMERCIAL": "Comercial", "VIEWER": "Consulta"
+  },
+  "offline": {
+    "banner": "Sin conexión. Puedes seguir trabajando; los cambios se sincronizarán al volver la red.",
+    "pending_one": "{{count}} cambio pendiente de sincronizar",
+    "pending_other": "{{count}} cambios pendientes de sincronizar",
+    "synced": "Cambios sincronizados"
+  },
+  "login": {
+    "title": "Inicia sesión", "subtitle": "Accede al banco de talentos de {{tenant}}.",
+    "platformTitle": "Administración de plataforma", "platformSubtitle": "Acceso exclusivo para el Super Administrador.",
+    "email": "Correo", "password": "Contraseña", "submit": "Ingresar",
+    "showPassword": "Mostrar contraseña", "hidePassword": "Ocultar contraseña",
+    "sideTitle": "Encuentra el talento correcto, más rápido.",
+    "sideText": "Centraliza perfiles, habilidades y experiencia de tu banco de candidatos en un solo lugar."
+  },
+  "invite": {
+    "title": "Activa tu cuenta", "subtitle": "Te invitaron a {{tenant}} como {{role}}.",
+    "for": "Invitación para {{email}}", "fullName": "Nombre completo", "password": "Crea una contraseña",
+    "passwordHint": "Mínimo 12 caracteres, combinando mayúsculas, minúsculas, números o símbolos.",
+    "confirm": "Confirma la contraseña", "mismatch": "Las contraseñas no coinciden.",
+    "submit": "Activar cuenta", "done": "Cuenta activada. Ya puedes iniciar sesión.", "goLogin": "Ir al inicio de sesión"
+  },
+  "nav": {
+    "home": "Inicio", "talents": "Talentos", "administration": "Administración", "branding": "Marca y colores",
+    "users": "Usuarios", "apiKeys": "API de integración", "platform": "Plataforma", "tenants": "Tenants",
+    "approvals": "Aprobación de API keys"
+  },
+  "home": {
+    "welcome": "Hola, {{name}}", "subtitle": "Este es el panel de {{tenant}}.",
+    "talentsSoon": "El módulo de talentos se habilita en la siguiente fase de la migración."
+  },
+  "branding": {
+    "title": "Marca y colores", "subtitle": "Personaliza cómo se ve el banco de talentos para tu organización.",
+    "displayName": "Nombre visible", "primary": "Color principal", "primaryHover": "Principal (hover)",
+    "secondary": "Color secundario", "accent": "Color de acento", "sidebar": "Fondo del menú", "font": "Tipografía",
+    "logo": "Logo", "favicon": "Ícono del navegador", "upload": "Subir imagen",
+    "uploadHint": "PNG, JPG, WEBP o ICO · máximo 2 MB.", "preview": "Vista previa", "saved": "Marca actualizada",
+    "sampleButton": "Botón principal"
+  },
+  "users": {
+    "title": "Usuarios", "subtitle": "Gestiona quién accede y con qué rol.", "invite": "Invitar usuario",
+    "invitations": "Invitaciones", "lastLogin": "Último acceso", "disable": "Deshabilitar", "enable": "Habilitar",
+    "inviteTitle": "Invitar usuario", "inviteSent": "Invitación creada", "linkLabel": "Enlace de invitación (solo entornos de prueba)",
+    "revoke": "Revocar", "expires": "Vence"
+  },
+  "apiKeys": {
+    "title": "API de integración", "subtitle": "Solicita llaves para que otros sistemas consulten tu banco de talentos. El Super Administrador debe habilitarlas.",
+    "request": "Solicitar API key", "name": "Nombre del sistema", "scopes": "Permisos",
+    "secretTitle": "Guarda esta API key", "secretText": "Solo se muestra una vez. Si la pierdes, deberás solicitar otra.",
+    "prefix": "Prefijo", "lastUsed": "Último uso", "revoke": "Revocar", "docs": "Ver documentación",
+    "approve": "Habilitar", "disable": "Deshabilitar", "tenant": "Tenant"
+  },
+  "tenants": {
+    "title": "Tenants", "subtitle": "Organizaciones que usan la plataforma.", "new": "Nuevo tenant",
+    "slug": "Identificador (URL)", "slugHint": "Minúsculas, números y guiones. Ej.: fractal",
+    "legalName": "Razón social", "taxId": "RUC / NIF", "adminEmail": "Correo del administrador",
+    "users": "Usuarios", "suspend": "Suspender", "activate": "Activar", "created": "Tenant creado",
+    "loginUrl": "URL de acceso"
+  },
+  "errors": {
+    "UNAUTHORIZED": "Tu sesión expiró. Vuelve a iniciar sesión.",
+    "FORBIDDEN": "No tienes permiso para realizar esta acción.",
+    "NOT_FOUND": "No encontramos lo que buscas.",
+    "INVALID_CREDENTIALS": "Correo o contraseña incorrectos.",
+    "ACCOUNT_LOCKED": "Cuenta bloqueada temporalmente por intentos fallidos. Intenta en 15 minutos.",
+    "ACCOUNT_DISABLED": "Tu cuenta está deshabilitada.",
+    "TENANT_INACTIVE": "La organización no está activa.",
+    "VALIDATION": "Revisa los datos ingresados.",
+    "WEAK_PASSWORD": "La contraseña no cumple la política de seguridad.",
+    "RATE_LIMITED": "Demasiados intentos. Espera un momento.",
+    "INVITATION_INVALID": "La invitación no es válida o ya fue usada.",
+    "INVITATION_EXPIRED": "La invitación venció. Pide una nueva.",
+    "USER_ALREADY_EXISTS": "Ya existe un usuario con ese correo.",
+    "INVALID_EMAIL": "Correo inválido.",
+    "INVALID_COLOR": "Color inválido. Usa formato #RRGGBB.",
+    "FONT_NOT_ALLOWED": "Tipografía no permitida.",
+    "FILE_TYPE_NOT_ALLOWED": "Tipo de archivo no permitido.",
+    "FILE_TOO_LARGE": "El archivo supera el tamaño máximo.",
+    "TENANT_SLUG_TAKEN": "Ese identificador ya está en uso.",
+    "TENANT_SLUG_INVALID": "Identificador inválido.",
+    "LAST_TENANT_ADMIN": "No puedes deshabilitar al único administrador.",
+    "CANNOT_CHANGE_SELF": "No puedes cambiar tu propio estado.",
+    "ROLE_NOT_ALLOWED": "No puedes asignar ese rol.",
+    "APIKEY_SCOPE": "Permiso de API no válido.",
+    "MASTER_SCOPE": "Este catálogo no se puede modificar.",
+    "OFFLINE": "Sin conexión. La acción se guardó y se enviará al reconectar.",
+    "NETWORK": "No pudimos conectar con el servidor.",
+    "INTERNAL": "Ocurrió un error inesperado. Intenta nuevamente.",
+    "default": "No se pudo completar la acción."
+  }
+}
