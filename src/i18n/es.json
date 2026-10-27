@@ -663,7 +663,13 @@
     "noOriginal": "Este talento no tiene un CV original cargado.",
     "noPreview": "Este formato no tiene vista previa; puedes descargarlo.",
     "download": "Descargar",
-    "save": "Guardar en la ficha",
-    "saved": "CV guardado en los archivos del talento."
+    "loadingSaved": "Abriendo el CV guardado…",
+    "saving": "Guardando el CV en la ficha…",
+    "notSaved": "Generado sin guardar (no tienes permiso para editar la ficha).",
+    "stale": "Guardado el {{date}} · la ficha cambió después: conviene regenerarlo.",
+    "savedOn": "Guardado el {{date}} · se reutiliza sin volver a generarlo.",
+    "regenerate": "Regenerar",
+    "regenerateHint": "Vuelve a generar el CV con los datos actuales de la ficha",
+    "regenerateHintEn": "Vuelve a traducir con IA y generar el CV con los datos actuales"
   }
 }

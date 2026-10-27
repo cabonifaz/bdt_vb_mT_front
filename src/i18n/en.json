@@ -663,7 +663,13 @@
     "noOriginal": "This talent has no original CV uploaded.",
     "noPreview": "This format has no preview; you can download it.",
     "download": "Download",
-    "save": "Save to profile",
-    "saved": "CV saved to the talent files."
+    "loadingSaved": "Opening the saved CV…",
+    "saving": "Saving the CV to the profile…",
+    "notSaved": "Generated but not saved (you cannot edit this profile).",
+    "stale": "Saved on {{date}} · the profile changed afterwards: consider regenerating it.",
+    "savedOn": "Saved on {{date}} · reused without generating it again.",
+    "regenerate": "Regenerate",
+    "regenerateHint": "Generate the CV again with the current profile data",
+    "regenerateHintEn": "Translate with AI again and regenerate the CV with the current data"
   }
 }
