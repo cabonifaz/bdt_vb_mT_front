@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,8 @@ import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
 import { Stars, TalentPhoto } from '../../components/talents/bits';
+import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
+import { WsBack } from '../../components/layout/WsBack';
 
 const COLL_API = '/api/v1/tenant/collections';
 
@@ -75,6 +77,7 @@ export function Favorites() {
       </aside>
 
       <section className="ws-detail">
+        {current && <WsBack to={`/${tenant}/favoritos`} label={t('nav.favorites')} />}
         {!current ? (
           <div className="ws-empty"><div className="stack" style={{ alignItems: 'center' }}><Icon name="heart" size={40} /><p>{t('favorites.selectOne')}</p></div></div>
         ) : (
@@ -124,8 +127,11 @@ function CollectionTalents({ tenant, collection, onChanged }: { tenant: string; 
   const { t } = useTranslation();
   const toast = useToast();
   const errText = useErrorText();
-  const body = { collectionId: collection.id, page: 1, pageSize: 100 };
-  const q = useQuery({ queryKey: ['talents', body], queryFn: () => cachedPost<{ total: number; items: TalentSummary[] }>(`${TALENT_API}/search`, body) });
+  const [text, setText] = useState('');
+  const [search, setSearch] = useState('');
+  useEffect(() => { const h = window.setTimeout(() => setSearch(text.trim()), 300); return () => window.clearTimeout(h); }, [text]);
+  const body = { collectionId: collection.id, search, page: 1, pageSize: 100 };
+  const q = useQuery({ queryKey: ['talents', body], queryFn: () => cachedPost<{ total: number; items: TalentSummary[] }>(`${TALENT_API}/search`, body), placeholderData: (p) => p });
   const canEdit = collection.access !== 'VIEW';
   const removeTalent = async (talentId: string) => {
     try { await http.del(`${COLL_API}/${collection.id}/talents/${talentId}`); onChanged(); q.refetch(); } catch (e) { toast.error(errText(e)); }
@@ -133,8 +139,11 @@ function CollectionTalents({ tenant, collection, onChanged }: { tenant: string; 
   if (q.isLoading) return <p className="muted">{t('common.loading')}</p>;
   return (
     <section className="pf-section">
-      <header><h3>{t('nav.talents')}</h3></header>
-      {q.data?.items.length === 0 && <p className="pf-empty">{t('favorites.emptyCollection')}</p>}
+      <header><h3>{t('nav.talents')}</h3><span className="spacer" />
+        {collection.talentCount > 0 && <input className="input input-sm list-search" type="search" placeholder={t('blacklist.searchTalent')} aria-label={t('blacklist.searchTalent')}
+          value={text} onChange={(e) => setText(e.target.value)} data-testid="fav-search" />}
+      </header>
+      {q.data?.items.length === 0 && <p className="pf-empty">{search ? t('common.noResults') : t('favorites.emptyCollection')}</p>}
       <div className="fav-grid">
         {q.data?.items.map((x) => (
           <div key={x.id} className="fav-card" data-testid="favorite-talent">
@@ -177,12 +186,18 @@ function ShareModal({ collection, onClose }: { collection: Collection; onClose: 
   const toast = useToast();
   const errText = useErrorText();
   const shares = useQuery({ queryKey: ['shares', collection.id], queryFn: () => http.get<Share[]>(`${COLL_API}/${collection.id}/shares`) });
-  const colleagues = useQuery({ queryKey: ['colleagues'], queryFn: () => http.get<Colleague[]>('/api/v1/tenant/colleagues') });
-  const [userId, setUserId] = useState('');
+  const [user, setUser] = useState<SearchOption | null>(null);
+  const userId = user?.value ?? '';
+  // búsqueda en el servidor (mín. 2 caracteres, máx. 10): nunca se descarga el directorio completo
+  const sharedIds = shares.data?.map((s) => s.userId).join(',') ?? '';
+  const searchUsers = useCallback(async (q: string) => {
+    const list = await http.get<Colleague[]>(`/api/v1/tenant/colleagues?q=${encodeURIComponent(q.trim())}`);
+    const taken = new Set(sharedIds.split(','));
+    return list.filter((c) => !taken.has(c.id)).map((c) => ({ value: c.id, label: c.name, hint: c.email }));
+  }, [sharedIds]);
   const [permission, setPermission] = useState<'VIEW' | 'EDIT'>('VIEW');
-  const available = (colleagues.data ?? []).filter((c) => !shares.data?.some((s) => s.userId === c.id));
   const share = async (uid: string, perm: string) => {
-    try { await http.put(`${COLL_API}/${collection.id}/shares/${uid}`, { permission: perm }); shares.refetch(); setUserId(''); }
+    try { await http.put(`${COLL_API}/${collection.id}/shares/${uid}`, { permission: perm }); shares.refetch(); setUser(null); }
     catch (e) { toast.error(e instanceof ApiError ? errText(e) : String(e)); }
   };
   const unshare = async (uid: string) => {
@@ -191,12 +206,9 @@ function ShareModal({ collection, onClose }: { collection: Collection; onClose: 
   return (
     <Modal open title={t('favorites.shareTitle', { name: collection.name })} onClose={onClose} footer={<Button onClick={onClose}>{t('common.close')}</Button>}>
       <div className="row" style={{ alignItems: 'flex-end' }}>
-        <div className="field" style={{ flex: 1, minWidth: 200 }}>
-          <label htmlFor="share-user">{t('favorites.colleague')}</label>
-          <select id="share-user" className="select" value={userId} onChange={(e) => setUserId(e.target.value)}>
-            <option value="">—</option>
-            {available.map((c) => <option key={c.id} value={c.id}>{c.name} · {c.email}</option>)}
-          </select>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <SearchSelect id="share-user" label={t('favorites.user')} value={userId} selectedLabel={user?.label} minChars={2}
+            onChange={(v, o) => setUser(v && o ? o : null)} load={searchUsers} placeholder={t('favorites.searchUser')} />
         </div>
         <div className="field" style={{ width: 150 }}>
           <label htmlFor="share-perm">{t('favorites.permission')}</label>

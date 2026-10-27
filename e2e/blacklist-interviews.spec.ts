@@ -1,5 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
-import { apiLogin, createFractalAdmin, uiLoginOk as uiLogin } from './helpers';
+import { apiLogin, createFractalAdmin, pickOption, uiLoginOk as uiLogin } from './helpers';
 
 const stamp = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -25,7 +25,7 @@ test('lista negra: restringir desde la ficha, ver en el módulo, levantar global
   await expect(page.getByTestId('bl-none')).toBeVisible();
   await page.getByTestId('bl-add').click();
   const dlg = page.getByRole('dialog', { name: 'Agregar a lista negra' });
-  await dlg.getByLabel('Cliente').selectOption({ label: 'Todos los clientes' });
+  await pickOption(dlg, 'Cliente', 'Todos los clientes', 'todos');
   await dlg.getByLabel('Motivo').fill('Información falsa en el CV');
   await dlg.getByTestId('bl-save').click();
   await expect(page.getByTestId('bl-global')).toContainText('Información falsa en el CV');
@@ -68,7 +68,7 @@ test('entrevistas: virtual con aviso de lista negra, telefónica con cuestionari
   await dlg.getByLabel('Enlace de la reunión').fill('https://meet.example/e2e');
   await dlg.getByLabel('Etapa').selectOption({ label: 'Entrevista técnica con cliente' });
   await dlg.getByLabel('Perfil / puesto').fill('QA Senior');
-  await dlg.getByLabel('Cliente').selectOption({ label: s.clientName });
+  await pickOption(dlg, 'Cliente', s.clientName);
   await expect(dlg.getByTestId('save-interview')).toBeDisabled(); // falta entrevistador
   await dlg.getByTestId('itab-interviewers').click();
   await dlg.getByTestId('add-interviewer').click();
@@ -116,4 +116,11 @@ test('clientes: el admin registra un cliente desde Administración', async ({ pa
   await page.getByRole('dialog').getByLabel('RUC').fill('20512345678');
   await page.getByRole('dialog').getByRole('button', { name: 'Guardar' }).click();
   await expect(page.getByTestId('client-row').filter({ hasText: name })).toContainText('20512345678');
+  // buscador del módulo: por RUC y por nombre sin tildes
+  await page.getByTestId('client-search').fill('20512345678');
+  await expect(page.getByTestId('client-row').filter({ hasText: name })).toBeVisible();
+  await page.getByTestId('client-search').fill('zzz-sin-resultados');
+  await expect(page.getByTestId('client-row')).toHaveCount(0);
+  await page.getByTestId('client-search').fill(name.toUpperCase());
+  await expect(page.getByTestId('client-row')).toHaveCount(1);
 });

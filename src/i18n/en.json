@@ -22,7 +22,13 @@
     "logout": "Sign out",
     "retry": "Retry",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "clear": "Clear",
+    "typeMin_one": "Type at least {{count}} character",
+    "typeMin_other": "Type at least {{count}} characters",
+    "noResults": "No results",
+    "moreResults_one": "{{count}} more: keep typing to filter",
+    "moreResults_other": "{{count}} more: keep typing to filter"
   },
   "status": {
     "ACTIVE": "Active",
@@ -388,10 +394,18 @@
     "emptyCollection": "This collection has no talents. Add them from a talent profile (♥).",
     "removeTalent": "Remove from collection",
     "shareTitle": "Share “{{name}}”",
-    "colleague": "Colleague",
     "permission": "Permission",
     "notShared": "Not shared with anyone yet.",
-    "unshare": "Stop sharing"
+    "unshare": "Stop sharing",
+    "inCollections": "In collections",
+    "removeFrom": "Remove from “{{name}}”",
+    "searchOrCreate": "Search or create collection",
+    "createNamed": "Create “{{name}}”",
+    "moreResults_one": "{{count}} more: keep typing to filter",
+    "moreResults_other": "{{count}} more: keep typing to filter",
+    "typeToCreate": "Type a name to create your first collection",
+    "user": "User",
+    "searchUser": "Search by name or email"
   },
   "clients": {
     "title": "Clients",
@@ -404,7 +418,10 @@
     "mapsUrl": "Location (Google Maps)",
     "active": "Active",
     "saved": "Client saved",
-    "empty": "No clients yet."
+    "empty": "No clients yet.",
+    "search": "Search by name, tax ID or address",
+    "count_one": "{{count}} client",
+    "count_other": "{{count}} clients"
   },
   "blacklist": {
     "add": "Add to blacklist",
@@ -447,7 +464,8 @@
     "clientCount_other": "{{count}} clients",
     "empty": "No talents on the blacklist.",
     "selectOne": "Select a talent to see their restrictions.",
-    "viewProfile": "View talent profile"
+    "viewProfile": "View talent profile",
+    "searchClient": "Search client by name or tax ID"
   },
   "interviews": {
     "new": "New interview",

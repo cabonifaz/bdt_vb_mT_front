@@ -9,6 +9,7 @@ import { GOOGLE_MAPS_RE, nextQuarter, todayISO, useInterviewCatalogs, type Clien
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { Icon } from '../../components/ui/Icon';
 import { Stars } from '../../components/talents/bits';
+import { SearchSelect } from '../../components/ui/SearchSelect';
 
 export interface InterviewPreset { talentId: string; talentName: string; typeCode?: string; stageCode?: string }
 type Tab = 'general' | 'interviewers' | 'questions' | 'evaluation' | 'recordings';
@@ -176,9 +177,9 @@ export function InterviewEditor({ interview, preset, onClose, onSaved }: {
           <div className="field"><label htmlFor="iv-status">{t('interviews.status')}</label>
             <select id="iv-status" className="select" value={v.statusId} onChange={f('statusId')}>{opts('INTERVIEW_STATUS')}</select></div>
           <Field label={t('interviews.profile')} maxLength={200} value={v.profile} onChange={f('profile')} />
-          <div className="field"><label htmlFor="iv-client">{t('interviews.client')}{isPhone && <span className="muted"> ({t('interviews.optional')})</span>}</label>
-            <select id="iv-client" className="select" value={v.clientId} onChange={f('clientId')}><option value="">—</option>
-              {clients.filter((c) => c.isActive !== false).map((c) => <option key={c.id} value={c.id}>{label(c.label)}</option>)}</select></div>
+          <SearchSelect id="iv-client" label={isPhone ? `${t('interviews.client')} (${t('interviews.optional')})` : t('interviews.client')} value={v.clientId}
+            onChange={(id) => setV((c) => ({ ...c, clientId: id }))} placeholder={t('blacklist.searchClient')}
+            options={clients.filter((c) => c.isActive !== false).map((c) => ({ value: c.id, label: label(c.label), hint: c.str1 || undefined }))} />
           <Field label={`${t('interviews.requirement')} (${t('interviews.optional')})`} maxLength={100} value={v.requirementRef} onChange={f('requirementRef')} />
         </div>
         {statusCode === 'CANCELLED' && <div className="field"><label htmlFor="iv-cancel">{t('interviews.cancelReason')}</label>

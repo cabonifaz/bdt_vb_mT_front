@@ -77,7 +77,7 @@ function TenantRoutes() {
     <TenantArea>
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
-          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'calendar', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
+          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
           { title: t('nav.administration'), items: [
             { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },

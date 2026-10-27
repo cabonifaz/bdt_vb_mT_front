@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import { STATUS_TONE, type BlacklistEntry, type InterviewSummary } from '../../l
 import { Link, useNavigate } from 'react-router';
 import { ContactBar, RatesLine } from '../../components/talents/ContactBar';
 import { Icon } from '../../components/ui/Icon';
+import { Check, Heart, Plus, Search, X } from 'lucide-react';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -118,7 +119,7 @@ export function TalentDetail() {
         <div className="pf-actions">
           <IconButton icon="heart" label={t('talents.addToCollection')} active={isFav} onClick={() => open('collection')} testId="fav-talent" />
           <IconButton icon="ban" label={blocked ? t('blacklist.inBlacklist') : t('blacklist.add')} danger={blocked} onClick={() => setBlOpen(true)} testId="bl-talent" />
-          {can('interview.write') && <IconButton icon="phone" label={t('interviews.phoneInterview')} onClick={startPhone} testId="phone-interview" />}
+          {can('interview.write') && <IconButton icon="phoneCall" label={t('interviews.phoneInterview')} onClick={startPhone} testId="phone-interview" />}
           {x.cvId && <IconButton icon="file" label={t('talents.viewCv')} onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')} />}
           {canWrite && <IconButton icon="archive" label={x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}
             onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))} />}
@@ -260,7 +261,7 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete?: () =
 function IconButton({ icon, label, onClick, active, danger, testId }: { icon: string; label: string; onClick: () => void; active?: boolean; danger?: boolean; testId?: string }) {
   return (
     <button type="button" className={`icon-ghost bordered${active ? ' on' : ''}${danger ? ' blocked' : ''}`} onClick={onClick} aria-label={label} title={label} data-testid={testId}>
-      <Icon name={icon} size={17} />
+      <Icon name={icon} size={17} filled={active && icon === 'heart'} />
     </button>
   );
 }
@@ -430,8 +431,12 @@ function CollectionModal({ talent, collections, onClose, onChanged }: { talent: 
   const { t } = useTranslation();
   const toast = useToast();
   const errText = useErrorText();
-  const [name, setName] = useState('');
-  // estado optimista: la casilla cambia al instante y se revierte si el servidor rechaza
+  const [q, setQ] = useState('');
+  const [busy, setBusy] = useState(false);
+  const qc = useQueryClient();
+  // la lista en caché puede no tener colecciones recién creadas en otra pantalla
+  useEffect(() => { qc.invalidateQueries({ queryKey: ['collections'] }); }, [qc]);
+  // estado optimista: el cambio se ve al instante y se revierte si el servidor rechaza
   const [inSet, setInSet] = useState<string[]>(talent.collections);
   const toggle = async (c: Collection, on: boolean) => {
     setInSet((cur) => (on ? [...cur, c.id] : cur.filter((x) => x !== c.id)));
@@ -443,30 +448,68 @@ function CollectionModal({ talent, collections, onClose, onChanged }: { talent: 
       toast.error(errText(e));
     }
   };
+  const name = q.trim();
   const create = async () => {
+    setBusy(true);
     try {
       const id = crypto.randomUUID();
       await http.post('/api/v1/tenant/collections', { id, name });
       await http.put(`/api/v1/tenant/collections/${id}/talents/${talent.id}`);
       setInSet((cur) => [...cur, id]);
-      setName('');
+      setQ('');
       onChanged();
-    } catch (e) { toast.error(errText(e)); }
+    } catch (e) { toast.error(errText(e)); } finally { setBusy(false); }
+  };
+  // con muchas colecciones: las seleccionadas como chips arriba, y una sola lista filtrable (solo las editables)
+  const selected = collections.filter((c) => inSet.includes(c.id));
+  const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const editable = collections.filter((c) => c.access !== 'VIEW');
+  const matches = editable.filter((c) => norm(c.name).includes(norm(name)));
+  const exact = editable.some((c) => norm(c.name) === norm(name));
+  const LIMIT = 8;
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key !== 'Enter' || !name) return;
+    e.preventDefault();
+    if (matches.length) toggle(matches[0], !inSet.includes(matches[0].id)); else if (!busy) create();
   };
   return (
     <Modal open title={t('talents.addToCollection')} onClose={onClose} footer={<Button onClick={onClose}>{t('common.close')}</Button>}>
-      <div className="stack" style={{ gap: 8 }}>
-        {collections.map((c) => (
-          <label key={c.id} className="checkbox">
-            <input type="checkbox" checked={inSet.includes(c.id)} disabled={c.access === 'VIEW'} onChange={(e) => toggle(c, e.target.checked)} />
-            {c.name} <span className="muted">({c.talentCount}){c.access !== 'OWNER' && ` · ${c.ownerName}`}</span>
-          </label>
-        ))}
+      {selected.length > 0 && (
+        <div className="fav-picked" data-testid="fav-picked" aria-label={t('favorites.inCollections')}>
+          {selected.map((c) => (
+            <span key={c.id} className="fav-chip">
+              <Heart size={12} fill="currentColor" aria-hidden />{c.name}
+              {c.access !== 'VIEW' && (
+                <button type="button" aria-label={t('favorites.removeFrom', { name: c.name })} onClick={() => toggle(c, false)}><X size={13} /></button>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="fav-search">
+        <Search size={16} aria-hidden />
+        <input className="input" role="combobox" aria-expanded aria-controls="fav-options" aria-label={t('favorites.searchOrCreate')}
+          placeholder={t('favorites.searchOrCreate')} maxLength={100} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey} />
       </div>
-      <div className="row" style={{ alignItems: 'flex-end' }}>
-        <div style={{ flex: 1 }}><Field label={t('talents.newCollection')} maxLength={100} value={name} onChange={(e) => setName(e.target.value)} /></div>
-        <Button variant="secondary" disabled={!name.trim()} onClick={create}>{t('common.create')}</Button>
-      </div>
+      <ul id="fav-options" className="fav-options" role="listbox" aria-multiselectable>
+        {matches.slice(0, LIMIT).map((c) => {
+          const on = inSet.includes(c.id);
+          return (
+            <li key={c.id} role="option" aria-selected={on} className={on ? 'on' : ''} onClick={() => toggle(c, !on)}>
+              <span className="grow">{c.name}{c.access !== 'OWNER' && <span className="muted"> · {c.ownerName}</span>}</span>
+              <span className="muted">{c.talentCount}</span>
+              <span className="fav-check">{on && <Check size={16} />}</span>
+            </li>
+          );
+        })}
+        {matches.length > LIMIT && <li className="muted fav-more" aria-disabled>{t('favorites.moreResults', { count: matches.length - LIMIT })}</li>}
+        {name && !exact && (
+          <li role="option" aria-selected={false} className="fav-create" data-testid="fav-create" onClick={() => !busy && create()}>
+            <Plus size={16} /><span className="grow">{t('favorites.createNamed', { name })}</span>
+          </li>
+        )}
+        {!name && editable.length === 0 && <li className="muted fav-more">{t('favorites.typeToCreate')}</li>}
+      </ul>
     </Modal>
   );
 }

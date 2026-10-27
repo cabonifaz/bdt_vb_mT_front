@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Icon } from '../ui/Icon';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../providers/auth';
 import { LangSwitch } from '../ui';
@@ -35,7 +36,7 @@ export function UserMenu({ onLogout }: { onLogout: () => void }) {
             <span className="muted" style={{ fontSize: 12 }}>{t('common.language')}</span>
             <LangSwitch />
           </div>
-          <button className="btn btn-secondary btn-sm btn-block" role="menuitem" onClick={() => { setOpen(false); onLogout(); }}>{t('common.logout')}</button>
+          <button className="btn btn-secondary btn-sm btn-block" role="menuitem" onClick={() => { setOpen(false); onLogout(); }}><Icon name="logout" size={15} />{t('common.logout')}</button>
         </div>
       )}
     </div>

@@ -22,7 +22,13 @@
     "logout": "Cerrar sesión",
     "retry": "Reintentar",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "clear": "Limpiar",
+    "typeMin_one": "Escribe al menos {{count}} carácter",
+    "typeMin_other": "Escribe al menos {{count}} caracteres",
+    "noResults": "Sin resultados",
+    "moreResults_one": "{{count}} más: sigue escribiendo para filtrar",
+    "moreResults_other": "{{count}} más: sigue escribiendo para filtrar"
   },
   "status": {
     "ACTIVE": "Activo",
@@ -388,10 +394,18 @@
     "emptyCollection": "Esta colección no tiene talentos. Agrégalos desde la ficha de un talento (♥).",
     "removeTalent": "Quitar de la colección",
     "shareTitle": "Compartir «{{name}}»",
-    "colleague": "Compañero",
     "permission": "Permiso",
     "notShared": "Aún no la compartes con nadie.",
-    "unshare": "Dejar de compartir"
+    "unshare": "Dejar de compartir",
+    "inCollections": "En colecciones",
+    "removeFrom": "Quitar de «{{name}}»",
+    "searchOrCreate": "Buscar o crear colección",
+    "createNamed": "Crear «{{name}}»",
+    "moreResults_one": "{{count}} más: sigue escribiendo para filtrar",
+    "moreResults_other": "{{count}} más: sigue escribiendo para filtrar",
+    "typeToCreate": "Escribe un nombre para crear tu primera colección",
+    "user": "Usuario",
+    "searchUser": "Buscar por nombre o correo"
   },
   "clients": {
     "title": "Clientes",
@@ -404,7 +418,10 @@
     "mapsUrl": "Ubicación (Google Maps)",
     "active": "Activo",
     "saved": "Cliente guardado",
-    "empty": "Aún no hay clientes."
+    "empty": "Aún no hay clientes.",
+    "search": "Buscar por razón social, RUC o dirección",
+    "count_one": "{{count}} cliente",
+    "count_other": "{{count}} clientes"
   },
   "blacklist": {
     "add": "Agregar a lista negra",
@@ -447,7 +464,8 @@
     "clientCount_other": "{{count}} clientes",
     "empty": "No hay talentos en la lista negra.",
     "selectOne": "Selecciona un talento para ver sus restricciones.",
-    "viewProfile": "Ver ficha del talento"
+    "viewProfile": "Ver ficha del talento",
+    "searchClient": "Buscar cliente por nombre o RUC"
   },
   "interviews": {
     "new": "Nueva entrevista",

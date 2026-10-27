@@ -1,4 +1,4 @@
-import { expect, request, type APIRequestContext, type Page } from '@playwright/test';
+import { type Locator, expect, request, type APIRequestContext, type Page } from '@playwright/test';
 
 export const API = process.env.E2E_API_URL ?? 'http://localhost:8080';
 export const ORIGIN = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
@@ -55,4 +55,10 @@ export async function uiLoginOk(page: Page, tenant: string, email: string, passw
 export async function uiLogout(page: Page) {
   await page.getByTestId('user-menu').click();
   await page.getByRole('menuitem', { name: 'Cerrar sesión' }).click();
+}
+
+/** Elige una opción en un SearchSelect (combo con búsqueda): escribe y hace clic en la opción. */
+export async function pickOption(scope: Page | Locator, fieldLabel: string, text: string, typed = text) {
+  await scope.getByLabel(fieldLabel, { exact: true }).fill(typed);
+  await scope.getByRole('option', { name: text }).first().click();
 }

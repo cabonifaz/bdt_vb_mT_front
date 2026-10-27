@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { apiLogin, createFractalAdmin, uiLoginOk as uiLogin } from './helpers';
+import { pickOption } from './helpers';
 
 const stamp = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -23,16 +24,35 @@ test('favoritos: crear colección, agregar talento, compartir y ver como compart
   // agregar el talento desde su ficha (♥)
   await page.goto(`/fractal/talentos/${talentId}`);
   await page.getByTestId('fav-talent').click();
-  await page.getByRole('dialog').getByLabel(new RegExp(collName)).check();
+  await page.getByRole('dialog').getByRole('combobox').fill(collName);
+  await page.getByRole('dialog').getByRole('option', { name: new RegExp('^' + collName) }).click();
+  await expect(page.getByTestId('fav-picked')).toContainText(collName);
+  // crear otra colección desde el mismo buscador (Enter) y quitarla con la x del chip
+  const quick = `Rápida ${collName.split(" ").pop()}`;
+  await page.getByRole('dialog').getByRole('combobox').fill(quick);
+  await expect(page.getByTestId('fav-create')).toContainText(quick);
+  await page.getByRole('dialog').getByRole('combobox').press('Enter');
+  await expect(page.getByTestId('fav-picked')).toContainText(quick);
+  await page.getByRole('button', { name: `Quitar de «${quick}»` }).click();
+  await expect(page.getByTestId('fav-picked')).not.toContainText(quick);
   await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();
 
   // compartir con permiso de solo ver
   await page.getByTestId('sidebar').getByRole('link', { name: 'Favoritos' }).click();
   await page.getByTestId('collection-row').filter({ hasText: collName }).click();
   await expect(page.getByTestId('favorite-talent')).toContainText(last);
+  // buscar dentro de la colección
+  await page.getByTestId('fav-search').fill('zzz-no-existe');
+  await expect(page.getByTestId('favorite-talent')).toHaveCount(0);
+  await page.getByTestId('fav-search').fill(last);
+  await expect(page.getByTestId('favorite-talent')).toHaveCount(1);
   await page.getByTestId('share-collection').click();
-  const opt = page.getByRole('dialog').getByLabel('Compañero').locator('option', { hasText: other.email });
-  await page.getByRole('dialog').getByLabel('Compañero').selectOption(await opt.getAttribute('value') ?? '');
+  const dlg = page.getByRole('dialog');
+  // el combo de usuarios no lista a nadie hasta escribir 2 caracteres (búsqueda en el servidor)
+  await dlg.getByLabel('Usuario', { exact: true }).click();
+  await expect(dlg.getByRole('listbox').getByRole('option')).toHaveCount(0);
+  await expect(dlg.getByText('Escribe al menos 2 caracteres')).toBeVisible();
+  await pickOption(dlg, 'Usuario', other.email.split('@')[0]);
   await page.getByTestId('add-share').click();
   await expect(page.getByTestId('share-row')).toContainText(other.email);
   await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();

@@ -39,7 +39,7 @@ export function BlacklistPanel({ talentId, talentName }: { talentId: string; tal
       <section className="pf-section">
         <header>
           <h3>{t('blacklist.active')}</h3>
-          {canManage && !global && <button className="icon-ghost" onClick={() => setModal({ kind: 'add' })} aria-label={t('blacklist.addRestriction')} title={t('blacklist.addRestriction')} data-testid="bl-add"><Icon name="plus" size={16} /></button>}
+          {canManage && !global && <button className="btn btn-outline btn-sm" onClick={() => setModal({ kind: 'add' })} data-testid="bl-add"><Icon name="plus" size={15} />{t('blacklist.addRestriction')}</button>}
         </header>
         {entries.length === 0 && <p className="pf-empty" data-testid="bl-none">{t('blacklist.none')}</p>}
         {global && (

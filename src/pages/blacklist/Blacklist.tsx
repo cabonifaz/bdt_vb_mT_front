@@ -11,6 +11,8 @@ import { Icon } from '../../components/ui/Icon';
 import { Pagination } from '../../components/talents/bits';
 import { BlacklistPanel } from '../../components/blacklist/BlacklistPanel';
 import { AddRestrictionModal } from '../../components/blacklist/BlacklistModals';
+import { SearchSelect } from '../../components/ui/SearchSelect';
+import { WsBack } from '../../components/layout/WsBack';
 
 const PAGE = 20;
 
@@ -40,15 +42,12 @@ export function Blacklist() {
           <h1>{t('nav.blacklist')}</h1>
           {list.data && <span className="muted" data-testid="bl-count">{list.data.total}</span>}
           <span className="spacer" />
-          {can('blacklist.manage') && <button className="btn btn-danger btn-sm icon-btn" onClick={() => setAdding(true)} aria-label={t('blacklist.add')} title={t('blacklist.add')} data-testid="bl-new"><Icon name="plus" size={18} /></button>}
         </div>
+        {can('blacklist.manage') && <div className="ws-side-action"><button className="btn btn-outline btn-sm btn-block" onClick={() => setAdding(true)} data-testid="bl-new"><Icon name="plus" size={16} />{t('blacklist.add')}</button></div>}
         <div className="ws-side-search stack" style={{ gap: 6 }}>
           <input className="input" type="search" placeholder={t('blacklist.searchTalent')} value={text} onChange={(e) => setText(e.target.value)} aria-label={t('common.search')} />
-          <select className="select" style={{ height: 34 }} value={client} onChange={(e) => { setClient(e.target.value); setPage(1); }} aria-label={t('blacklist.client')}>
-            <option value="">{t('blacklist.anyClient')}</option>
-            <option value="ALL">{t('blacklist.allClients')}</option>
-            {cat.byTable('CLIENT').map((c) => <option key={c.id} value={c.id}>{label(c.label)}</option>)}
-          </select>
+          <SearchSelect compact value={client} onChange={(v) => { setClient(v); setPage(1); }} placeholder={t('blacklist.client')} emptyLabel={t('blacklist.anyClient')}
+            options={[{ value: 'ALL', label: t('blacklist.allClients') }, ...cat.byTable('CLIENT').map((c) => ({ value: c.id, label: label(c.label) }))]} />
         </div>
         <nav className="ws-list">
           {list.isError && <div className="alert alert-error">{errText(list.error)}</div>}
@@ -69,6 +68,7 @@ export function Blacklist() {
         </nav>
       </aside>
       <section className="ws-detail">
+        {id && <WsBack to={`/${tenant}/lista-negra`} label={t('nav.blacklist')} />}
         {!id ? (
           <div className="ws-empty"><div className="stack" style={{ alignItems: 'center' }}><Icon name="ban" size={40} /><p>{t('blacklist.selectOne')}</p></div></div>
         ) : (

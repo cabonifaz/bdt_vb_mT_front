@@ -12,6 +12,8 @@ import { Icon } from '../../components/ui/Icon';
 import { Pagination, Stars } from '../../components/talents/bits';
 import { InterviewEditor } from './InterviewEditor';
 import { InterviewFiles } from './InterviewFiles';
+import { SearchSelect } from '../../components/ui/SearchSelect';
+import { WsBack } from '../../components/layout/WsBack';
 
 const PAGE = 25;
 
@@ -57,7 +59,8 @@ export function Interviews() {
           <div className="field"><label htmlFor="iv-f-status">{t('interviews.status')}</label><select id="iv-f-status" className="select" value={f.statusId} onChange={set('statusId')}><option value="">{t('talents.any')}</option>{opts('INTERVIEW_STATUS')}</select></div>
           <div className="field"><label htmlFor="iv-f-stage">{t('interviews.stage')}</label><select id="iv-f-stage" className="select" value={f.stageId} onChange={set('stageId')}><option value="">{t('talents.any')}</option>{opts('INTERVIEW_STAGE')}</select></div>
           <div className="field"><label htmlFor="iv-f-type">{t('interviews.type')}</label><select id="iv-f-type" className="select" value={f.typeId} onChange={set('typeId')}><option value="">{t('talents.any')}</option>{opts('INTERVIEW_TYPE')}</select></div>
-          <div className="field"><label htmlFor="iv-f-client">{t('interviews.client')}</label><select id="iv-f-client" className="select" value={f.clientId} onChange={set('clientId')}><option value="">{t('talents.any')}</option>{opts('CLIENT')}</select></div>
+          <SearchSelect id="iv-f-client" label={t('interviews.client')} value={f.clientId} onChange={(v) => setF({ ...f, clientId: v, page: 1 })} emptyLabel={t('talents.any')}
+            options={cat.byTable('CLIENT').map((x) => ({ value: x.id, label: label(x.label) }))} />
           <div className="field"><label htmlFor="iv-f-date">{t('interviews.date')}</label><input id="iv-f-date" className="input" type="date" value={f.date} onChange={set('date')} /></div>
           {active > 0 && <button className="btn btn-ghost btn-sm" onClick={() => setF({ search: f.search, statusId: '', stageId: '', typeId: '', clientId: '', date: '', page: 1 })}>{t('talents.clearFilters')}</button>}
         </div>}
@@ -81,8 +84,9 @@ export function Interviews() {
         </nav>
       </aside>
       <section className="ws-detail">
+        {id && <WsBack to={`/${tenant}/entrevistas`} label={t('nav.interviews')} />}
         {id ? <InterviewDetail id={id} tenant={tenant} /> :
-          <div className="ws-empty"><div className="stack" style={{ alignItems: 'center' }}><Icon name="calendar" size={40} /><p>{t('interviews.selectOne')}</p></div></div>}
+          <div className="ws-empty"><div className="stack" style={{ alignItems: 'center' }}><Icon name="interviews" size={40} /><p>{t('interviews.selectOne')}</p></div></div>}
       </section>
       {creating && <InterviewEditor onClose={() => setCreating(false)} onSaved={(newId) => {
         setCreating(false); toast.success(t('interviews.saved'));

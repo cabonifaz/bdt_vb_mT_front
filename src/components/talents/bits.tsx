@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchFileBlob } from '../../lib/talents';
+import { Icon } from '../ui/Icon';
 
 /** Estrellas (solo lectura o editable). */
 export function Stars({ value, onChange, size = 16, label }: { value?: number | null; onChange?: (v: number) => void; size?: number; label?: string }) {
@@ -41,7 +42,7 @@ export function Chip({ children, onRemove, removeLabel }: { children: React.Reac
   return (
     <span className="chip">
       {children}
-      {onRemove && <button type="button" className="chip-x" aria-label={removeLabel} onClick={onRemove}>×</button>}
+      {onRemove && <button type="button" className="chip-x" aria-label={removeLabel} onClick={onRemove}><Icon name="x" size={12} /></button>}
     </span>
   );
 }

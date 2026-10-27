@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiError } from '../../lib/api';
+import { Icon } from './Icon';
 import { setLocale, LOCALES, type Locale } from '../../i18n';
 
 // ---------------------------------------------------------------- Button
@@ -46,7 +47,7 @@ export function PasswordField(props: Omit<FieldProps, 'type'>) {
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShow((s) => !s)}
         aria-label={show ? t('login.hidePassword') : t('login.showPassword')}
         style={{ position: 'absolute', right: 4, top: 26 }}>
-        {show ? '🙈' : '👁'}
+        <Icon name={show ? 'eyeOff' : 'eye'} size={16} />
       </button>
     </div>
   );

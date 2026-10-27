@@ -7,6 +7,7 @@ import type { ClientItem } from '../../lib/modules';
 import { Button, Card, Field, Modal, StatusBadge, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
+import { fold } from '../../components/ui/SearchSelect';
 
 /** Catálogo de clientes del tenant (se usa en lista negra y entrevistas). */
 export function Clients() {
@@ -14,7 +15,10 @@ export function Clients() {
   const label = useLabel();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<ClientItem | null | 'new'>(null);
+  const [text, setText] = useState('');
   const list = useQuery({ queryKey: ['clients-admin'], queryFn: () => cachedGet<ClientItem[]>('/api/v1/masters/items?tables=CLIENT&includeInactive=true') });
+  const n = fold(text);
+  const rows = (list.data ?? []).filter((c) => !n || [label(c.label), c.str1, c.str2].some((v) => v && fold(v).includes(n)));
   return (
     <div className="page">
       <div className="page-header">
@@ -22,11 +26,15 @@ export function Clients() {
         <Button onClick={() => setEditing('new')} data-testid="new-client"><Icon name="plus" size={16} />{t('clients.new')}</Button>
       </div>
       <Card>
+        <div className="list-toolbar">
+          <input className="input list-search" type="search" placeholder={t('clients.search')} aria-label={t('clients.search')} value={text} onChange={(e) => setText(e.target.value)} data-testid="client-search" />
+          {list.data && <span className="muted">{t('clients.count', { count: rows.length })}</span>}
+        </div>
         <div className="table-wrap">
           <table className="table">
             <thead><tr><th>{t('clients.name')}</th><th>{t('clients.taxId')}</th><th>{t('clients.address')}</th><th>{t('common.status')}</th><th></th></tr></thead>
             <tbody>
-              {list.data?.map((c) => (
+              {rows.map((c) => (
                 <tr key={c.id} data-testid="client-row">
                   <td><strong>{label(c.label)}</strong></td><td>{c.str1 || '—'}</td><td>{c.str2 || '—'}</td>
                   <td><StatusBadge status={c.isActive ? 'ACTIVE' : 'DISABLED'} /></td>
@@ -36,6 +44,7 @@ export function Clients() {
             </tbody>
           </table>
           {list.data?.length === 0 && <div className="empty">{t('clients.empty')}</div>}
+          {!!list.data?.length && rows.length === 0 && <div className="empty">{t('common.noResults')}</div>}
         </div>
       </Card>
       {editing && <ClientModal client={editing === 'new' ? null : editing} onClose={() => setEditing(null)}

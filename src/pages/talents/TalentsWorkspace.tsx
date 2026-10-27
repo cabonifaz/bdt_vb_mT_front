@@ -13,6 +13,7 @@ import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
 import { Chip, Pagination, Stars, TalentPhoto } from '../../components/talents/bits';
 import { TalentEditor } from './TalentEditor';
+import { WsBack } from '../../components/layout/WsBack';
 
 const PAGE_SIZE = 25;
 
@@ -187,6 +188,7 @@ export function TalentsWorkspace() {
       </aside>
 
       <section className="ws-detail" aria-live="polite">
+        {selectedId && <WsBack to={`/${tenant}/talentos`} label={t('nav.talents')} />}
         <Outlet />
       </section>
 

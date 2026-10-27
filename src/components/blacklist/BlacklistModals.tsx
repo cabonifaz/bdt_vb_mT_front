@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { http } from '../../lib/api';
 import { fullName, TALENT_API, useLabel, type TalentSummary } from '../../lib/talents';
-import { useInterviewCatalogs, type BlacklistEntry } from '../../lib/modules';
+import { useInterviewCatalogs, type BlacklistEntry, type ClientItem } from '../../lib/modules';
 import { Button, Modal, useErrorText } from '../ui';
+import { SearchSelect } from '../ui/SearchSelect';
 
 const BL_API = '/api/v1/tenant/blacklist';
 
@@ -63,13 +64,9 @@ export function AddRestrictionModal({ talentId, talentName, onClose, onDone }: {
           </div>
         </div>
       )}
-      <div className="field">
-        <label htmlFor="bl-client">{t('blacklist.client')}</label>
-        <select id="bl-client" className="select" value={client} onChange={(e) => setClient(e.target.value)}>
-          <option value="">—</option>
-          <option value="ALL">{t('blacklist.allClients')}</option>
-          {clients.map((c) => <option key={c.id} value={c.id}>{label(c.label)}</option>)}
-        </select>
+      <div className="stack" style={{ gap: 4 }}>
+        <SearchSelect id="bl-client" label={t('blacklist.client')} value={client} onChange={setClient} placeholder={t('blacklist.searchClient')}
+          options={[{ value: 'ALL', label: t('blacklist.allClients') }, ...clients.map((c) => ({ value: c.id, label: label(c.label), hint: (c as ClientItem).str1 || undefined }))]} />
         {client === 'ALL' && <span className="hint">{t('blacklist.globalHint')}</span>}
       </div>
       <div className="field">
