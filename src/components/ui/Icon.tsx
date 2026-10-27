@@ -1,5 +1,5 @@
 import {
-  Angry, Archive, Building2, CalendarCheck, Check, ChevronLeft, ChevronRight, Clock, Copy, Download, ExternalLink, Eye, EyeOff,
+  Angry, Archive, Briefcase, ChartColumn, Minus, TrendingDown, TrendingUp, TriangleAlert, User, Building2, CalendarCheck, Check, ChevronLeft, ChevronRight, Clock, Copy, Download, ExternalLink, Eye, EyeOff,
   FileText, Funnel, Github, Heart, Home, IdCard, KeyRound, Laptop, LayoutDashboard, Linkedin, LogOut, Mail, MapPin, Menu, Palette,
   Pencil, Phone, PhoneCall, Pin, Plus, Search, Star, Trash2, Upload, UserCog, Users, Video, Wallet, X, type LucideIcon,
 } from 'lucide-react';
@@ -48,6 +48,13 @@ const icons: Record<string, LucideIcon> = {
   download: Download,
   star: Star,
   logout: LogOut,
+  briefcase: Briefcase,
+  alert: TriangleAlert,
+  chart: ChartColumn,
+  trendUp: TrendingUp,
+  trendDown: TrendingDown,
+  minus: Minus,
+  user: User,
 };
 
 export function Icon({ name, size = 20, title, filled }: { name: string; size?: number; title?: string; filled?: boolean }) {
