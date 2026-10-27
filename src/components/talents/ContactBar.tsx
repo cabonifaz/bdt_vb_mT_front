@@ -75,7 +75,7 @@ export function RatesLine({ rates, modality, payrollCurrency, rxhCurrency }: {
   const range = (min?: number, max?: number, cur?: string) => {
     if (min === undefined && max === undefined) return null;
     const f = (n?: number) => (n === undefined ? '…' : n.toLocaleString());
-    return `${cur ? `${cur} ` : ''}${f(min)} – ${f(max)}`;
+    return `${cur ?? t('talents.noCurrency')} ${f(min)} – ${f(max)}`;
   };
   const parts = [
     modality,

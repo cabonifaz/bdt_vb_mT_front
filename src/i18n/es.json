@@ -367,7 +367,32 @@
     "ownEquipment": "Equipo propio",
     "noEquipment": "Sin equipo",
     "rxhShort": "RxH",
-    "noRates": "Sin expectativa salarial registrada"
+    "noRates": "Sin expectativa salarial registrada",
+    "noCurrency": "Moneda no indicada",
+    "cp": {
+      "title": "Perfil completo",
+      "missing": "Falta",
+      "done": "Perfil completo al 100%",
+      "notSet": "sin indicar",
+      "clickToToggle": "(clic para cambiar)",
+      "headline": "puesto",
+      "email": "correo",
+      "phone": "teléfono",
+      "doc": "documento",
+      "location": "ubicación",
+      "availability": "disponibilidad",
+      "equipment": "equipo propio",
+      "rates": "expectativa salarial",
+      "summary": "resumen",
+      "linkedin": "LinkedIn",
+      "tech": "habilidades técnicas",
+      "soft": "habilidades blandas",
+      "experience": "experiencia",
+      "education": "estudios",
+      "languages": "idiomas",
+      "cv": "CV",
+      "photo": "foto"
+    }
   },
   "favorites": {
     "new": "Nueva colección",

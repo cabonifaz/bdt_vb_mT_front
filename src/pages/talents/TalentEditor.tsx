@@ -8,11 +8,13 @@ import { TALENT_API, useLabel, useMasters, type Rates, type Talent } from '../..
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { Chip, Stars } from '../../components/talents/bits';
 import { Loader } from '../../components/ui/Loader';
+import { ProfileMeter } from '../../components/talents/ProfileMeter';
+import { hasRates, type ProfileFacts } from '../../lib/completeness';
 
 type Main = {
   firstName: string; lastName: string; secondLastName: string; headline: string; docTypeId: string; docNumber: string;
   email: string; phone: string; countryId: string; city: string; linkedinUrl: string; githubUrl: string; summary: string;
-  availability: string; hasEquipment: '' | 'yes' | 'no';
+  availabilityId: string; hasEquipment: '' | 'yes' | 'no';
 };
 type Tech = { id: string; skillId?: string; label: string; years: number };
 type Soft = { id: string; skillId?: string; label: string };
@@ -35,7 +37,7 @@ function fromTalent(t?: Talent, label?: (l?: Record<string, string>) => string):
       firstName: t?.firstName ?? '', lastName: t?.lastName ?? '', secondLastName: t?.secondLastName ?? '', headline: t?.headline ?? '',
       docTypeId: t?.docTypeId ?? '', docNumber: t?.docNumber ?? '', email: t?.email ?? '', phone: t?.phone ?? '',
       countryId: t?.countryId ?? '', city: t?.city ?? '', linkedinUrl: t?.linkedinUrl ?? '', githubUrl: t?.githubUrl ?? '',
-      summary: t?.summary ?? '', availability: t?.availability ?? '',
+      summary: t?.summary ?? '', availabilityId: t?.availabilityId ?? '',
       hasEquipment: t?.hasEquipment === undefined || t?.hasEquipment === null ? '' : t.hasEquipment ? 'yes' : 'no',
     },
     rates: t?.rates ?? {},
@@ -82,7 +84,7 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
       const body: Record<string, unknown> = {
         id: talentId, firstName: m.firstName.trim(), lastName: m.lastName.trim(), secondLastName: nz(m.secondLastName), headline: nz(m.headline),
         docTypeId: nz(m.docTypeId), docNumber: m.docNumber.trim(), email: m.email.trim(), phone: m.phone.trim(), countryId: nz(m.countryId),
-        city: nz(m.city), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availability: nz(m.availability),
+        city: nz(m.city), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availabilityId: nz(m.availabilityId),
         hasEquipment: m.hasEquipment === '' ? null : m.hasEquipment === 'yes',
       };
       if (editing) body.expectedVersion = talent!.version;
@@ -143,6 +145,17 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
     onSaved(talentId, offline);
   };
 
+  // perfil completo en vivo: lo que ya tiene el talento + lo que se está cargando en el editor
+  const m0 = d.main;
+  const newCat = (c: string) => d.files.some((f) => f.category.startsWith(c));
+  const facts: ProfileFacts = {
+    photo: !!talent?.photoId || newCat('PHOTO'), cv: !!talent?.cvId || !!talent?.files.some((f) => f.category.startsWith('CV')) || newCat('CV'),
+    headline: !!m0.headline.trim(), email: !!m0.email.trim(), phone: !!m0.phone.trim(), doc: !!m0.docNumber.trim(),
+    location: !!(m0.countryId || m0.city.trim()), linkedin: !!m0.linkedinUrl.trim(), summary: !!m0.summary.trim(),
+    availability: !!m0.availabilityId, equipment: m0.hasEquipment !== '', rates: canRates ? hasRates(d.rates) : null,
+    tech: d.tech.length > 0, soft: d.soft.length > 0, experience: d.exp.length > 0, education: d.edu.length > 0, languages: d.lang.length > 0,
+  };
+
   const count = (n: number) => (n ? <span className="count">{n}</span> : null);
   const tabLabel: Record<Tab, ReactNode> = {
     data: t('talents.tabData'), skills: <>{t('talents.tabSkills')}{count(d.tech.length + d.soft.length)}</>,
@@ -152,9 +165,12 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
 
   return (
     <Modal open wide persistent title={editing ? t('talents.edit') : t('talents.new')} onClose={onClose}
-      tabs={<div className="tabs" role="tablist">{TABS.map((k) => (
-        <button key={k} role="tab" type="button" className="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}>{tabLabel[k]}</button>
-      ))}</div>}
+      tabs={<>
+        <ProfileMeter facts={facts} />
+        <div className="tabs" role="tablist">{TABS.map((k) => (
+          <button key={k} role="tab" type="button" className="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`tab-${k}`}>{tabLabel[k]}</button>
+        ))}</div>
+      </>}
       footer={<>
         {progress && <span className="muted" role="status">{progress}</span>}
         <span className="spacer" />
@@ -182,7 +198,15 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
   const masters = useMasters();
   const m = d.main;
   const f = (k: keyof Main) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => set('main', { ...m, [k]: e.target.value });
-  const r = (k: keyof Rates) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => set('rates', { ...d.rates, [k]: e.target.value });
+  // al escribir un monto sin moneda se propone la moneda por defecto: la ficha siempre muestra la moneda
+  const currencies = masters.byTable('CURRENCY');
+  const defCurrency = (currencies.find((c) => c.code === 'PEN') ?? currencies[0])?.id;
+  const r = (k: keyof Rates) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const next = { ...d.rates, [k]: e.target.value };
+    if ((k === 'payrollMin' || k === 'payrollMax') && !next.payrollCurrencyId) next.payrollCurrencyId = defCurrency;
+    if ((k === 'rxhMin' || k === 'rxhMax') && !next.rxhCurrencyId) next.rxhCurrencyId = defCurrency;
+    set('rates', next);
+  };
   const opts = (table: string) => masters.byTable(table).map((x) => <option key={x.id} value={x.id}>{label(x.label)}</option>);
   return (
     <div className="stack">
@@ -208,7 +232,8 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
       <h4 className="muted">{t('talents.profile')}</h4>
       <div className="form-grid">
         <Field label={t('talents.headline')} maxLength={150} value={m.headline} onChange={f('headline')} />
-        <Field label={t('talents.availability')} maxLength={150} value={m.availability} onChange={f('availability')} />
+        <div className="field"><label htmlFor="ed-av">{t('talents.availability')}</label>
+          <select id="ed-av" className="select" value={m.availabilityId} onChange={f('availabilityId')}><option value="">—</option>{opts('TALENT_AVAILABILITY')}</select></div>
         <div className="field"><label htmlFor="ed-eq">{t('talents.hasEquipment')}</label>
           <select id="ed-eq" className="select" value={m.hasEquipment} onChange={f('hasEquipment')}>
             <option value="">—</option><option value="yes">{t('talents.yes')}</option><option value="no">{t('talents.no')}</option></select></div>

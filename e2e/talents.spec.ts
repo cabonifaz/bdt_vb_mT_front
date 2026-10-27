@@ -269,3 +269,48 @@ test('contacto en íconos: el dato solo se ve al hacer clic; tarifas en una lín
   await expect(page.getByTestId('contact-pop-phone')).toContainText('999888777');
   await expect(page.getByTestId('rates')).toContainText('4,000 – 5,000');
 });
+
+test('ficha: disponibilidad y equipo propio con un clic, % de perfil completo y moneda', async ({ page }) => {
+  const admin = await createFractalAdmin();
+  const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
+  const id = crypto.randomUUID();
+  expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: { Authorization: `Bearer ${tok}` },
+    data: { id, firstName: 'Iris', lastName: `Rapida${stamp()}` } })).status()).toBe(201);
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.goto(`/fractal/talentos/${id}`);
+  const meter = page.getByTestId('profile-meter');
+  await expect(meter).toBeVisible();
+  const pct0 = Number(await meter.getAttribute('data-pct'));
+  expect(pct0).toBeLessThan(20);
+  await expect(meter).toHaveAttribute('title', /Falta: .*disponibilidad/);
+
+  // disponibilidad: clic en el chip y se elige la opción (sin abrir el editor)
+  await page.getByTestId('availability-chip').click();
+  await page.getByRole('menuitemradio', { name: 'Inmediata' }).click();
+  await expect(page.getByTestId('availability-chip')).toHaveText('Inmediata');
+  // equipo propio: cada clic alterna
+  await page.getByTestId('equipment-chip').click();
+  await expect(page.getByTestId('equipment-chip')).toHaveText('Equipo propio');
+  await page.getByTestId('equipment-chip').click();
+  await expect(page.getByTestId('equipment-chip')).toHaveText('Sin equipo');
+  await expect.poll(async () => Number(await meter.getAttribute('data-pct'))).toBeGreaterThan(pct0);
+
+  await page.reload();
+  await expect(page.getByTestId('availability-chip')).toHaveText('Inmediata');
+  await expect(page.getByTestId('equipment-chip')).toHaveText('Sin equipo');
+
+  // editor: combo de disponibilidad, barra de progreso en vivo y moneda por defecto
+  await page.getByTestId('edit-talent').click();
+  const dlg = page.getByRole('dialog', { name: 'Editar perfil' });
+  const bar = dlg.getByTestId('profile-meter');
+  await expect(bar).toBeVisible();
+  await expect(dlg.getByLabel('Disponibilidad')).toHaveValue(/.+/);
+  const before = Number(await bar.getAttribute('data-pct'));
+  await dlg.getByLabel('Planilla · Mínimo').fill('7000');
+  await expect(dlg.getByLabel('Planilla · Moneda')).not.toHaveValue('');
+  await dlg.getByLabel('Puesto / perfil').fill('Analista QA');
+  await expect.poll(async () => Number(await bar.getAttribute('data-pct'))).toBeGreaterThan(before);
+  await page.getByTestId('save-talent').click();
+  await expect(dlg).toHaveCount(0);
+  await expect(page.getByTestId('rates')).toContainText(/PEN|USD/);
+});

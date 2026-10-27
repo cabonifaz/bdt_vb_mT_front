@@ -115,6 +115,6 @@ export const http = {
   get: <T,>(p: string) => api<T>(p),
   post: <T,>(p: string, body?: unknown, queueOffline = false) => api<T>(p, { method: 'POST', body, queueOffline }),
   put: <T,>(p: string, body?: unknown, queueOffline = false) => api<T>(p, { method: 'PUT', body, queueOffline }),
-  patch: <T,>(p: string, body?: unknown) => api<T>(p, { method: 'PATCH', body }),
+  patch: <T,>(p: string, body?: unknown, queueOffline = false) => api<T>(p, { method: 'PATCH', body, queueOffline }),
   del: <T,>(p: string) => api<T>(p, { method: 'DELETE' }),
 };

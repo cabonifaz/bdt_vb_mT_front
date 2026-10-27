@@ -19,6 +19,9 @@ import { ContactBar, RatesLine } from '../../components/talents/ContactBar';
 import { Icon } from '../../components/ui/Icon';
 import { Check, Heart, Plus, Search, X } from 'lucide-react';
 import { Loader } from '../../components/ui/Loader';
+import { AvailabilityChip, EquipmentChip } from '../../components/talents/QuickChips';
+import { ProfileMeter } from '../../components/talents/ProfileMeter';
+import { talentFacts } from '../../lib/completeness';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -69,6 +72,11 @@ export function TalentDetail() {
   const name = fullName(x);
   const open = (m: typeof modal, item: Record<string, unknown> | null = null) => { setEditing(item); setModal(m); };
   const del = (section: string, itemId: string) => run(() => http.del(`${TALENT_API}/sections/${section}/${itemId}`));
+  /** Edición rápida desde la ficha: se refleja al instante y se revierte si falla. */
+  const quick = async (patch: Partial<Talent>, path: string, body: unknown) => {
+    qc.setQueryData<Talent>(['talent', id], (cur) => (cur ? { ...cur, ...patch } : cur));
+    if (!(await run(() => http.patch(`${TALENT_API}/${id}/${path}`, body, true)))) refresh();
+  };
 
   const curr = (cid?: string) => masters.byTable('CURRENCY').find((c) => c.id === cid)?.code;
   const blocked = (bl.data?.length ?? 0) > 0;
@@ -87,6 +95,7 @@ export function TalentDetail() {
           <div className="row" style={{ gap: 8 }}>
             <h1 data-testid="talent-name">{name}</h1>
             {x.status === 'ARCHIVED' && <StatusBadge status="DISABLED" />}
+            <ProfileMeter facts={talentFacts(x)} inline onClick={canWrite ? () => open('editor') : undefined} />
           </div>
           <div className="pf-sub">
             {x.headline && <span className="pf-headline">{x.headline}</span>}
@@ -101,10 +110,9 @@ export function TalentDetail() {
               { key: 'linkedin', icon: 'linkedin', label: t('talents.linkedin'), value: x.linkedinUrl, href: x.linkedinUrl, actionLabel: t('talents.open') },
               { key: 'github', icon: 'github', label: t('talents.github'), value: x.githubUrl, href: x.githubUrl, actionLabel: t('talents.open') },
             ]} />
-            {x.availability && <span className="meta-chip" title={t('talents.availability')}><Icon name="clock" size={13} />{x.availability}</span>}
-            {x.hasEquipment !== undefined && x.hasEquipment !== null && (
-              <span className="meta-chip" title={t('talents.hasEquipment')}><Icon name="laptop" size={13} />{x.hasEquipment ? t('talents.ownEquipment') : t('talents.noEquipment')}</span>
-            )}
+            <AvailabilityChip value={x.availabilityId} editable={canWrite}
+              onChange={(v) => quick({ availabilityId: v ?? undefined }, 'availability', { availabilityId: v })} />
+            <EquipmentChip value={x.hasEquipment} editable={canWrite} onChange={(v) => quick({ hasEquipment: v }, 'equipment', { hasEquipment: v })} />
           </div>
           {x.canSeeRates && (
             <RatesLine rates={x.rates} modality={label(masters.byTable('BILLING_MODALITY').find((m) => m.id === x.rates?.modalityId)?.label) || undefined}

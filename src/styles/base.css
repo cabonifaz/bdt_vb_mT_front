@@ -449,3 +449,32 @@ svg.ss-btn { pointer-events: none; }
 @keyframes loader-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .55; transform: scale(.97); } }
 @keyframes loader-slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
 @media (prefers-reduced-motion: reduce) { .loader-logo, .loader-mark, .loader-bar span { animation: none; } }
+
+/* ---------- Perfil completo (ficha y editor) ---------- */
+.pm { display: flex; align-items: center; gap: 8px; font-size: var(--text-xs); color: var(--color-text-muted); --pm: var(--color-action); }
+.pm-ok { --pm: var(--color-success); } .pm-mid { --pm: var(--color-warning); } .pm-low { --pm: var(--color-danger); }
+.pm-track { flex: 1; min-width: 60px; height: 6px; border-radius: 999px; background: var(--color-surface-muted); overflow: hidden; }
+.pm-track > span { display: block; height: 100%; background: var(--pm); border-radius: inherit; transition: width .3s ease; }
+.pm-pct { font-weight: 600; color: var(--pm); font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right; }
+.pm-missing { flex-basis: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+div.pm:not(.pm-inline) { flex-wrap: wrap; padding: 8px 20px 4px; }
+div.pm:not(.pm-inline) .pm-missing { flex-basis: 100%; margin-top: -2px; }
+.pm-inline { background: none; border: 1px solid var(--color-border); border-radius: 999px; padding: 2px 10px; height: 24px; }
+.pm-inline .pm-track { width: 64px; flex: none; }
+button.pm { cursor: pointer; font: inherit; font-size: var(--text-xs); color: var(--color-text-muted); }
+button.pm:hover { border-color: var(--pm); }
+@media (max-width: 640px) { .pm-inline .pm-label { display: none; } }
+
+/* ---------- Chips de edición rápida en la ficha ---------- */
+.qc { position: relative; display: inline-flex; }
+.qc-btn { border: 1px solid transparent; cursor: pointer; font: inherit; font-size: var(--text-xs); }
+.qc-btn:hover { border-color: var(--color-action); color: var(--color-text); }
+.qc-btn.qc-empty { background: none; border: 1px dashed var(--color-border); }
+.qc-btn.qc-on { color: var(--color-text); }
+.qc-menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; min-width: 180px; padding: 4px; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; }
+.qc-menu button { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 0; background: none; text-align: left; font: inherit;
+  font-size: var(--text-sm); color: var(--color-text); border-radius: var(--radius-sm); cursor: pointer; }
+.qc-menu button:hover, .qc-menu button:focus-visible { background: var(--color-surface-muted); }
+.qc-check { width: 14px; display: inline-flex; color: var(--color-action); }
+.qc-menu .qc-clear { color: var(--color-text-muted); border-top: 1px solid var(--color-border); border-radius: 0; margin-top: 2px; padding-left: 28px; }

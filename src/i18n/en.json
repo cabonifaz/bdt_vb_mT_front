@@ -367,7 +367,32 @@
     "ownEquipment": "Own equipment",
     "noEquipment": "No equipment",
     "rxhShort": "Invoice",
-    "noRates": "No salary expectation recorded"
+    "noRates": "No salary expectation recorded",
+    "noCurrency": "Currency not set",
+    "cp": {
+      "title": "Profile complete",
+      "missing": "Missing",
+      "done": "Profile 100% complete",
+      "notSet": "not set",
+      "clickToToggle": "(click to change)",
+      "headline": "headline",
+      "email": "email",
+      "phone": "phone",
+      "doc": "ID document",
+      "location": "location",
+      "availability": "availability",
+      "equipment": "own equipment",
+      "rates": "salary expectation",
+      "summary": "summary",
+      "linkedin": "LinkedIn",
+      "tech": "technical skills",
+      "soft": "soft skills",
+      "experience": "experience",
+      "education": "education",
+      "languages": "languages",
+      "cv": "CV",
+      "photo": "photo"
+    }
   },
   "favorites": {
     "new": "New collection",
