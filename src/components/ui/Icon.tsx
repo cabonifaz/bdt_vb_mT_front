@@ -29,6 +29,10 @@ const paths: Record<string, string> = {
   heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',
   file: 'M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h4',
   archive: 'M3 4h18v4H3zM5 8v12h14V8M10 12h4',
+  ban: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  video: 'M3 7h12v10H3zM15 10l6-3v10l-6-3',
+  mapPin: 'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5',
   external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
 };
 

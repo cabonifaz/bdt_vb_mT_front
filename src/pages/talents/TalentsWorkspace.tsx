@@ -167,6 +167,7 @@ export function TalentsWorkspace() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="row" style={{ gap: 4, flexWrap: 'nowrap', alignItems: 'flex-start' }}>
                   <span className="name" style={{ flex: 1 }} data-testid="talent-row-name">{fullName(x)}</span>
+                  {x.isBlacklisted && <span className="bl-dot" title={t('blacklist.inBlacklist')} aria-label={t('blacklist.inBlacklist')} data-testid="bl-dot" />}
                   {x.isFavorite && <span className="fav on" style={{ fontSize: 12 }} aria-label={t('talents.favorite')}>♥</span>}
                 </div>
                 <div className="sub">{x.headline || '—'}</div>

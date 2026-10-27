@@ -11,6 +11,10 @@ import { Button, Field, Modal, StatusBadge, formatDate, useErrorText } from '../
 import { useToast } from '../../components/ui/Toast';
 import { Chip, Stars, TalentPhoto } from '../../components/talents/bits';
 import { TalentEditor } from './TalentEditor';
+import { BlacklistPanel } from '../../components/blacklist/BlacklistPanel';
+import { InterviewEditor, type InterviewPreset } from '../interviews/InterviewEditor';
+import { STATUS_TONE, type BlacklistEntry, type InterviewSummary } from '../../lib/modules';
+import { Link, useNavigate } from 'react-router';
 import { ContactBar, RatesLine } from '../../components/talents/ContactBar';
 import { Icon } from '../../components/ui/Icon';
 
@@ -30,6 +34,14 @@ export function TalentDetail() {
   const collections = useQuery({ queryKey: ['collections'], queryFn: () => cachedGet<Collection[]>('/api/v1/tenant/collections') });
   const [modal, setModal] = useState<null | 'editor' | 'experience' | 'education' | 'language' | 'feedback' | 'collection'>(null);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
+  const [blOpen, setBlOpen] = useState(false);
+  const [ivPreset, setIvPreset] = useState<InterviewPreset | null>(null);
+  const [phoneChoice, setPhoneChoice] = useState<InterviewSummary[] | null>(null);
+  const bl = useQuery({ queryKey: ['blacklist', id], queryFn: () => http.get<BlacklistEntry[]>(`/api/v1/tenant/talents/${id}/blacklist`) });
+  const ivs = useQuery({ queryKey: ['interviews', { talentId: id }], enabled: can('interview.read'),
+    queryFn: () => http.post<{ total: number; items: InterviewSummary[] }>('/api/v1/tenant/interviews/search', { talentId: id, pageSize: 50 }) });
+  const { tenant = '' } = useParams();
+  const navTo = useNavigate(); // navegación interna: conserva filtros en memoria
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ['talent', id] });
@@ -57,6 +69,13 @@ export function TalentDetail() {
   const del = (section: string, itemId: string) => run(() => http.del(`${TALENT_API}/sections/${section}/${itemId}`));
 
   const curr = (cid?: string) => masters.byTable('CURRENCY').find((c) => c.id === cid)?.code;
+  const blocked = (bl.data?.length ?? 0) > 0;
+  const blClients = bl.data ?? [];
+  const startPhone = () => {
+    const phones = (ivs.data?.items ?? []).filter((i) => i.typeCode === 'PHONE');
+    if (phones.length) setPhoneChoice(phones);
+    else setIvPreset({ talentId: x.id, talentName: name, typeCode: 'PHONE', stageCode: 'PHONE_SCREEN' });
+  };
   const isFav = x.collections.length > 0;
   return (
     <div className="pf">
@@ -89,9 +108,17 @@ export function TalentDetail() {
             <RatesLine rates={x.rates} modality={label(masters.byTable('BILLING_MODALITY').find((m) => m.id === x.rates?.modalityId)?.label) || undefined}
               payrollCurrency={curr(x.rates?.payrollCurrencyId)} rxhCurrency={curr(x.rates?.rxhCurrencyId)} />
           )}
+          {blocked && (
+            <div className="row" style={{ gap: 4, marginTop: 6 }} data-testid="bl-chips">
+              {blClients.slice(0, 3).map((e) => <span key={e.id} className="badge badge-danger" title={e.reason}><Icon name="ban" size={11} /> {e.client ? label(e.client) : t('blacklist.allClients')}</span>)}
+              {blClients.length > 3 && <button className="badge badge-danger link-btn" onClick={() => setBlOpen(true)}>+{blClients.length - 3}</button>}
+            </div>
+          )}
         </div>
         <div className="pf-actions">
           <IconButton icon="heart" label={t('talents.addToCollection')} active={isFav} onClick={() => open('collection')} testId="fav-talent" />
+          <IconButton icon="ban" label={blocked ? t('blacklist.inBlacklist') : t('blacklist.add')} danger={blocked} onClick={() => setBlOpen(true)} testId="bl-talent" />
+          {can('interview.write') && <IconButton icon="phone" label={t('interviews.phoneInterview')} onClick={startPhone} testId="phone-interview" />}
           {x.cvId && <IconButton icon="file" label={t('talents.viewCv')} onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')} />}
           {canWrite && <IconButton icon="archive" label={x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}
             onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))} />}
@@ -129,6 +156,18 @@ export function TalentDetail() {
               </div>
             ))}
           </Section>
+
+          {can('interview.read') && <Section title={t('nav.interviews')} onAdd={can('interview.write') ? () => setIvPreset({ talentId: x.id, talentName: name }) : undefined} addLabel={t('interviews.new')}>
+            {(ivs.data?.items.length ?? 0) === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
+            {ivs.data?.items.map((iv) => (
+              <div key={iv.id} className="pf-item compact" data-testid="talent-interview">
+                <Icon name={iv.typeCode === 'PHONE' ? 'phone' : iv.typeCode === 'IN_PERSON' ? 'mapPin' : 'video'} size={15} />
+                <div className="grow"><Link className="fav-link pf-item-title" to={`/${tenant}/entrevistas/${iv.id}`}>{label(iv.stage)}</Link>
+                  <div className="pf-item-meta">{iv.date} · {iv.time}{iv.client ? ` · ${label(iv.client)}` : ''}</div></div>
+                <span className={`badge badge-${STATUS_TONE[iv.statusCode]}`}>{label(iv.status)}</span>
+              </div>
+            ))}
+          </Section>}
 
           <Section title={t('talents.feedback')} onAdd={() => open('feedback')} addLabel={t('talents.addFeedback')}>
             {x.feedback.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
@@ -170,6 +209,19 @@ export function TalentDetail() {
         </aside>
       </div>
 
+      {blOpen && <Modal open wide title={`${t('nav.blacklist')} · ${name}`} onClose={() => setBlOpen(false)} footer={<Button onClick={() => setBlOpen(false)}>{t('common.close')}</Button>}>
+        <BlacklistPanel talentId={x.id} talentName={name} />
+      </Modal>}
+      {ivPreset && <InterviewEditor preset={ivPreset} onClose={() => setIvPreset(null)} onSaved={(ivId) => {
+        setIvPreset(null); toast.success(t('interviews.saved'));
+        qc.invalidateQueries({ queryKey: ['interviews'] });
+        navTo(`/${tenant}/entrevistas/${ivId}`);
+      }} />}
+      {phoneChoice && <Modal open title={t('interviews.phoneInterview')} onClose={() => setPhoneChoice(null)} footer={<>
+        <Button variant="secondary" onClick={() => { const last = phoneChoice[0]; setPhoneChoice(null); navTo(`/${tenant}/entrevistas/${last.id}`); }} data-testid="phone-go-last">
+          {t('interviews.goLastPhone', { date: `${phoneChoice[0].date} ${phoneChoice[0].time}` })}</Button>
+        <Button onClick={() => { setPhoneChoice(null); setIvPreset({ talentId: x.id, talentName: name, typeCode: 'PHONE', stageCode: 'PHONE_SCREEN' }); }} data-testid="phone-new">{t('interviews.newPhone')}</Button>
+      </>}><p>{t('interviews.hasPhone', { name, count: phoneChoice.length })}</p></Modal>}
       {modal === 'editor' && <TalentEditor talent={x} onClose={() => setModal(null)} onSaved={(_, offline) => {
         setModal(null);
         refresh();
@@ -205,9 +257,9 @@ function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete?: () =
   );
 }
 
-function IconButton({ icon, label, onClick, active, testId }: { icon: string; label: string; onClick: () => void; active?: boolean; testId?: string }) {
+function IconButton({ icon, label, onClick, active, danger, testId }: { icon: string; label: string; onClick: () => void; active?: boolean; danger?: boolean; testId?: string }) {
   return (
-    <button type="button" className={`icon-ghost bordered${active ? ' on' : ''}`} onClick={onClick} aria-label={label} title={label} data-testid={testId}>
+    <button type="button" className={`icon-ghost bordered${active ? ' on' : ''}${danger ? ' blocked' : ''}`} onClick={onClick} aria-label={label} title={label} data-testid={testId}>
       <Icon name={icon} size={17} />
     </button>
   );

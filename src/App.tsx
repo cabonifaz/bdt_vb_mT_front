@@ -17,6 +17,9 @@ import { ApiKeys } from './pages/tenant/ApiKeys';
 import { TalentPlaceholder, TalentsWorkspace } from './pages/talents/TalentsWorkspace';
 import { TalentDetail } from './pages/talents/TalentDetail';
 import { Favorites } from './pages/favorites/Favorites';
+import { Blacklist } from './pages/blacklist/Blacklist';
+import { Interviews } from './pages/interviews/Interviews';
+import { Clients } from './pages/clients/Clients';
 import { Tenants } from './pages/platform/Tenants';
 import { ApiKeyApprovals } from './pages/platform/ApiKeyApprovals';
 
@@ -74,8 +77,9 @@ function TenantRoutes() {
     <TenantArea>
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
-          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }] },
+          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'calendar', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
           { title: t('nav.administration'), items: [
+            { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
             { to: '/usuarios', label: t('nav.users'), icon: 'users', perm: 'tenant.users.manage' },
             { to: '/api', label: t('nav.apiKeys'), icon: 'key', perm: 'tenant.apikeys.request' },
@@ -88,6 +92,11 @@ function TenantRoutes() {
           </Route>
           <Route path="favoritos" element={<Favorites />} />
           <Route path="favoritos/:id" element={<Favorites />} />
+          <Route path="entrevistas" element={<Interviews />} />
+          <Route path="entrevistas/:id" element={<Interviews />} />
+          <Route path="lista-negra" element={<Blacklist />} />
+          <Route path="lista-negra/:id" element={<Blacklist />} />
+          <Route path="clientes" element={<Clients />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />

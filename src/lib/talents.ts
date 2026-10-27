@@ -12,7 +12,7 @@ export interface SkillRef { id: string; label: I18nLabel; years?: number }
 export interface TalentSummary {
   id: string; firstName: string; lastName: string; secondLastName?: string; headline?: string;
   country?: I18nLabel; city?: string; avgRating?: number; photoId?: string; yearsExperience: number;
-  isFavorite: boolean; skills: SkillRef[]; englishLevel?: string; version: number; updatedAt: string;
+  isFavorite: boolean; skills: SkillRef[]; englishLevel?: string; version: number; updatedAt: string; isBlacklisted?: boolean;
 }
 
 export interface Rates {
