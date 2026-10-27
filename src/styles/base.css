@@ -300,3 +300,11 @@ button.star { cursor: pointer; }
 .link-btn { border: 0; background: none; padding: 0; font: inherit; color: var(--color-link); cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; display: block; }
 .link-btn:hover { text-decoration: underline; }
 @media (max-width: 1100px) { .pf-body { grid-template-columns: 1fr; } }
+
+/* ---------- Favoritos ---------- */
+.fav-ico { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #fde7f1; color: #e9399a; flex-shrink: 0; }
+.fav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-2); }
+.fav-card { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+.fav-link { color: var(--color-text); text-decoration: none; }
+.fav-link:hover { color: var(--color-link); text-decoration: underline; }
+.icon-ghost.bordered.danger { color: var(--color-text-muted); }

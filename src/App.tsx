@@ -16,6 +16,7 @@ import { Users } from './pages/tenant/Users';
 import { ApiKeys } from './pages/tenant/ApiKeys';
 import { TalentPlaceholder, TalentsWorkspace } from './pages/talents/TalentsWorkspace';
 import { TalentDetail } from './pages/talents/TalentDetail';
+import { Favorites } from './pages/favorites/Favorites';
 import { Tenants } from './pages/platform/Tenants';
 import { ApiKeyApprovals } from './pages/platform/ApiKeyApprovals';
 
@@ -73,7 +74,7 @@ function TenantRoutes() {
     <TenantArea>
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
-          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }] },
+          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }] },
           { title: t('nav.administration'), items: [
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
             { to: '/usuarios', label: t('nav.users'), icon: 'users', perm: 'tenant.users.manage' },
@@ -85,6 +86,8 @@ function TenantRoutes() {
             <Route index element={<TalentPlaceholder />} />
             <Route path=":id" element={<TalentDetail />} />
           </Route>
+          <Route path="favoritos" element={<Favorites />} />
+          <Route path="favoritos/:id" element={<Favorites />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />

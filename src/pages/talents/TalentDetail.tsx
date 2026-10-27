@@ -379,17 +379,24 @@ function CollectionModal({ talent, collections, onClose, onChanged }: { talent: 
   const toast = useToast();
   const errText = useErrorText();
   const [name, setName] = useState('');
+  // estado optimista: la casilla cambia al instante y se revierte si el servidor rechaza
+  const [inSet, setInSet] = useState<string[]>(talent.collections);
   const toggle = async (c: Collection, on: boolean) => {
+    setInSet((cur) => (on ? [...cur, c.id] : cur.filter((x) => x !== c.id)));
     try {
       await (on ? http.put(`/api/v1/tenant/collections/${c.id}/talents/${talent.id}`) : http.del(`/api/v1/tenant/collections/${c.id}/talents/${talent.id}`));
       onChanged();
-    } catch (e) { toast.error(errText(e)); }
+    } catch (e) {
+      setInSet((cur) => (on ? cur.filter((x) => x !== c.id) : [...cur, c.id]));
+      toast.error(errText(e));
+    }
   };
   const create = async () => {
     try {
       const id = crypto.randomUUID();
       await http.post('/api/v1/tenant/collections', { id, name });
       await http.put(`/api/v1/tenant/collections/${id}/talents/${talent.id}`);
+      setInSet((cur) => [...cur, id]);
       setName('');
       onChanged();
     } catch (e) { toast.error(errText(e)); }
@@ -399,8 +406,8 @@ function CollectionModal({ talent, collections, onClose, onChanged }: { talent: 
       <div className="stack" style={{ gap: 8 }}>
         {collections.map((c) => (
           <label key={c.id} className="checkbox">
-            <input type="checkbox" checked={talent.collections.includes(c.id)} onChange={(e) => toggle(c, e.target.checked)} />
-            {c.name} <span className="muted">({c.talentCount})</span>
+            <input type="checkbox" checked={inSet.includes(c.id)} disabled={c.access === 'VIEW'} onChange={(e) => toggle(c, e.target.checked)} />
+            {c.name} <span className="muted">({c.talentCount}){c.access !== 'OWNER' && ` · ${c.ownerName}`}</span>
           </label>
         ))}
       </div>

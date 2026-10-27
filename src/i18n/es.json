@@ -93,7 +93,8 @@
     "minimize": "Minimizar",
     "hide": "Ocultar menú",
     "toggleMenu": "Mostrar u ocultar el menú",
-    "userMenu": "Menú de usuario"
+    "userMenu": "Menú de usuario",
+    "favorites": "Favoritos"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -206,7 +207,8 @@
     "INVALID_STARS": "Calificación inválida.",
     "MASTER_ITEM_INVALID": "Valor de catálogo inválido.",
     "COLLECTION_EXISTS": "Ya tienes una colección con ese nombre.",
-    "INVALID_KIND": "Tipo inválido."
+    "INVALID_KIND": "Tipo inválido.",
+    "SHARE_USER_INVALID": "Ese usuario no puede recibir la colección."
   },
   "talents": {
     "title": "Talentos",
@@ -333,5 +335,37 @@
     "noEquipment": "Sin equipo",
     "rxhShort": "RxH",
     "noRates": "Sin expectativa salarial registrada"
+  },
+  "favorites": {
+    "new": "Nueva colección",
+    "mine": "Mis colecciones",
+    "sharedWithMe": "Compartidas conmigo",
+    "noneMine": "Aún no tienes colecciones.",
+    "noneShared": "Nadie ha compartido colecciones contigo.",
+    "selectOne": "Selecciona una colección para ver sus talentos.",
+    "count_one": "{{count}} talento",
+    "count_other": "{{count}} talentos",
+    "sharedWith_one": "compartida con {{count}} persona",
+    "sharedWith_other": "compartida con {{count}} personas",
+    "private": "Privada",
+    "sharedBy": "Compartida por {{name}}",
+    "perm": {
+      "OWNER": "Dueño",
+      "VIEW": "Solo ver",
+      "EDIT": "Puede editar"
+    },
+    "rename": "Renombrar",
+    "share": "Compartir",
+    "delete": "Eliminar colección",
+    "leave": "Salir de la colección",
+    "confirmDelete": "¿Eliminar la colección «{{name}}»? Las personas con quienes la compartiste dejarán de verla.",
+    "confirmLeave": "¿Dejar de ver la colección «{{name}}»?",
+    "emptyCollection": "Esta colección no tiene talentos. Agrégalos desde la ficha de un talento (♥).",
+    "removeTalent": "Quitar de la colección",
+    "shareTitle": "Compartir «{{name}}»",
+    "colleague": "Compañero",
+    "permission": "Permiso",
+    "notShared": "Aún no la compartes con nadie.",
+    "unshare": "Dejar de compartir"
   }
 }

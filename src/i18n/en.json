@@ -93,7 +93,8 @@
     "minimize": "Minimize",
     "hide": "Hide menu",
     "toggleMenu": "Show or hide the menu",
-    "userMenu": "User menu"
+    "userMenu": "User menu",
+    "favorites": "Favorites"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -206,7 +207,8 @@
     "INVALID_STARS": "Invalid rating.",
     "MASTER_ITEM_INVALID": "Invalid catalog value.",
     "COLLECTION_EXISTS": "You already have a collection with that name.",
-    "INVALID_KIND": "Invalid type."
+    "INVALID_KIND": "Invalid type.",
+    "SHARE_USER_INVALID": "That user cannot receive the collection."
   },
   "talents": {
     "title": "Talents",
@@ -333,5 +335,37 @@
     "noEquipment": "No equipment",
     "rxhShort": "Invoice",
     "noRates": "No salary expectation recorded"
+  },
+  "favorites": {
+    "new": "New collection",
+    "mine": "My collections",
+    "sharedWithMe": "Shared with me",
+    "noneMine": "You have no collections yet.",
+    "noneShared": "Nobody has shared collections with you.",
+    "selectOne": "Select a collection to see its talents.",
+    "count_one": "{{count}} talent",
+    "count_other": "{{count}} talents",
+    "sharedWith_one": "shared with {{count}} person",
+    "sharedWith_other": "shared with {{count}} people",
+    "private": "Private",
+    "sharedBy": "Shared by {{name}}",
+    "perm": {
+      "OWNER": "Owner",
+      "VIEW": "View only",
+      "EDIT": "Can edit"
+    },
+    "rename": "Rename",
+    "share": "Share",
+    "delete": "Delete collection",
+    "leave": "Leave collection",
+    "confirmDelete": "Delete the collection “{{name}}”? People you shared it with will no longer see it.",
+    "confirmLeave": "Stop seeing the collection “{{name}}”?",
+    "emptyCollection": "This collection has no talents. Add them from a talent profile (♥).",
+    "removeTalent": "Remove from collection",
+    "shareTitle": "Share “{{name}}”",
+    "colleague": "Colleague",
+    "permission": "Permission",
+    "notShared": "Not shared with anyone yet.",
+    "unshare": "Stop sharing"
   }
 }

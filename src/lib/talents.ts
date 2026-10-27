@@ -36,7 +36,10 @@ export interface Talent {
   collections: string[];
 }
 
-export interface Collection { id: string; name: string; talentCount: number }
+export interface Collection {
+  id: string; name: string; talentCount: number; access: 'OWNER' | 'EDIT' | 'VIEW';
+  ownerId: string; ownerName: string; shareCount: number; updatedAt: string;
+}
 
 export const TALENT_API = '/api/v1/tenant/talents';
 
