@@ -92,3 +92,36 @@ export function yearsLabel(months: number, t: (k: string, o?: Record<string, unk
   const m = months % 12;
   return [y ? t('talents.years', { count: y }) : '', m ? t('talents.months', { count: m }) : ''].filter(Boolean).join(' ') || t('talents.months', { count: 0 });
 }
+
+async function sha256(text: string) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * POST con respaldo en IndexedDB. Se usa para la búsqueda: los criterios viajan en el cuerpo
+ * (no en la URL) y la clave de caché es un hash, así los términos no quedan legibles en el navegador.
+ */
+export async function cachedPost<T>(path: string, body: unknown): Promise<T> {
+  const key = `post:${path}:${await sha256(JSON.stringify(body))}`;
+  try {
+    const data = await http.post<T>(path, body);
+    offlineCache.set(key, data);
+    return data;
+  } catch (e) {
+    if (e instanceof ApiError && (e.code === 'NETWORK' || e.code === 'OFFLINE')) {
+      const cached = await offlineCache.get<T>(key);
+      if (cached !== undefined) return cached;
+    }
+    throw e;
+  }
+}
+
+export interface TalentFilters {
+  search: string; skills: string[]; englishLevel: string; minYears: string; position: string;
+  education: string; gradeId: string; collectionId: string; status: string; page: number;
+}
+
+export const EMPTY_FILTERS: TalentFilters = {
+  search: '', skills: [], englishLevel: '', minYears: '', position: '', education: '', gradeId: '', collectionId: '', status: '', page: 1,
+};

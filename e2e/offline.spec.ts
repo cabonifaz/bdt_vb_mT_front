@@ -4,7 +4,7 @@ import { API, createFractalAdmin, uiLogin } from './helpers';
 test('sin conexión se avisa al usuario y se sigue navegando con los datos cargados', async ({ page, context }) => {
   const admin = await createFractalAdmin();
   await uiLogin(page, 'fractal', admin.email, admin.password);
-  await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/fractal\/talentos$/);
   await page.getByRole('link', { name: 'Usuarios' }).click();
   await expect(page.getByRole('cell', { name: admin.email }).first()).toBeVisible();
 

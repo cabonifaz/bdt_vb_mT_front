@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { SA_EMAIL, SA_PASSWORD, createFractalAdmin, uiLogin } from './helpers';
+import { SA_EMAIL, SA_PASSWORD, createFractalAdmin, uiLogin, uiLogout } from './helpers';
 
 test.describe('Autenticación', () => {
   test('credenciales incorrectas muestran error genérico', async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Autenticación', () => {
     await expect(page.getByRole('cell', { name: /Fractal/ }).first()).toBeVisible();
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Tenants' })).toBeVisible();
-    await page.getByRole('button', { name: 'Cerrar sesión' }).click();
+    await uiLogout(page);
     await expect(page).toHaveURL(/\/admin\/login$/);
     await page.goto('/admin');
     await expect(page).toHaveURL(/\/admin\/login$/);
@@ -25,9 +25,9 @@ test.describe('Autenticación', () => {
   test('admin del tenant no puede entrar a la plataforma', async ({ page }) => {
     const { email, password } = await createFractalAdmin();
     await uiLogin(page, 'fractal', email, password);
-    await expect(page.getByRole('heading', { name: /Hola, Prueba/ })).toBeVisible();
+    await expect(page).toHaveURL(/\/fractal\/talentos$/); // al ingresar va directo a Talentos
     await page.goto('/admin');
-    await expect(page).toHaveURL(/\/fractal$/);
+    await expect(page).toHaveURL(/\/fractal\/talentos$/);
   });
 
   test('usuario de Fractal no entra por el login de plataforma', async ({ page }) => {

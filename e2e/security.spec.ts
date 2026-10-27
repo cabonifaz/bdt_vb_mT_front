@@ -6,7 +6,7 @@ test.describe('Seguridad (hacking ético)', () => {
   test('A07 el access token no se guarda en el navegador y la cookie de sesión es HttpOnly', async ({ page, context }) => {
     const admin = await createFractalAdmin();
     await uiLogin(page, 'fractal', admin.email, admin.password);
-    await expect(page.getByRole('heading', { name: /Hola/ })).toBeVisible();
+    await expect(page).toHaveURL(/\/fractal\/talentos$/);
     const storage = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }));
     expect(storage).not.toMatch(/eyJ[A-Za-z0-9_-]+\./);
     expect(await page.evaluate(() => document.cookie)).not.toContain('bdt_rt');

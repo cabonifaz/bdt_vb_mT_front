@@ -31,7 +31,8 @@ test('flujo completo: el admin invita, el usuario activa su cuenta y entra', asy
   await expect(p2.getByText('Cuenta activada')).toBeVisible();
   await p2.getByRole('link', { name: 'Ir al inicio de sesión' }).click();
   await uiLogin(p2, 'fractal', newEmail, pw);
-  await expect(p2.getByRole('heading', { name: /Hola, Reclutador/ })).toBeVisible();
+  await expect(p2).toHaveURL(/\/fractal\/talentos$/);
+  await expect(p2.getByTestId('user-menu')).toHaveText('RE');
   // un reclutador no ve la administración
   await expect(p2.getByRole('link', { name: 'Usuarios' })).toHaveCount(0);
   await ctx2.close();

@@ -224,46 +224,46 @@ function SkillsCard({ title, table, items, withYears, canWrite, onAdd, onRemove 
   onAdd: (skill: { skillId?: string; label?: string }, years?: number) => Promise<boolean>; onRemove: (id: string) => void;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  return (
+    <Card title={title} actions={canWrite && <Button size="sm" variant="secondary" onClick={() => setOpen(true)} data-testid={`add-${table}`}>{t('talents.addSkill')}</Button>}>
+      <div className="chips">
+        {items.length === 0 && <span className="muted">{t('talents.empty')}</span>}
+        {items.map((s) => (
+          <Chip key={s.id} onRemove={canWrite ? () => onRemove(s.id) : undefined} removeLabel={`${t('talents.delete')} ${s.name}`}>
+            {s.name}{withYears && <small>{s.years}a</small>}
+          </Chip>
+        ))}
+      </div>
+      {open && <SkillModal title={title} table={table} withYears={withYears} onClose={() => setOpen(false)} onAdd={onAdd} />}
+    </Card>
+  );
+}
+
+/** Agregar habilidad en modal: del catálogo o escrita a mano (se crea en el catálogo del tenant). */
+function SkillModal({ title, table, withYears, onClose, onAdd }: {
+  title: string; table: string; withYears?: boolean; onClose: () => void;
+  onAdd: (skill: { skillId?: string; label?: string }, years?: number) => Promise<boolean>;
+}) {
+  const { t } = useTranslation();
   const label = useLabel();
   const masters = useMasters();
   const [text, setText] = useState('');
   const [years, setYears] = useState('1');
   const options = masters.byTable(table);
-  const listId = `dl-${table}`;
-  const add = async () => {
-    if (!text.trim()) return;
-    const match = options.find((o) => label(o.label).toLowerCase() === text.trim().toLowerCase());
-    const ok = await onAdd(match ? { skillId: match.id } : { label: text.trim() }, withYears ? Number(years) : undefined);
-    if (ok) { setText(''); setYears('1'); }
-  };
+  const listId = `dl-modal-${table}`;
   return (
-    <Card title={title}>
-      <div className="stack">
-        <div className="chips">
-          {items.length === 0 && <span className="muted">{t('talents.empty')}</span>}
-          {items.map((s) => (
-            <Chip key={s.id} onRemove={canWrite ? () => onRemove(s.id) : undefined} removeLabel={`${t('talents.delete')} ${s.name}`}>
-              {s.name}{withYears && <small>{s.years}a</small>}
-            </Chip>
-          ))}
-        </div>
-        {canWrite && (
-          <div className="row" style={{ gap: 8, alignItems: 'flex-end' }}>
-            <div className="field" style={{ flex: 1, minWidth: 160 }}>
-              <label htmlFor={`in-${table}`} className="sr-only">{title}</label>
-              <input id={`in-${table}`} className="input" list={listId} placeholder={t('talents.skillPlaceholder')} value={text} maxLength={100}
-                onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } }} />
-              <datalist id={listId}>{options.map((o) => <option key={o.id} value={label(o.label)} />)}</datalist>
-            </div>
-            {withYears && <div className="field" style={{ width: 90 }}>
-              <label htmlFor={`yr-${table}`} className="sr-only">{t('talents.yearsShort')}</label>
-              <input id={`yr-${table}`} className="input" type="number" min={0} max={60} step={0.5} value={years} onChange={(e) => setYears(e.target.value)} aria-label={t('talents.yearsShort')} />
-            </div>}
-            <Button type="button" variant="secondary" onClick={add} disabled={!text.trim()}>{t('talents.addSkill')}</Button>
-          </div>
-        )}
+    <SectionModal title={title} onClose={onClose} valid={!!text.trim()} onSubmit={() => {
+      const match = options.find((o) => label(o.label).toLowerCase() === text.trim().toLowerCase());
+      return onAdd(match ? { skillId: match.id } : { label: text.trim() }, withYears ? Number(years) : undefined);
+    }}>
+      <div className="field">
+        <label htmlFor={`in-${table}`}>{title}</label>
+        <input id={`in-${table}`} className="input" list={listId} placeholder={t('talents.skillPlaceholder')} value={text} maxLength={100} onChange={(e) => setText(e.target.value)} />
+        <datalist id={listId}>{options.map((o) => <option key={o.id} value={label(o.label)} />)}</datalist>
       </div>
-    </Card>
+      {withYears && <Field label={t('talents.yearsShort')} type="number" min={0} max={60} step={0.5} value={years} onChange={(e) => setYears(e.target.value)} />}
+    </SectionModal>
   );
 }
 

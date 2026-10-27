@@ -48,5 +48,11 @@ export async function uiLogin(page: Page, tenant: string, email: string, passwor
 export async function uiLoginOk(page: Page, tenant: string, email: string, password: string) {
   await uiLogin(page, tenant, email, password);
   await page.waitForURL((u) => !u.pathname.endsWith('/login'));
-  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible();
+  await expect(page.getByTestId('user-menu')).toBeVisible();
+}
+
+/** Cierra sesión desde el menú de usuario (clic en la inicial). */
+export async function uiLogout(page: Page) {
+  await page.getByTestId('user-menu').click();
+  await page.getByRole('menuitem', { name: 'Cerrar sesión' }).click();
 }

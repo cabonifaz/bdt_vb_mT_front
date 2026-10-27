@@ -8,7 +8,7 @@ import { setLocale } from '../i18n';
 interface AuthCtx {
   user: Me | null;
   ready: boolean;
-  login: (tenant: string | null, email: string, password: string) => Promise<Me>;
+  login: (tenant: string | null, email: string, password: string, remember?: boolean) => Promise<Me>;
   logout: () => Promise<void>;
   can: (perm: string) => boolean;
 }
@@ -44,8 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id);
   }, [user]);
 
-  const login = useCallback(async (tenant: string | null, email: string, password: string) => {
-    const s = await http.post<SessionResponse>('/api/v1/auth/login', { tenant: tenant ?? '', email, password });
+  const login = useCallback(async (tenant: string | null, email: string, password: string, remember = false) => {
+    const s = await http.post<SessionResponse>('/api/v1/auth/login', { tenant: tenant ?? '', email, password, remember });
     adopt(s);
     return s.user;
   }, [adopt]);
@@ -62,3 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export const useAuth = () => useContext(Ctx);
+
+/** Pantalla de inicio tras ingresar: el módulo de talentos si tiene permiso. */
+export function homePath(u: Me) {
+  if (u.isPlatform) return '/admin';
+  return u.permissions.includes('talent.read') ? `/${u.tenantSlug}/talentos` : `/${u.tenantSlug}`;
+}

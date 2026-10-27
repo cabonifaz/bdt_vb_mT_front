@@ -2,9 +2,10 @@ import { useEffect, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AuthProvider, useAuth } from './providers/auth';
+import { AuthProvider, homePath, useAuth } from './providers/auth';
 import { ThemeProvider, useTheme } from './providers/theme';
 import { SyncProvider } from './providers/sync';
+import { TalentFiltersProvider } from './providers/talentFilters';
 import { ToastProvider } from './components/ui/Toast';
 import { AppShell } from './components/layout/AppShell';
 import { Login } from './pages/auth/Login';
@@ -47,15 +48,16 @@ function TenantArea({ children }: { children: ReactNode }) {
   if (!ready) return <Splash />;
   if (!user) return <Navigate to={`/${tenant}/login`} replace />;
   if (user.isPlatform) return <Navigate to="/admin" replace />;
-  if (user.tenantSlug !== tenant) return <Navigate to={`/${user.tenantSlug}`} replace />;
-  return <>{children}</>;
+  if (user.tenantSlug !== tenant) return <Navigate to={homePath(user)} replace />;
+  // filtros de talentos en memoria: se descartan al cerrar sesión (este árbol se desmonta)
+  return <TalentFiltersProvider>{children}</TalentFiltersProvider>;
 }
 
 function PlatformArea({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
   if (!ready) return <Splash />;
   if (!user) return <Navigate to="/admin/login" replace />;
-  if (!user.isPlatform) return <Navigate to={`/${user.tenantSlug}`} replace />;
+  if (!user.isPlatform) return <Navigate to={homePath(user)} replace />;
   return <>{children}</>;
 }
 

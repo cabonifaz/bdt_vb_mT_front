@@ -61,7 +61,8 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "sideTitle": "Find the right talent, faster.",
-    "sideText": "Keep profiles, skills and experience of your candidate pool in one place."
+    "sideText": "Keep profiles, skills and experience of your candidate pool in one place.",
+    "remember": "Remember me on this device"
   },
   "invite": {
     "title": "Activate your account",
@@ -91,7 +92,8 @@
     "expand": "Expand menu",
     "minimize": "Minimize",
     "hide": "Hide menu",
-    "toggleMenu": "Show or hide the menu"
+    "toggleMenu": "Show or hide the menu",
+    "userMenu": "User menu"
   },
   "home": {
     "welcome": "Hi, {{name}}",

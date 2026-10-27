@@ -180,7 +180,7 @@ button.star { cursor: pointer; }
 /* ---------- Menú lateral: expandido / minimizado / oculto ---------- */
 .shell { transition: grid-template-columns var(--duration-normal) var(--ease); }
 .shell-rail { grid-template-columns: 64px 1fr; }
-.shell-hidden { grid-template-columns: 0 1fr; }
+.shell-hidden { grid-template-columns: 1fr; }
 .shell-hidden > .sidebar { display: none; }
 .shell-peek > .sidebar { display: flex; position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); z-index: 45; box-shadow: var(--shadow-lg); }
 .sidebar-scrim { position: fixed; inset: 0; background: rgb(15 23 42 / 0.25); z-index: 44; }
@@ -201,30 +201,6 @@ button.star { cursor: pointer; }
   .shell-peek > .sidebar { display: flex; }
 }
 
-/* ---------- Espacio de trabajo de talentos: filtros arriba, lista a la izquierda, ficha a la derecha ---------- */
-.ws { display: flex; flex-direction: column; height: calc(100vh - var(--topbar-height) - 3px); min-height: 480px; }
-.ws-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-5) 0; }
-.ws-head h1 { font-size: var(--text-xl); }
-.ws-filters { padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border); background: var(--color-surface); display: flex; flex-direction: column; gap: var(--space-2); }
-.ws-filters .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: var(--space-2) var(--space-3); align-items: end; }
-.ws-filters .field label { font-size: var(--text-xs); color: var(--color-text-muted); }
-.ws-filters .input, .ws-filters .select { height: 34px; }
-.ws-body { flex: 1; display: grid; grid-template-columns: minmax(300px, 380px) 1fr; min-height: 0; }
-.ws-list { border-right: 1px solid var(--color-border); overflow-y: auto; padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); background: var(--color-bg); }
-.ws-detail { overflow-y: auto; min-width: 0; }
-.ws-detail .page { max-width: none; }
-.ws-empty { height: 100%; display: grid; place-items: center; color: var(--color-text-muted); text-align: center; padding: var(--space-8); }
-.talent-row { display: flex; gap: var(--space-3); padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); text-decoration: none; color: inherit; }
-.talent-row:hover { border-color: var(--brand-primary); }
-.talent-row.active { border-color: var(--brand-primary); box-shadow: inset 3px 0 0 var(--brand-primary); background: color-mix(in srgb, var(--brand-primary) 6%, white); }
-.talent-row .name { font-weight: var(--weight-semibold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.talent-row .sub { font-size: var(--text-xs); color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 1000px) {
-  .ws { height: auto; }
-  .ws-body { grid-template-columns: 1fr; }
-  .ws-list { max-height: 45vh; border-right: 0; border-bottom: 1px solid var(--color-border); }
-}
-
 /* ---------- Modal grande con pestañas ---------- */
 .modal-lg { width: min(980px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
 .modal-lg .modal-body { overflow-y: auto; flex: 1; }
@@ -236,3 +212,46 @@ button.star { cursor: pointer; }
 
 .chip-years { width: 46px; height: 20px; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); font: inherit; font-size: 11px; padding: 0 4px; }
 .modal-footer { align-items: center; }
+
+/* ---------- Menú minimalista y barra superior ---------- */
+.sidebar-brand img { max-height: 28px; }
+.sidebar nav { padding: var(--space-2); }
+.nav-link { padding: 6px 10px; font-size: 13px; gap: 10px; }
+.nav-link svg { width: 18px; height: 18px; }
+.nav-section { padding: var(--space-3) 10px 2px; font-size: 10px; }
+.sidebar-foot { padding: var(--space-2); }
+.sidebar-foot .nav-link { font-size: 12px; }
+.topbar { padding: 0 var(--space-4); gap: var(--space-2); }
+.user-menu { position: relative; }
+.avatar-btn { border: 0; cursor: pointer; font: inherit; font-weight: var(--weight-semibold); }
+.avatar-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.user-pop { position: absolute; right: 0; top: 42px; width: 260px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); z-index: 30; }
+
+/* ---------- Talentos: columna angosta (lista + filtros) y ficha a pantalla completa ---------- */
+.ws { display: grid; grid-template-columns: var(--list-width) 1fr; height: calc(100vh - var(--topbar-height) - 3px); min-height: 420px; }
+.ws-side { display: flex; flex-direction: column; min-height: 0; background: var(--color-surface); border-right: 1px solid var(--color-border); }
+.ws-side-head { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3) var(--space-3) var(--space-2); }
+.ws-side-head h1 { font-size: var(--text-md); }
+.ws-side-search { display: flex; gap: var(--space-1); padding: 0 var(--space-3) var(--space-2); }
+.ws-side-search .input { height: 34px; }
+.filter-btn { position: relative; height: 34px; width: 34px; }
+.filter-count { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--brand-primary); color: #fff; font-size: 10px; display: grid; place-items: center; padding: 0 3px; }
+.ws-filters { padding: var(--space-3); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); background: var(--color-surface-muted); gap: var(--space-2); max-height: 55vh; overflow-y: auto; }
+.ws-filters .field label { font-size: var(--text-xs); color: var(--color-text-muted); }
+.ws-filters .input, .ws-filters .select { height: 32px; }
+.ws-chips { display: flex; flex-wrap: wrap; gap: 4px; padding: var(--space-2) var(--space-3); align-items: center; }
+.ws-chips .chip { height: 22px; font-size: 11px; }
+.ws-list { flex: 1; overflow-y: auto; padding: var(--space-2); display: flex; flex-direction: column; gap: 4px; }
+.ws-detail { overflow-y: auto; min-width: 0; }
+.ws-detail .page { max-width: none; padding: var(--space-5) var(--space-6); }
+.ws-empty { height: 100%; display: grid; place-items: center; color: var(--color-text-muted); text-align: center; padding: var(--space-8); }
+.talent-row { display: flex; gap: var(--space-2); padding: 8px; border: 1px solid transparent; border-radius: var(--radius-md); text-decoration: none; color: inherit; align-items: flex-start; }
+.talent-row:hover { background: var(--color-surface-muted); }
+.talent-row.active { border-color: color-mix(in srgb, var(--brand-primary) 40%, white); background: color-mix(in srgb, var(--brand-primary) 8%, white); }
+.talent-row .name { font-weight: var(--weight-semibold); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.talent-row .sub { font-size: 11px; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 900px) {
+  .ws { grid-template-columns: 1fr; height: auto; }
+  .ws-side { border-right: 0; border-bottom: 1px solid var(--color-border); }
+  .ws-list { max-height: 40vh; }
+}

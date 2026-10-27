@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../providers/auth';
+import { homePath, useAuth } from '../../providers/auth';
 import { assetUrl, useTheme } from '../../providers/theme';
 import { Button, Field, LangSwitch, PasswordField, useErrorText } from '../../components/ui';
 import { OfflineBanner } from '../../components/layout/AppShell';
@@ -18,10 +18,11 @@ export function Login({ platform = false }: { platform?: boolean }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [remember, setRemember] = useState(() => { try { return localStorage.getItem('bdt.remember') !== '0'; } catch { return true; } });
 
   useEffect(() => { if (!platform && tenant) load(tenant); }, [platform, tenant, load]);
 
-  if (user) return <Navigate to={user.isPlatform ? '/admin' : `/${user.tenantSlug}`} replace />;
+  if (user) return <Navigate to={homePath(user)} replace />;
   if (!platform && brandingError === 'NOT_FOUND') return <Navigate to="/404" replace />;
 
   const submit = async (e: FormEvent) => {
@@ -29,8 +30,9 @@ export function Login({ platform = false }: { platform?: boolean }) {
     setError(null);
     setBusy(true);
     try {
-      const me = await login(platform ? null : tenant, email, password);
-      nav(me.isPlatform ? '/admin' : `/${me.tenantSlug}`, { replace: true });
+      try { localStorage.setItem('bdt.remember', remember ? '1' : '0'); } catch { /* ignorar */ }
+      const me = await login(platform ? null : tenant, email, password, remember);
+      nav(homePath(me), { replace: true });
     } catch (err) {
       setError(errText(err));
       setPassword('');
@@ -61,6 +63,10 @@ export function Login({ platform = false }: { platform?: boolean }) {
             onChange={(e) => setEmail(e.target.value)} />
           <PasswordField label={t('login.password')} autoComplete="current-password" required value={password}
             onChange={(e) => setPassword(e.target.value)} />
+          <label className="checkbox">
+            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} data-testid="remember" />
+            {t('login.remember')}
+          </label>
           <Button type="submit" block loading={busy} disabled={!email || !password}>{t('login.submit')}</Button>
         </form>
       </div>

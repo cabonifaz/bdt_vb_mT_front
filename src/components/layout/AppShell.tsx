@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../providers/auth';
 import { assetUrl, useTheme } from '../../providers/theme';
 import { useSync } from '../../providers/sync';
-import { LangSwitch, Button } from '../ui';
+import { UserMenu } from './UserMenu';
 import { Icon } from '../ui/Icon';
 
 interface NavItem { to: string; label: string; icon: string; perm?: string; end?: boolean }
@@ -43,7 +43,6 @@ export function AppShell({ base, sections, platform = false }: {
   const location = useLocation();
   const [mode, setModeState] = useState<SidebarMode>(loadMode);
   const [peek, setPeek] = useState(false); // menú oculto mostrado temporalmente
-  const initials = (user?.fullName ?? '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
   const setMode = (m: SidebarMode) => {
     setModeState(m);
@@ -83,7 +82,7 @@ export function AppShell({ base, sections, platform = false }: {
                 {s.title && !compact && <div className="nav-section">{s.title}</div>}
                 {s.title && compact && <hr className="nav-sep" />}
                 {visible.map((it) => (
-                  <NavLink key={it.to} to={`${base}${it.to}`} end={it.end} className="nav-link" title={compact ? it.label : undefined} aria-label={compact ? it.label : undefined}>
+                  <NavLink key={it.to} to={`${base}${it.to}`} end={it.end} className="nav-link" onClick={() => setPeek(false)} title={compact ? it.label : undefined} aria-label={compact ? it.label : undefined}>
                     <Icon name={it.icon} />{!compact && <span>{it.label}</span>}
                   </NavLink>
                 ))}
@@ -115,17 +114,7 @@ export function AppShell({ base, sections, platform = false }: {
             <Icon name="menu" />
           </button>
           <span className="spacer" />
-          <LangSwitch />
-          <div className="row" style={{ gap: 8 }}>
-            <span className="avatar" aria-hidden>{initials}</span>
-            <div style={{ lineHeight: 1.2 }}>
-              <div style={{ fontWeight: 600 }}>{user?.fullName}</div>
-              <div className="muted" style={{ fontSize: 12 }}>{user?.roles.map((r) => t(`roles.${r}`, r)).join(', ')}</div>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" onClick={async () => { const slug = user?.tenantSlug ?? ''; await logout(); nav(platform ? '/admin/login' : `/${slug}/login`); }}>
-            {t('common.logout')}
-          </Button>
+          <UserMenu onLogout={async () => { const slug = user?.tenantSlug ?? ''; await logout(); nav(platform ? '/admin/login' : `/${slug}/login`); }} />
         </header>
         <main className="content"><Outlet /></main>
       </div>

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { apiLogin, createFractalAdmin, uiLoginOk as uiLogin } from './helpers';
+import { apiLogin, createFractalAdmin, uiLoginOk as uiLogin, uiLogout } from './helpers';
 
 const stamp = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -89,14 +89,18 @@ test('alta en modal con TODAS las secciones y la ficha se abre sin perder la lis
   await expect(page.getByTestId('talent-card').first()).toBeVisible();
 });
 
-test('la lista y los filtros se mantienen al abrir talentos', async ({ page }) => {
+test('la lista y los filtros se mantienen al abrir talentos y nunca van en la URL', async ({ page }) => {
   const admin = await createFractalAdmin();
   await uiLogin(page, 'fractal', admin.email, admin.password);
-  await page.goto('/fractal/talentos');
+  await expect(page).toHaveURL(/\/fractal\/talentos$/);
+  await page.getByTestId('toggle-filters').click();
   await page.getByLabel('Nivel de inglés mínimo').selectOption({ label: 'Intermedio' });
   await page.getByLabel('Años de experiencia (mín.)').fill('3');
-  await expect(page).toHaveURL(/englishLevel=INTERMEDIATE.*minYears=3|minYears=3.*englishLevel=INTERMEDIATE/);
-  await expect(page.locator('.ws-list')).not.toHaveAttribute('aria-busy', 'true'); // lista ya filtrada
+  await page.getByLabel('Buscar').fill('a');
+  await expect(page.getByTestId('toggle-filters')).toContainText('2');
+  await expect(page.locator('.ws-chips')).toContainText('EN ≥ Intermedio');
+  await page.waitForTimeout(500);
+  await expect(page.locator('.ws-list')).not.toHaveAttribute('aria-busy', 'true');
   const cards = page.getByTestId('talent-card');
   await expect(cards.first()).toBeVisible();
   const total = await cards.count();
@@ -104,17 +108,26 @@ test('la lista y los filtros se mantienen al abrir talentos', async ({ page }) =
 
   await cards.nth(0).click();
   const first = await page.getByTestId('talent-name').textContent();
-  await expect(page).toHaveURL(/\/talentos\/[0-9a-f-]{36}\?.*englishLevel=INTERMEDIATE/);
+  // solo el uuid opaco del talento va en la URL: ni filtros ni términos de búsqueda
+  await expect(page).toHaveURL(/\/fractal\/talentos\/[0-9a-f-]{36}$/);
+  expect(page.url()).not.toMatch(/englishLevel|minYears|search|INTERMEDIATE/);
   await expect(cards).toHaveCount(total);
   await expect(page.getByLabel('Nivel de inglés mínimo')).toHaveValue('INTERMEDIATE');
-  await expect(page.getByLabel('Años de experiencia (mín.)')).toHaveValue('3');
+  await expect(page.getByLabel('Buscar')).toHaveValue('a');
   await expect(cards.nth(0)).toHaveAttribute('aria-current', 'true');
 
   await cards.nth(1).click();
   await expect(page.getByTestId('talent-name')).not.toHaveText(first!);
   await expect(cards).toHaveCount(total);
-  await expect(cards.nth(1)).toHaveAttribute('aria-current', 'true');
-  await expect(page.getByTestId('clear-filters')).toContainText('(2)');
+  // los filtros siguen al ir a otro módulo y volver
+  await page.getByTestId('sidebar').getByRole('link', { name: 'Usuarios' }).click();
+  await page.getByTestId('sidebar').getByRole('link', { name: 'Talentos' }).click();
+  await expect(page.locator('.ws-chips')).toContainText('EN ≥ Intermedio');
+  // y se descartan al cerrar sesión
+  await uiLogout(page);
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await expect(page.locator('.ws-chips')).toHaveCount(0);
+  await expect(page.getByLabel('Buscar')).toHaveValue('');
 });
 
 test('edición en modal: cambia datos y secciones', async ({ page }) => {
@@ -138,7 +151,7 @@ test('edición en modal: cambia datos y secciones', async ({ page }) => {
   await expect(page.getByRole('dialog')).toHaveCount(0, { timeout: 20_000 });
   await expect(page.locator('.ws-detail')).toContainText('Desarrollador Go');
   await expect(page.locator('.ws-detail .chip', { hasText: 'Go' })).toBeVisible();
-  await expect(page.getByTestId('talent-card')).toContainText('Desarrollador Go');
+  await expect(page.getByTestId('talent-card').filter({ hasText: last })).toContainText('Desarrollador Go');
 });
 
 test('menú lateral: minimizar, ocultar, mostrar por un momento y fijar', async ({ page }) => {
@@ -210,7 +223,9 @@ test('seguridad: otro tenant/plataforma no accede al talento; filtros resisten i
   const sa = await apiLogin(admin.ctx, process.env.E2E_SA_EMAIL!, process.env.E2E_SA_PASSWORD!);
   expect((await admin.ctx.get(`/api/v1/tenant/talents/${id}`, { headers: { Authorization: `Bearer ${sa}` } })).status()).toBe(403);
   expect((await admin.ctx.get(`/api/v1/tenant/talents/${id}`)).status()).toBe(401);
-  const r = await admin.ctx.get(`/api/v1/tenant/talents?search=${encodeURIComponent("' OR 1=1 --")}`, { headers: { Authorization: `Bearer ${tok}` } });
+  const r = await admin.ctx.post('/api/v1/tenant/talents/search', { headers: { Authorization: `Bearer ${tok}` }, data: { search: "' OR 1=1 --" } });
+  // los filtros ya no se aceptan en la URL
+  expect((await admin.ctx.get('/api/v1/tenant/talents?search=x', { headers: { Authorization: `Bearer ${tok}` } })).status()).toBe(405);
   expect(r.status()).toBe(200);
   expect((await r.json()).total).toBe(0);
 });

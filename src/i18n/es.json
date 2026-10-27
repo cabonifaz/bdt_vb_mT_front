@@ -61,7 +61,8 @@
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
     "sideTitle": "Encuentra el talento correcto, más rápido.",
-    "sideText": "Centraliza perfiles, habilidades y experiencia de tu banco de candidatos en un solo lugar."
+    "sideText": "Centraliza perfiles, habilidades y experiencia de tu banco de candidatos en un solo lugar.",
+    "remember": "Recordarme en este equipo"
   },
   "invite": {
     "title": "Activa tu cuenta",
@@ -91,7 +92,8 @@
     "expand": "Expandir menú",
     "minimize": "Minimizar",
     "hide": "Ocultar menú",
-    "toggleMenu": "Mostrar u ocultar el menú"
+    "toggleMenu": "Mostrar u ocultar el menú",
+    "userMenu": "Menú de usuario"
   },
   "home": {
     "welcome": "Hola, {{name}}",
