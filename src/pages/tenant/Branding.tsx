@@ -5,6 +5,7 @@ import { ALLOWED_FONTS, applyBranding, assetUrl, useTheme, type Branding as B } 
 import { Button, Card, ColorField, Field, SelectField, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Loader } from '../../components/ui/Loader';
+import { CvTemplateCard } from './CvTemplateCard';
 
 type Form = Pick<B, 'displayName' | 'colorPrimary' | 'colorPrimaryHover' | 'colorSecondary' | 'colorAccent' | 'colorSidebar' | 'fontFamily'>;
 
@@ -102,6 +103,7 @@ export function Branding() {
               <input type="file" accept="image/png,image/x-icon,image/vnd.microsoft.icon" hidden onChange={upload('favicon')} />
             </label>
           </Card>
+          <CvTemplateCard />
           <Card title={t('branding.preview')}>
             <div className="row">
               <Button type="button">{t('branding.sampleButton')}</Button>

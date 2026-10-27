@@ -20,6 +20,11 @@ export interface Branding {
   colorSidebar: string;
   fontFamily: string;
   version: string;
+  // plantilla del CV con la marca del tenant
+  cvHeaderUrl?: string;
+  cvFooterUrl?: string;
+  cvFooterText?: string;
+  cvShowPhoto?: boolean;
 }
 
 export const ALLOWED_FONTS = ['Inter', 'Roboto', 'Open Sans', 'Montserrat', 'Poppins', 'Lato', 'Nunito', 'Source Sans 3'];

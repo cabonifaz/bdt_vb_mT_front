@@ -167,7 +167,20 @@
     "uploadHint": "PNG, JPG, WEBP o ICO · máximo 2 MB.",
     "preview": "Vista previa",
     "saved": "Marca actualizada",
-    "sampleButton": "Botón principal"
+    "sampleButton": "Botón principal",
+    "cvTitle": "Plantilla de CV",
+    "cvSubtitle": "Así se verán los CV generados con la marca de la empresa (español e inglés).",
+    "cvHeader": "Imagen de cabecera",
+    "cvHeaderHint": "PNG o JPG apaisado (recomendado 2480 × 330 px). Sin imagen se usa una banda con el logo y el color principal.",
+    "cvFooter": "Imagen de pie (opcional)",
+    "cvFooterText": "Texto del pie",
+    "cvFooterTextPh": "p. ej. Fractal · www.fractal.com.pe · Confidencial",
+    "cvShowPhoto": "Mostrar la foto del talento",
+    "cvRemove": "Quitar",
+    "cvSave": "Guardar plantilla",
+    "cvPreview": "Ver ejemplo",
+    "cvSaved": "Plantilla de CV guardada.",
+    "cvSample": "CV de ejemplo"
   },
   "users": {
     "title": "Usuarios",
@@ -285,7 +298,9 @@
     "IDENTITY_NOT_FOUND": "No se encontró el DNI en RENIEC.",
     "IDENTITY_NOT_CONFIGURED": "La consulta de DNI no está configurada. Pide al administrador el token del proveedor.",
     "IDENTITY_UNAVAILABLE": "El servicio de RENIEC no responde. Inténtalo en unos minutos o ingresa los datos a mano.",
-    "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida."
+    "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida.",
+    "AI_NOT_CONFIGURED": "La traducción con IA no está configurada (falta la key de OpenAI).",
+    "AI_UNAVAILABLE": "El servicio de IA no respondió. Inténtalo nuevamente."
   },
   "talents": {
     "title": "Talentos",
@@ -621,5 +636,27 @@
       "interviewers": "Agrega un entrevistador",
       "notifyEmail": "Para notificar, el entrevistador necesita correo"
     }
+  },
+  "cv": {
+    "generate": "Generar CV con la marca",
+    "title": "CV de {{name}}",
+    "mode": {
+      "es": "Español",
+      "en": "Inglés",
+      "original": "Original"
+    },
+    "hint": {
+      "es": "Formato y marca de la empresa, con los datos de la ficha.",
+      "en": "Formato de la empresa; los textos se traducen con IA.",
+      "original": "El CV tal como lo cargó el usuario."
+    },
+    "translating": "Traduciendo al inglés con IA…",
+    "generating": "Generando el CV…",
+    "loadingOriginal": "Abriendo el CV original…",
+    "noOriginal": "Este talento no tiene un CV original cargado.",
+    "noPreview": "Este formato no tiene vista previa; puedes descargarlo.",
+    "download": "Descargar",
+    "save": "Guardar en la ficha",
+    "saved": "CV guardado en los archivos del talento."
   }
 }

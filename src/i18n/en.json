@@ -167,7 +167,20 @@
     "uploadHint": "PNG, JPG, WEBP or ICO · 2 MB max.",
     "preview": "Preview",
     "saved": "Brand updated",
-    "sampleButton": "Primary button"
+    "sampleButton": "Primary button",
+    "cvTitle": "CV template",
+    "cvSubtitle": "How CVs generated with the company branding will look (Spanish and English).",
+    "cvHeader": "Header image",
+    "cvHeaderHint": "Landscape PNG or JPG (recommended 2480 × 330 px). Without an image, a band with the logo and primary color is used.",
+    "cvFooter": "Footer image (optional)",
+    "cvFooterText": "Footer text",
+    "cvFooterTextPh": "e.g. Fractal · www.fractal.com.pe · Confidential",
+    "cvShowPhoto": "Show the talent's photo",
+    "cvRemove": "Remove",
+    "cvSave": "Save template",
+    "cvPreview": "See sample",
+    "cvSaved": "CV template saved.",
+    "cvSample": "Sample CV"
   },
   "users": {
     "title": "Users",
@@ -285,7 +298,9 @@
     "IDENTITY_NOT_FOUND": "The DNI was not found in RENIEC.",
     "IDENTITY_NOT_CONFIGURED": "DNI lookup is not configured. Ask your administrator for the provider token.",
     "IDENTITY_UNAVAILABLE": "The RENIEC service is not responding. Try again in a few minutes or enter the data manually.",
-    "INVALID_BIRTH_DATE": "The date of birth is not valid."
+    "INVALID_BIRTH_DATE": "The date of birth is not valid.",
+    "AI_NOT_CONFIGURED": "AI translation is not configured (missing OpenAI key).",
+    "AI_UNAVAILABLE": "The AI service did not respond. Please try again."
   },
   "talents": {
     "title": "Talents",
@@ -621,5 +636,27 @@
       "interviewers": "Add an interviewer",
       "notifyEmail": "To notify, the interviewer needs an email"
     }
+  },
+  "cv": {
+    "generate": "Generate branded CV",
+    "title": "CV of {{name}}",
+    "mode": {
+      "es": "Spanish",
+      "en": "English",
+      "original": "Original"
+    },
+    "hint": {
+      "es": "Company format and branding, with the profile data.",
+      "en": "Company format; texts are translated with AI.",
+      "original": "The CV as uploaded by the user."
+    },
+    "translating": "Translating into English with AI…",
+    "generating": "Generating the CV…",
+    "loadingOriginal": "Opening the original CV…",
+    "noOriginal": "This talent has no original CV uploaded.",
+    "noPreview": "This format has no preview; you can download it.",
+    "download": "Download",
+    "save": "Save to profile",
+    "saved": "CV saved to the talent files."
   }
 }

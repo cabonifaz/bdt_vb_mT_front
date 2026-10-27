@@ -22,6 +22,7 @@ import { Loader } from '../../components/ui/Loader';
 import { AvailabilityChip, EquipmentChip } from '../../components/talents/QuickChips';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
 import { talentFacts } from '../../lib/completeness';
+import { CvModal } from '../../components/talents/CvModal';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -42,6 +43,7 @@ export function TalentDetail() {
   const [blOpen, setBlOpen] = useState(false);
   const [ivPreset, setIvPreset] = useState<InterviewPreset | null>(null);
   const [phoneChoice, setPhoneChoice] = useState<InterviewSummary[] | null>(null);
+  const [cvOpen, setCvOpen] = useState(false);
   const bl = useQuery({ queryKey: ['blacklist', id], queryFn: () => http.get<BlacklistEntry[]>(`/api/v1/tenant/talents/${id}/blacklist`) });
   const ivs = useQuery({ queryKey: ['interviews', { talentId: id }], enabled: can('interview.read'),
     queryFn: () => http.post<{ total: number; items: InterviewSummary[] }>('/api/v1/tenant/interviews/search', { talentId: id, pageSize: 50 }) });
@@ -129,6 +131,7 @@ export function TalentDetail() {
           <IconButton icon="heart" label={t('talents.addToCollection')} active={isFav} onClick={() => open('collection')} testId="fav-talent" />
           <IconButton icon="ban" label={blocked ? t('blacklist.inBlacklist') : t('blacklist.add')} danger={blocked} onClick={() => setBlOpen(true)} testId="bl-talent" />
           {can('interview.write') && <IconButton icon="phoneCall" label={t('interviews.phoneInterview')} onClick={startPhone} testId="phone-interview" />}
+          {can('talent.cv.generate') && <IconButton icon="cv" label={t('cv.generate')} onClick={() => setCvOpen(true)} testId="cv-generate" />}
           {x.cvId && <IconButton icon="file" label={t('talents.viewCv')} onClick={async () => window.open(URL.createObjectURL(await fetchFileBlob(x.cvId!, true)), '_blank', 'noopener')} />}
           {canWrite && <IconButton icon="archive" label={x.status === 'ACTIVE' ? t('talents.archive') : t('talents.activate')}
             onClick={() => run(() => http.patch(`${TALENT_API}/${id}/status`, { status: x.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE' }))} />}
@@ -219,6 +222,7 @@ export function TalentDetail() {
         </aside>
       </div>
 
+      {cvOpen && <CvModal talent={x} canSave={canWrite} onClose={() => setCvOpen(false)} onSaved={refresh} />}
       {blOpen && <Modal open wide title={`${t('nav.blacklist')} · ${name}`} onClose={() => setBlOpen(false)} footer={<Button onClick={() => setBlOpen(false)}>{t('common.close')}</Button>}>
         <BlacklistPanel talentId={x.id} talentName={name} />
       </Modal>}
