@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../providers/auth';
 import { useTheme } from '../../providers/theme';
+import { Link } from 'react-router';
 import { Card } from '../../components/ui';
 
 export function Home() {
@@ -16,7 +17,7 @@ export function Home() {
         </div>
       </div>
       <Card title={t('nav.talents')}>
-        <p className="muted">{t('home.talentsSoon')}</p>
+        <div className="row"><p className="muted" style={{ flex: 1 }}>{t('talents.subtitle')}</p><Link className="btn btn-primary" to={`/${user?.tenantSlug}/talentos`}>{t('nav.talents')}</Link></div>
       </Card>
     </div>
   );

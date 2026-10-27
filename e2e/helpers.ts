@@ -43,3 +43,10 @@ export async function uiLogin(page: Page, tenant: string, email: string, passwor
   await page.getByLabel('Contraseña', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Ingresar' }).click();
 }
+
+/** Login por UI esperando a que la sesión quede establecida (sale de /login). */
+export async function uiLoginOk(page: Page, tenant: string, email: string, password: string) {
+  await uiLogin(page, tenant, email, password);
+  await page.waitForURL((u) => !u.pathname.endsWith('/login'));
+  await expect(page.getByRole('button', { name: 'Cerrar sesión' })).toBeVisible();
+}
