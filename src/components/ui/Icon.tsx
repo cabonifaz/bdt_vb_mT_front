@@ -1,5 +1,5 @@
 import {
-  Angry, Archive, Briefcase, FileUser, ChartColumn, Minus, TrendingDown, TrendingUp, TriangleAlert, User, Building2, CalendarCheck, Check, ChevronLeft, ChevronRight, Clock, Copy, Download, ExternalLink, Eye, EyeOff,
+  Angry, Archive, ClipboardList, Briefcase, FileUser, ChartColumn, Minus, TrendingDown, TrendingUp, TriangleAlert, User, Building2, CalendarCheck, Check, ChevronLeft, ChevronRight, Clock, Copy, Download, ExternalLink, Eye, EyeOff,
   FileText, Funnel, Github, Heart, Home, IdCard, KeyRound, Laptop, LayoutDashboard, Linkedin, LogOut, Mail, MapPin, Menu, Palette,
   Pencil, Phone, PhoneCall, Pin, Plus, Search, Star, Trash2, Upload, UserCog, Users, Video, Wallet, X, type LucideIcon,
 } from 'lucide-react';
@@ -9,6 +9,7 @@ const icons: Record<string, LucideIcon> = {
   home: LayoutDashboard,
   talents: Home,            // original: «Inicio» = talentos
   interviews: Users,        // original: Entrevistas
+  requirements: ClipboardList, // original: Requerimientos
   ban: Angry,               // original: Lista negra
   heart: Heart,
   building: Building2,

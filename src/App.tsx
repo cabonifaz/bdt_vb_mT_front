@@ -24,6 +24,8 @@ const pages = {
   favorites: () => import('./pages/favorites/Favorites'),
   blacklist: () => import('./pages/blacklist/Blacklist'),
   interviews: () => import('./pages/interviews/Interviews'),
+  rqBoard: () => import('./pages/requirements/RequirementsBoard'),
+  rqDetail: () => import('./pages/requirements/RequirementDetail'),
   clients: () => import('./pages/clients/Clients'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
@@ -45,6 +47,8 @@ const TalentDetail = lazy(() => pages.talentDetail().then((m) => ({ default: m.T
 const Favorites = lazy(() => pages.favorites().then((m) => ({ default: m.Favorites })));
 const Blacklist = lazy(() => pages.blacklist().then((m) => ({ default: m.Blacklist })));
 const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Interviews })));
+const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
+const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
 const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
 const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
@@ -105,7 +109,7 @@ function TenantRoutes() {
     <TenantArea>
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
-          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
+          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/requerimientos', label: t('nav.requirements'), icon: 'requirements', perm: 'rq.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
           { title: t('nav.administration'), items: [
             { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
@@ -120,6 +124,8 @@ function TenantRoutes() {
           </Route>
           <Route path="favoritos" element={<Favorites />} />
           <Route path="favoritos/:id" element={<Favorites />} />
+          <Route path="requerimientos" element={<RequirementsBoard />} />
+          <Route path="requerimientos/:id" element={<RequirementDetail />} />
           <Route path="entrevistas" element={<Interviews />} />
           <Route path="entrevistas/:id" element={<Interviews />} />
           <Route path="lista-negra" element={<Blacklist />} />

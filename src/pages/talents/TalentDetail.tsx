@@ -20,6 +20,7 @@ import { Icon } from '../../components/ui/Icon';
 import { Check, Heart, Plus, Search, X } from 'lucide-react';
 import { Loader } from '../../components/ui/Loader';
 import { AvailabilityChip, EquipmentChip } from '../../components/talents/QuickChips';
+import type { RQApplication } from '../../lib/requirements';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
 import { talentFacts } from '../../lib/completeness';
 import { CvModal } from '../../components/talents/CvModal';
@@ -47,6 +48,9 @@ export function TalentDetail() {
   const bl = useQuery({ queryKey: ['blacklist', id], queryFn: () => http.get<BlacklistEntry[]>(`/api/v1/tenant/talents/${id}/blacklist`) });
   const ivs = useQuery({ queryKey: ['interviews', { talentId: id }], enabled: can('interview.read'),
     queryFn: () => http.post<{ total: number; items: InterviewSummary[] }>('/api/v1/tenant/interviews/search', { talentId: id, pageSize: 50 }) });
+  // postulaciones del talento a requerimientos (pipeline de cada RQ)
+  const apps = useQuery({ queryKey: ['applications', id], enabled: can('rq.read'),
+    queryFn: () => http.get<RQApplication[]>(`/api/v1/tenant/talents/${id}/applications`) });
   const { tenant = '' } = useParams();
   const navTo = useNavigate(); // navegación interna: conserva filtros en memoria
 
@@ -174,6 +178,18 @@ export function TalentDetail() {
                 <div className="grow"><Link className="fav-link pf-item-title" to={`/${tenant}/entrevistas/${iv.id}`}>{label(iv.stage)}</Link>
                   <div className="pf-item-meta">{iv.date} · {iv.time}{iv.client ? ` · ${label(iv.client)}` : ''}</div></div>
                 <span className={`badge badge-${STATUS_TONE[iv.statusCode]}`}>{label(iv.status)}</span>
+              </div>
+            ))}
+          </Section>}
+
+          {can('rq.read') && <Section title={t('rq.applications')}>
+            {(apps.data?.length ?? 0) === 0 && <p className="pf-empty">{t('rq.noApplications')}</p>}
+            {apps.data?.map((a) => (
+              <div key={a.candidateId} className="pf-item compact" data-testid="talent-application">
+                <Icon name="requirements" size={15} />
+                <div className="grow"><Link className="fav-link pf-item-title" to={`/${tenant}/requerimientos/${a.requirementId}`}>{a.code} · {a.title}</Link>
+                  <div className="pf-item-meta">{label(a.client)} · {label(a.profile)} · {label(a.stage.label)}</div></div>
+                <span className={`badge rq-st-${a.status.code.toLowerCase()}`}>{label(a.status.label)}</span>
               </div>
             ))}
           </Section>}

@@ -5,9 +5,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
 import { http } from './api';
 
-export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED';
+export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED';
 export type AppNotification = {
-  id: string; type: NotificationType; entityType: 'TALENT'; entityId: string; payload: { name?: string; headline?: string };
+  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT'; entityId: string; payload: { name?: string; headline?: string; code?: string; title?: string; client?: string; status?: string };
   count: number; createdAt: string; at: string; readAt?: string; actor?: { id: string; name: string };
 };
 export type Inbox = { unread: number; items: AppNotification[] };
@@ -58,10 +58,11 @@ export const setPref = (p: NotificationPref) => http.put(`${API}/prefs`, p);
 export function notificationText(n: AppNotification, t: TFunction) {
   const who = n.actor?.name || t('notifications.someone');
   const name = n.payload.name || '—';
-  return t(`notifications.text.${n.type}`, { who, name, defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
+  return t(`notifications.text.${n.type}`, { who, name, code: n.payload.code ?? '', title: n.payload.title ?? '', defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
 }
 
-export const notificationLink = (n: AppNotification, slug: string) => (n.entityType === 'TALENT' ? `/${slug}/talentos/${n.entityId}` : `/${slug}`);
+export const notificationLink = (n: AppNotification, slug: string) =>
+  n.entityType === 'TALENT' ? `/${slug}/talentos/${n.entityId}` : n.entityType === 'REQUIREMENT' ? `/${slug}/requerimientos/${n.entityId}` : `/${slug}`;
 
 export function timeAgo(iso: string, lang: string) {
   const s = Math.round((new Date(iso).getTime() - Date.now()) / 1000);

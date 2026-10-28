@@ -11,8 +11,9 @@ if (existsSync('.env.e2e')) {
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  // la BD de staging es remota (≈0,5 s por consulta, 2–4 s por login): márgenes holgados
+  timeout: 120_000,
+  expect: { timeout: 20_000 },
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,

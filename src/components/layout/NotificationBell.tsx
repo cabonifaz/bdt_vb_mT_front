@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bell, BellRing, Check, Pencil, Settings, UserPlus } from 'lucide-react';
+import { Bell, BellRing, Check, ClipboardList, Pencil, Settings, UserPlus } from 'lucide-react';
 import { useAuth } from '../../providers/auth';
 import {
   INBOX_KEY, disablePush, enablePush, getPrefs, notificationLink, notificationText, olderNotifications, pushState, setPref, timeAgo,
@@ -120,10 +120,10 @@ export function NotificationBell() {
             {inbox.data && items.length === 0 && <p className="muted notif-empty">{onlyUnread ? t('notifications.noneUnread') : t('notifications.none')}</p>}
             {items.map((n) => (
               <button type="button" key={n.id} className={`notif-item${n.readAt ? '' : ' unread'}`} onClick={() => go(n)} data-testid="notif-item">
-                <span className={`notif-ico ${n.type === 'TALENT_CREATED' ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : <Pencil size={14} />}</span>
+                <span className={`notif-ico ${n.type.endsWith('_CREATED') ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : n.type === 'RQ_CREATED' ? <ClipboardList size={15} /> : <Pencil size={14} />}</span>
                 <span className="notif-body">
                   <span className="notif-text">{notificationText(n, t)}</span>
-                  {n.payload.headline && <span className="notif-sub">{n.payload.headline}</span>}
+                  {(n.payload.headline || n.payload.client) && <span className="notif-sub">{n.payload.headline || n.payload.client}</span>}
                   <span className="notif-time">{timeAgo(n.at, i18n.language)}</span>
                 </span>
                 {!n.readAt && <span className="notif-dot" aria-label={t('notifications.unreadOne')} />}
