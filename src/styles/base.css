@@ -567,3 +567,18 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
   .ws-detail { overflow: visible; } /* en móvil scrollea la página: el encabezado se fija bajo la barra superior */
   .pf-head { top: var(--topbar-height); margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-4)) 0; padding: var(--space-3) var(--space-4); }
 }
+
+/* Listas del editor de talento en acordeón: un solo ítem abierto, con sus campos dentro */
+.item-list > .acc-item { border-bottom: 1px solid var(--color-border); }
+.item-list > .acc-item:last-child { border-bottom: 0; }
+.acc-item > .item-row { border-bottom: 0; align-items: center; }
+.acc-item.open { background: var(--color-surface-muted); border-radius: var(--radius-md); padding: 0 var(--space-3) var(--space-3); margin: var(--space-1) 0; }
+.acc-item.open > .sub-form { border-style: solid; border-color: var(--color-border); background: var(--color-surface); }
+
+/* Ficha: experiencias en acordeón (funciones a un clic) */
+.pf-acc-head { display: flex; gap: 6px; align-items: flex-start; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pf-acc-head:focus-visible { outline: 2px solid var(--brand-primary); outline-offset: 2px; border-radius: var(--radius-sm); }
+.pf-acc-chev { display: inline-flex; flex: none; margin-top: 3px; color: var(--color-text-muted); transition: transform .15s ease; }
+.pf-acc.open .pf-acc-chev { transform: rotate(90deg); }
+.pf-acc-plain { padding-left: 21px; }
+.pf-acc-body { margin: 6px 0 0 21px; }

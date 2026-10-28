@@ -1,7 +1,7 @@
 // Borrador de un talento (alta o edición) y los pasos para guardarlo. Lo usan el editor completo y la carga rápida con CV.
 // Cada elemento tiene uuid propio => guardar es idempotente (reintentos y cola offline no duplican).
 import type { TFunction } from 'i18next';
-import { http } from './api';
+import { ApiError, http } from './api';
 import { TALENT_API, type MasterItem, type Rates, type Talent } from './talents';
 import type { CvRead } from './cv/readCv';
 
@@ -96,11 +96,12 @@ const byCode = (list: MasterItem[], code?: string) => (code ? list.find((x) => x
 const byLabel = (list: MasterItem[], name?: string) => (name ? list.find((x) => labels(x).includes(norm(name))) : undefined);
 
 /** Resumen de lo leído (para avisar qué se guardará además de lo que se revisa). */
-export type CvApplied = { exp: number; edu: number; tech: number; soft: number; lang: number; missing: string[] };
+export type CvApplied = { exp: number; edu: number; tech: number; techUpdated: number; soft: number; lang: number; missing: string[] };
 
 /**
- * Vuelca un CV leído con IA sobre el borrador: completa los datos vacíos (no pisa lo que ya escribió el usuario),
- * agrega experiencias, estudios, habilidades e idiomas que no estén y adjunta el PDF como CV original.
+ * Vuelca un CV leído con IA sobre el borrador (alta o edición): completa los datos vacíos (no pisa lo que ya hay),
+ * agrega experiencias, estudios, habilidades e idiomas que no estén, actualiza los años de las habilidades técnicas
+ * que ya tenía y adjunta el PDF como CV original (al guardarse pasa a ser el CV vigente; el anterior queda en archivos).
  */
 export function applyCvRead(d: Draft, r: CvRead, items: MasterItem[], label: (l?: Record<string, string>) => string, file?: File): { draft: Draft; applied: CvApplied } {
   const masters = { byTable: (table: string) => items.filter((i) => i.table === table) };
@@ -120,11 +121,15 @@ export function applyCvRead(d: Draft, r: CvRead, items: MasterItem[], label: (l?
   }
 
   const techOpts = masters.byTable('TECH_SKILL');
+  // habilidad que ya tenía el talento: el CV (más reciente) actualiza sus años solo si los trae o los pudo calcular
+  // (el mínimo por defecto de 1 año no pisa lo que ya estaba)
   const tech = [...d.tech];
+  let techUpdated = 0;
   for (const s of r.techSkills) {
     const match = byLabel(techOpts, s.name);
-    if (tech.some((x) => (match && x.skillId === match.id) || norm(x.label) === norm(s.name))) continue;
-    tech.push({ id: uid(), skillId: match?.id, label: match ? label(match.label) : s.name, years: s.years });
+    const i = tech.findIndex((x) => (match && x.skillId === match.id) || norm(x.label) === norm(s.name));
+    if (i < 0) tech.push({ id: uid(), skillId: match?.id, label: match ? label(match.label) : s.name, years: s.years });
+    else if (s.yearsKnown && tech[i].years !== s.years) { tech[i] = { ...tech[i], years: s.years }; techUpdated++; }
   }
   const softOpts = masters.byTable('SOFT_SKILL');
   const soft = [...d.soft];
@@ -162,6 +167,55 @@ export function applyCvRead(d: Draft, r: CvRead, items: MasterItem[], label: (l?
   const missing = (['firstName', 'lastName', 'email', 'phone'] as const).filter((k) => !m[k].trim());
   return {
     draft: { ...d, main: m, tech, soft, exp, edu, lang, files },
-    applied: { exp: exp.length - d.exp.length, edu: edu.length - d.edu.length, tech: tech.length - d.tech.length, soft: soft.length - d.soft.length, lang: lang.length - d.lang.length, missing },
+    applied: { exp: exp.length - d.exp.length, edu: edu.length - d.edu.length, tech: tech.length - d.tech.length, techUpdated, soft: soft.length - d.soft.length, lang: lang.length - d.lang.length, missing },
   };
+}
+
+/** Talento existente con el mismo correo, documento o nombre completo (para no crear repetidos). */
+export type TalentMatch = { id: string; firstName: string; lastName: string; secondLastName?: string; headline?: string; matchedBy: 'EMAIL' | 'DOC' | 'NAME' };
+export type MatchQuery = { email?: string; docNumber?: string; firstName?: string; lastName?: string; secondLastName?: string };
+
+/** byName = false: solo correo y documento (el usuario ya indicó que es otra persona con el mismo nombre). */
+export async function findTalentMatch(q: MatchQuery, byName = true): Promise<TalentMatch | null> {
+  const body: MatchQuery = { email: q.email ?? '', docNumber: q.docNumber ?? '' };
+  if (byName) Object.assign(body, { firstName: q.firstName ?? '', lastName: q.lastName ?? '', secondLastName: q.secondLastName ?? '' });
+  return (await http.post<{ match: TalentMatch | null }>(`${TALENT_API}/match`, body)).match;
+}
+
+/**
+ * Funde un borrador nuevo sobre el de un talento existente: completa los datos vacíos y agrega lo que no esté
+ * (habilidades, experiencias por empresa e inicio, estudios por institución y carrera, idiomas, archivos).
+ */
+export function mergeDrafts(base: Draft, extra: Draft): Draft {
+  const main = { ...base.main };
+  for (const k of Object.keys(main) as (keyof Main)[]) {
+    if (!String(main[k]).trim() && String(extra.main[k]).trim()) (main[k] as string) = extra.main[k];
+  }
+  const add = <T,>(list: T[], more: T[], key: (x: T) => string) => [...list, ...more.filter((m) => !list.some((x) => key(x) === key(m)))];
+  return {
+    ...base, main,
+    tech: add(base.tech, extra.tech, (x) => x.skillId ?? norm(x.label)),
+    soft: add(base.soft, extra.soft, (x) => x.skillId ?? norm(x.label)),
+    exp: add(base.exp, extra.exp, (x) => `${norm(x.company)}|${x.startDate}`),
+    edu: add(base.edu, extra.edu, (x) => `${norm(x.institution)}|${norm(x.career)}`),
+    lang: add(base.lang, extra.lang, (x) => x.languageId),
+    files: add(base.files, extra.files, (x) => x.id),
+  };
+}
+
+/** Ejecuta los pasos de guardado en orden. Devuelve los errores, o null si fallaron los datos principales (no hay talento). */
+export async function runSaveSteps(steps: SaveStep[], onProgress: (current: number, total: number) => void, errText: (e: unknown) => string) {
+  const errs: string[] = [];
+  let i = 0;
+  for (const s of steps) {
+    onProgress(++i, steps.length);
+    try {
+      await s.run();
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'OFFLINE' && !s.online) continue;
+      if (s.key === 'main') return { errs: [errText(e)], failedMain: true };
+      errs.push(`${s.label}: ${errText(e)}`);
+    }
+  }
+  return { errs, failedMain: false };
 }

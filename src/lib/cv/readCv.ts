@@ -6,7 +6,8 @@ import { TALENT_API } from '../talents';
 export type CvRead = {
   firstName: string; lastName: string; secondLastName: string; docNumber: string; email: string; phoneCode: string; phoneNumber: string;
   countryCode: string; city: string; linkedin: string; github: string; headline: string; summary: string;
-  techSkills: { name: string; years: number }[]; softSkills: string[];
+  /** yearsKnown: años del CV (explícitos o calculados de las experiencias); si no, years es el mínimo (1) */
+  techSkills: { name: string; years: number; yearsKnown: boolean }[]; softSkills: string[];
   experiences: { company: string; position: string; functions: string; startDate: string; endDate: string; current: boolean }[];
   educations: { institution: string; career: string; grade: string; startDate: string; endDate: string; current: boolean; yearOnly: boolean }[];
   languages: { code: string; name: string; level: string }[];

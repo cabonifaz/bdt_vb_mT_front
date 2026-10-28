@@ -504,7 +504,11 @@
       "skills_one": "{{count}} skill",
       "skills_other": "{{count}} skills",
       "lang_one": "{{count}} language",
-      "lang_other": "{{count}} languages"
+      "lang_other": "{{count}} languages",
+      "hintEdit": "Upload the CV PDF again: new experience, education, skills and languages are added, each technology's years are updated and empty fields are filled. The PDF becomes the current CV.",
+      "buttonEdit": "Re-read CV with AI",
+      "yearsUpdated_one": "years updated for {{count}} technology",
+      "yearsUpdated_other": "years updated for {{count}} technologies"
     },
     "quick": {
       "title": "Quick load from CV",
@@ -526,7 +530,30 @@
         "lastName": "last name",
         "email": "email",
         "phone": "phone"
-      }
+      },
+      "update": "Update talent",
+      "updating": "Updating the existing talent…",
+      "updated": "Existing talent updated from the CV.",
+      "checking": "Checking whether the talent already exists…",
+      "foundOnCreate": "That talent already exists: only their information will be updated.",
+      "existsTitle": "This talent already exists: {{name}}",
+      "existsByEmail": "Same email. No new talent will be created: only their information will be updated with what is new in the CV (empty fields, experience, education, skills, languages and years per technology). The PDF becomes their current CV.",
+      "existsByDoc": "Same ID document. No new talent will be created: only their information will be updated with what is new in the CV (empty fields, experience, education, skills, languages and years per technology). The PDF becomes their current CV.",
+      "existsByName": "Same full name. No new talent will be created: only their information will be updated with what is new in the CV (empty fields, experience, education, skills, languages and years per technology). The PDF becomes their current CV.",
+      "otherPerson": "It is a different person: create new",
+      "dni": "ID number (DNI)",
+      "badDoc": "Invalid document"
+    },
+    "showFunctions": "Show responsibilities",
+    "hideFunctions": "Hide responsibilities",
+    "dup": {
+      "hint": "No new talent will be created: you can update the existing one with what you loaded here (empty fields are filled and new experience, education, skills and languages are added; the CV becomes the current one).",
+      "open": "Open their profile",
+      "byEMAIL": "Same email.",
+      "byDOC": "Same ID document.",
+      "byNAME": "Same full name.",
+      "update": "Update the existing talent",
+      "updated": "Existing talent updated: {{name}}."
     }
   },
   "favorites": {

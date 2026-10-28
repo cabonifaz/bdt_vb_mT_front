@@ -34,7 +34,7 @@ export function CvModal({ talent, onClose, onSaved, canSave }: { talent: Talent;
   // archivos vigentes del talento (se actualizan al guardar sin esperar a que se recargue la ficha)
   const files = useRef(talent.files);
   const name = fullName(talent);
-  const original = talent.files.find((f) => f.category === 'CV') ?? talent.files.find((f) => f.id === talent.cvId);
+  const original = talent.files.find((f) => f.id === talent.cvId) ?? talent.files.find((f) => f.category === 'CV');
   const fileName = (m: 'es' | 'en') => `${name.replace(/\s+/g, '_')}_CV_${m.toUpperCase()}.pdf`;
 
   useEffect(() => {

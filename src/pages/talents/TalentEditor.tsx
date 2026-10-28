@@ -1,16 +1,22 @@
 // Editor de talento en modal con pestañas: alta con TODAS las secciones y edición completa.
 // Cada elemento tiene uuid propio => guardar es idempotente (reintentos y cola offline no duplican).
 // En el alta, "Leer CV con IA" completa el formulario desde el PDF del CV y lo adjunta como CV original.
+// No se crean talentos repetidos: si al leer el CV, consultar el DNI o guardar ya existe uno con el mismo correo, documento
+// o nombre completo, se ofrece actualizar ese talento (se le vuelca lo cargado) en vez de crear otro.
 import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiError, http } from '../../lib/api';
-import { applyCvRead, buildSaveSteps, fromTalent, uid, type Draft, type Edu, type Exp, type Lang, type Main } from '../../lib/talentDraft';
-import { isPdf, readCv } from '../../lib/cv/readCv';
+import {
+  applyCvRead, buildSaveSteps, findTalentMatch, fromTalent, mergeDrafts, runSaveSteps, uid,
+  type Draft, type Edu, type Exp, type Lang, type Main, type TalentMatch,
+} from '../../lib/talentDraft';
+import { isPdf, readCv, type CvRead } from '../../lib/cv/readCv';
 import { useAuth } from '../../providers/auth';
-import { useLabel, useMasters, type Rates, type Talent } from '../../lib/talents';
+import { fullName, TALENT_API, useLabel, useMasters, type MasterItem, type Rates, type Talent } from '../../lib/talents';
+import { Link, useParams } from 'react-router';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
-import { Search, Sparkles } from 'lucide-react';
+import { Plus, Search, Sparkles } from 'lucide-react';
 import { Chip, Stars } from '../../components/talents/bits';
 import { Loader } from '../../components/ui/Loader';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
@@ -41,6 +47,34 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
   const toast = useToast();
   const cvInput = useRef<HTMLInputElement>(null);
   const [reading, setReading] = useState(false);
+  // alta: talento que ya existe (mismo correo, documento o nombre completo); no se crean repetidos
+  const { tenant = '' } = useParams();
+  const [dup, setDup] = useState<TalentMatch | null>(null);
+  const [notDup, setNotDup] = useState(false); // el usuario indicó que es otra persona (solo coincidía el nombre)
+  const [lastRead, setLastRead] = useState<{ r: CvRead; items: MasterItem[]; file: File } | null>(null);
+  const findDup = async (m: Draft['main']) => (editing ? null : findTalentMatch(m, !notDup).catch(() => null));
+  const checkDup = async (m: Draft['main']) => { if (!editing) setDup(await findDup(m)); };
+  // vuelca lo cargado en el talento existente: el CV con sus reglas (años, vacíos, CV vigente) y lo escrito a mano
+  const updateExisting = async (match: TalentMatch) => {
+    setBusy(true);
+    setErrors([]);
+    try {
+      const existing = await http.get<Talent>(`${TALENT_API}/${match.id}`);
+      const base = fromTalent(existing, label);
+      const withCv = lastRead ? applyCvRead(base, lastRead.r, lastRead.items, label, lastRead.file).draft : base;
+      const merged = mergeDrafts(withCv, { ...d, files: d.files.filter((f) => !withCv.files.some((x) => x.file === f.file)) });
+      const res = await runSaveSteps(buildSaveSteps({ d: merged, original: base, talentId: match.id, talent: existing, canRates, t }),
+        (current, total) => setProgress(t('talents.saving', { current, total })), errText);
+      if (res.failedMain || res.errs.length) { setErrors(res.errs); return; }
+      toast.success(t('talents.dup.updated', { name: fullName(existing) }));
+      onSaved(match.id, false);
+    } catch (e) {
+      setErrors([errText(e)]);
+    } finally {
+      setBusy(false);
+      setProgress('');
+    }
+  };
   const readFromCv = async (file?: File) => {
     if (!file) return;
     if (!isPdf(file)) { toast.error(t('talents.cvRead.pdfOnly')); return; }
@@ -50,9 +84,12 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
       const [r, items] = await Promise.all([readCv(file), masters.data ?? masters.refetch().then((x) => x.data ?? [])]);
       const { draft, applied } = applyCvRead(d, r, items, label, file);
       setD(draft);
+      setLastRead({ r, items, file });
+      await checkDup(draft.main);
       const parts = [
         applied.exp && t('talents.cvRead.exp', { count: applied.exp }), applied.edu && t('talents.cvRead.edu', { count: applied.edu }),
         applied.tech + applied.soft && t('talents.cvRead.skills', { count: applied.tech + applied.soft }), applied.lang && t('talents.cvRead.lang', { count: applied.lang }),
+        applied.techUpdated && t('talents.cvRead.yearsUpdated', { count: applied.techUpdated }),
       ].filter(Boolean);
       toast.success(parts.length ? t('talents.cvRead.filledWith', { items: parts.join(', ') }) : t('talents.cvRead.filled'));
     } catch (e) {
@@ -64,6 +101,10 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
   const valid = d.main.firstName.trim() !== '' && d.main.lastName.trim() !== '';
 
   const save = async () => {
+    if (!editing && !mainSaved) {
+      const m = await findDup(d.main);
+      if (m) { setDup(m); return; }
+    }
     setBusy(true);
     setErrors([]);
     let offline = false;
@@ -131,17 +172,26 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
       </>}>
       {busy && <Loader variant="overlay" label={progress || t('common.savingDots')} />}
       {reading && <Loader variant="overlay" label={t('talents.cvRead.reading')} />}
-      {!editing && (
-        <div className="cv-read-bar">
-          <Sparkles size={16} aria-hidden />
-          <span className="grow">{t('talents.cvRead.hint')}</span>
-          <input ref={cvInput} type="file" accept=".pdf,application/pdf" hidden data-testid="cv-read-input"
-            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void readFromCv(f); }} />
-          <Button size="sm" variant="secondary" onClick={() => cvInput.current?.click()} disabled={reading || busy} data-testid="cv-read">{t('talents.cvRead.button')}</Button>
+      {dup && (
+        <div className="alert alert-warning" role="alert" data-testid="editor-dup">
+          <strong>{t('talents.quick.existsTitle', { name: fullName(dup) })}</strong>
+          <div>{t(`talents.dup.by${dup.matchedBy}`)} {t('talents.dup.hint')}</div>
+          <div className="row" style={{ marginTop: 8, gap: 8 }}>
+            <Button size="sm" onClick={() => updateExisting(dup)} disabled={busy} data-testid="editor-dup-update">{t('talents.dup.update')}</Button>
+            <Link className="btn btn-secondary btn-sm" to={`/${tenant}/talentos/${dup.id}`} onClick={onClose} data-testid="editor-dup-open">{t('talents.dup.open')}</Link>
+            {dup.matchedBy === 'NAME' && <Button size="sm" variant="ghost" onClick={() => { setDup(null); setNotDup(true); }}>{t('talents.quick.otherPerson')}</Button>}
+          </div>
         </div>
       )}
+      <div className="cv-read-bar">
+        <Sparkles size={16} aria-hidden />
+        <span className="grow">{editing ? t('talents.cvRead.hintEdit') : t('talents.cvRead.hint')}</span>
+        <input ref={cvInput} type="file" accept=".pdf,application/pdf" hidden data-testid="cv-read-input"
+          onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void readFromCv(f); }} />
+        <Button size="sm" variant="secondary" onClick={() => cvInput.current?.click()} disabled={reading || busy} data-testid="cv-read">{editing ? t('talents.cvRead.buttonEdit') : t('talents.cvRead.button')}</Button>
+      </div>
       {errors.length > 0 && <div className="alert alert-error" role="alert"><ul style={{ margin: 0, paddingLeft: 18 }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
-      {tab === 'data' && <DataTab d={d} set={set} canRates={canRates} />}
+      {tab === 'data' && <DataTab d={d} set={set} canRates={canRates} onIdentity={checkDup} />}
       {tab === 'skills' && <SkillsTab d={d} set={set} />}
       {tab === 'experience' && <ExperienceTab d={d} set={set} />}
       {tab === 'education' && <EducationTab d={d} set={set} />}
@@ -154,7 +204,7 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
 
 type TabProps = { d: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K]) => void };
 
-function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
+function DataTab({ d, set, canRates, onIdentity }: TabProps & { canRates: boolean; onIdentity: (m: Main) => void }) {
   const { t } = useTranslation();
   const label = useLabel();
   const masters = useMasters();
@@ -182,11 +232,14 @@ function DataTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
     setLooking(true);
     try {
       const p = await http.get<{ firstName: string; lastName: string; secondLastName: string; birthDate?: string }>(`/api/v1/tenant/identity/dni/${m.docNumber.trim()}`);
-      set('main', { ...m, docTypeId: m.docTypeId || dniType!.id, firstName: p.firstName || m.firstName, lastName: p.lastName || m.lastName,
-        secondLastName: p.secondLastName || m.secondLastName, birthDate: p.birthDate || m.birthDate });
+      const next = { ...m, docTypeId: m.docTypeId || dniType!.id, firstName: p.firstName || m.firstName, lastName: p.lastName || m.lastName,
+        secondLastName: p.secondLastName || m.secondLastName, birthDate: p.birthDate || m.birthDate };
+      set('main', next);
+      onIdentity(next); // con el DNI se comprueba si el talento ya existe
       toast.success(p.birthDate ? t('talents.dniFilledBirth') : t('talents.dniFilled'));
     } catch (e) {
       toast.error(errText(e));
+      onIdentity(m); // sin API de DNI igual se comprueba por el número
     } finally {
       setLooking(false);
     }
@@ -324,36 +377,54 @@ function SkillsTab({ d, set }: TabProps) {
   );
 }
 
-/** Lista editable genérica: formulario arriba (agregar/actualizar) y filas abajo. */
+/**
+ * Lista editable en acordeón (experiencia, educación, idiomas): "Editar" despliega los campos dentro del mismo ítem
+ * y solo hay un ítem abierto a la vez; "Agregar" abre un formulario nuevo arriba (abierto de entrada si la lista está vacía).
+ * Al abrir otro ítem se descartan los cambios no guardados del anterior.
+ */
 function ListEditor<T extends { id: string }>({ items, onChange, empty, render, form, isValid, addLabel }: {
   items: T[]; onChange: (v: T[]) => void; empty: T; render: (x: T) => ReactNode; isValid: (x: T) => boolean; addLabel: string;
   form: (x: T, setX: (v: T) => void) => ReactNode;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState<string | null>(items.length ? null : 'new');
   const [cur, setCur] = useState<T>({ ...empty, id: uid() });
-  const editingExisting = items.some((i) => i.id === cur.id);
+  const start = (x?: T) => { setCur(x ?? { ...empty, id: uid() }); setOpen(x ? x.id : 'new'); };
+  const close = () => setOpen(null);
   const commit = () => {
-    onChange(editingExisting ? items.map((i) => (i.id === cur.id ? cur : i)) : [...items, cur]);
-    setCur({ ...empty, id: uid() });
+    onChange(items.some((i) => i.id === cur.id) ? items.map((i) => (i.id === cur.id ? cur : i)) : [...items, cur]);
+    close();
   };
+  const panel = (isNew: boolean) => (
+    <div className="sub-form">
+      {form(cur, setCur)}
+      <div className="row">
+        <Button type="button" variant="secondary" onClick={commit} disabled={!isValid(cur)} data-testid="list-add">{isNew ? addLabel : t('common.save')}</Button>
+        {(!isNew || items.length > 0) && <Button type="button" variant="ghost" onClick={close}>{t('common.cancel')}</Button>}
+      </div>
+    </div>
+  );
   return (
     <div className="stack">
-      <div className="sub-form">
-        {form(cur, setCur)}
-        <div className="row">
-          <Button type="button" variant="secondary" onClick={commit} disabled={!isValid(cur)} data-testid="list-add">{editingExisting ? t('common.save') : addLabel}</Button>
-          {editingExisting && <Button type="button" variant="ghost" onClick={() => setCur({ ...empty, id: uid() })}>{t('common.cancel')}</Button>}
-        </div>
-      </div>
+      {open === 'new' ? panel(true) : (
+        <div><Button type="button" variant="secondary" size="sm" onClick={() => start()} data-testid="list-new"><Plus size={15} />{addLabel}</Button></div>
+      )}
       <div className="item-list">
-        {items.length === 0 && <p className="muted">{t('talents.empty')}</p>}
-        {items.map((x) => (
-          <div key={x.id} className="item-row" data-testid="draft-row">
-            <div className="grow">{render(x)}</div>
-            <Button size="sm" variant="ghost" type="button" onClick={() => setCur(x)}>{t('talents.edit').split(' ')[0]}</Button>
-            <Button size="sm" variant="ghost" type="button" onClick={() => onChange(items.filter((i) => i.id !== x.id))}>{t('talents.delete')}</Button>
-          </div>
-        ))}
+        {items.length === 0 && open !== 'new' && <p className="muted">{t('talents.empty')}</p>}
+        {items.map((x) => {
+          const isOpen = open === x.id;
+          return (
+            <div key={x.id} className={`acc-item${isOpen ? ' open' : ''}`} data-testid="draft-row">
+              <div className="item-row">
+                <div className="grow">{render(isOpen ? cur : x)}</div>
+                <Button size="sm" variant="ghost" type="button" aria-expanded={isOpen} onClick={() => (isOpen ? close() : start(x))}>
+                  {isOpen ? t('common.close') : t('talents.edit').split(' ')[0]}</Button>
+                <Button size="sm" variant="ghost" type="button" onClick={() => { if (isOpen) close(); onChange(items.filter((i) => i.id !== x.id)); }}>{t('talents.delete')}</Button>
+              </div>
+              {isOpen && panel(false)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -504,7 +504,11 @@
       "skills_one": "{{count}} habilidad",
       "skills_other": "{{count}} habilidades",
       "lang_one": "{{count}} idioma",
-      "lang_other": "{{count}} idiomas"
+      "lang_other": "{{count}} idiomas",
+      "hintEdit": "Vuelve a subir el CV en PDF: se agregan las experiencias, estudios, habilidades e idiomas nuevos, se actualizan los años de cada tecnología y se completan los datos vacíos. El PDF pasa a ser el CV vigente.",
+      "buttonEdit": "Releer CV con IA",
+      "yearsUpdated_one": "años actualizados en {{count}} tecnología",
+      "yearsUpdated_other": "años actualizados en {{count}} tecnologías"
     },
     "quick": {
       "title": "Carga rápida con CV",
@@ -526,7 +530,30 @@
         "lastName": "apellido paterno",
         "email": "correo",
         "phone": "celular"
-      }
+      },
+      "update": "Actualizar talento",
+      "updating": "Actualizando el talento existente…",
+      "updated": "Talento existente actualizado con su CV.",
+      "checking": "Comprobando si el talento ya existe…",
+      "foundOnCreate": "Ese talento ya existe: solo se actualizará su información.",
+      "existsTitle": "Este talento ya existe: {{name}}",
+      "existsByEmail": "Tiene el mismo correo. No se creará otro: solo se actualizará su información con lo nuevo del CV (datos vacíos, experiencias, estudios, habilidades, idiomas y años de cada tecnología). El PDF pasará a ser su CV vigente.",
+      "existsByDoc": "Tiene el mismo documento de identidad. No se creará otro: solo se actualizará su información con lo nuevo del CV (datos vacíos, experiencias, estudios, habilidades, idiomas y años de cada tecnología). El PDF pasará a ser su CV vigente.",
+      "existsByName": "Tiene el mismo nombre completo. No se creará otro: solo se actualizará su información con lo nuevo del CV (datos vacíos, experiencias, estudios, habilidades, idiomas y años de cada tecnología). El PDF pasará a ser su CV vigente.",
+      "otherPerson": "Es otra persona: crear nuevo",
+      "dni": "DNI",
+      "badDoc": "Documento inválido"
+    },
+    "showFunctions": "Ver funciones",
+    "hideFunctions": "Ocultar funciones",
+    "dup": {
+      "hint": "No se creará otro talento: puedes actualizar el existente con lo cargado aquí (se completan sus datos vacíos y se agregan experiencias, estudios, habilidades e idiomas nuevos; el CV pasa a ser el vigente).",
+      "open": "Abrir su ficha",
+      "byEMAIL": "Tiene el mismo correo.",
+      "byDOC": "Tiene el mismo documento de identidad.",
+      "byNAME": "Tiene el mismo nombre completo.",
+      "update": "Actualizar el talento existente",
+      "updated": "Se actualizó el talento existente: {{name}}."
     }
   },
   "favorites": {

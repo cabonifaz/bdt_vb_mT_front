@@ -147,14 +147,9 @@ export function TalentDetail() {
           <Section title={t('talents.experience')} onAdd={canWrite ? () => open('experience') : undefined} addLabel={t('talents.addExperience')}>
             {x.experiences.length === 0 && <p className="pf-empty">{t('talents.empty')}</p>}
             {x.experiences.map((e) => (
-              <div key={e.id} className="pf-item" data-testid="experience-row">
-                <div className="grow">
-                  <div className="pf-item-title">{e.position} <span className="muted">· {e.company}</span></div>
-                  <div className="pf-item-meta">{e.startDate.slice(0, 7)} — {e.isCurrent ? t('talents.present') : e.endDate?.slice(0, 7)} · {yearsLabel(e.months, t)}</div>
-                  {e.functions && <p className="pre pf-text" style={{ marginTop: 4 }}>{e.functions}</p>}
-                </div>
-                {canWrite && <RowActions onEdit={() => open('experience', e)} onDelete={() => del('experiences', e.id)} />}
-              </div>
+              <ExperienceItem key={e.id} title={<>{e.position} <span className="muted">· {e.company}</span></>} functions={e.functions}
+                meta={<>{e.startDate.slice(0, 7)} — {e.isCurrent ? t('talents.present') : e.endDate?.slice(0, 7)} · {yearsLabel(e.months, t)}</>}
+                actions={canWrite && <RowActions onEdit={() => open('experience', e)} onDelete={() => del('experiences', e.id)} />} />
             ))}
           </Section>
 
@@ -259,6 +254,28 @@ export function TalentDetail() {
 function fmtEdu(d?: string, precision?: string) {
   if (!d) return '—';
   return precision === 'YEAR' ? d.slice(0, 4) : d.slice(0, 7);
+}
+
+/** Experiencia en acordeón: se ve recogida (puesto, empresa y fechas) y las funciones se despliegan con un clic. */
+function ExperienceItem({ title, meta, functions, actions }: { title: ReactNode; meta: ReactNode; functions?: string; actions?: ReactNode }) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const head = <><div className="pf-item-title">{title}</div><div className="pf-item-meta">{meta}</div></>;
+  return (
+    <div className={expanded ? 'pf-item pf-acc open' : 'pf-item pf-acc'} data-testid="experience-row">
+      <div className="grow">
+        {functions ? (
+          <button type="button" className="pf-acc-head" aria-expanded={expanded} onClick={() => setExpanded((v) => !v)}
+            title={expanded ? t('talents.hideFunctions') : t('talents.showFunctions')} data-testid="experience-toggle">
+            <span className="pf-acc-chev"><Icon name="chevronRight" size={15} /></span>
+            <span className="grow">{head}</span>
+          </button>
+        ) : <div className="pf-acc-plain">{head}</div>}
+        {functions && expanded && <p className="pre pf-text pf-acc-body" data-testid="experience-functions">{functions}</p>}
+      </div>
+      {actions}
+    </div>
+  );
 }
 
 function RowActions({ onEdit, onDelete }: { onEdit?: () => void; onDelete?: () => void }) {

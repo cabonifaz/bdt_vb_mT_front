@@ -49,6 +49,24 @@ test('alta en modal con TODAS las secciones y la ficha se abre sin perder la lis
   await dlg.getByTestId('list-add').click();
   await expect(dlg.getByTestId('draft-row')).toContainText('Tech Lead');
 
+  // acordeón: Editar abre los campos en el mismo ítem (uno a la vez) y Agregar abre un formulario nuevo
+  await dlg.getByTestId('list-new').click();
+  await dlg.getByLabel('Empresa').fill('Banco Uno');
+  await dlg.getByLabel('Puesto').fill('Developer');
+  await dlg.getByLabel('Inicio').fill('2014-01-01');
+  await dlg.getByLabel('Fin').fill('2016-12-31');
+  await dlg.getByTestId('list-add').click();
+  await expect(dlg.getByTestId('draft-row')).toHaveCount(2);
+  const rows = dlg.getByTestId('draft-row');
+  await rows.nth(0).getByRole('button', { name: 'Editar' }).click();
+  await expect(rows.nth(0).getByLabel('Puesto')).toHaveValue('Tech Lead');
+  await rows.nth(1).getByRole('button', { name: 'Editar' }).click();
+  await expect(rows.nth(0).getByLabel('Puesto')).toHaveCount(0); // solo uno abierto
+  await rows.nth(1).getByLabel('Puesto').fill('Senior Developer');
+  await rows.nth(1).getByTestId('list-add').click();
+  await expect(rows.nth(1)).toContainText('Senior Developer');
+  await expect(dlg.locator('.acc-item.open')).toHaveCount(0);
+
   // Educación
   await dlg.getByTestId('tab-education').click();
   await dlg.getByLabel('Institución').fill('UNSA');
@@ -84,7 +102,7 @@ test('alta en modal con TODAS las secciones y la ficha se abre sin perder la lis
   await expect(page.locator('.ws-detail .chip', { hasText: 'Java' })).toBeVisible();
   await expect(page.locator('.ws-detail .chip', { hasText: custom })).toBeVisible();
   await expect(page.locator('.ws-detail .chip', { hasText: 'Liderazgo' })).toBeVisible();
-  await expect(page.getByTestId('experience-row')).toContainText('Tech Lead');
+  await expect(page.getByTestId('experience-row').filter({ hasText: 'Tech Lead' })).toBeVisible();
   await expect(page.locator('.ws-detail')).toContainText('Ingeniería de Sistemas');
   await expect(page.locator('.ws-detail')).toContainText('Inglés · Avanzado');
   await expect(page.locator('.ws-detail')).toContainText('Muy buena comunicación');
