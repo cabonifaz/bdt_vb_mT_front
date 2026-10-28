@@ -39,6 +39,11 @@ export default defineConfig(({ mode }) => {
       // En local el front y la API comparten origen vía proxy (cookies same-site)
       proxy: { '/api': apiTarget, '/integration': apiTarget },
     },
-    preview: { port: 4173, proxy: { '/api': apiTarget, '/integration': apiTarget } },
+    // En Railway el front se sirve con vite preview: /api va al backend por la red privada (mismo origen: la cookie de
+    // sesión no es de terceros, Safari no la bloquea). PORT lo inyecta Railway; el dominio público es variable.
+    preview: {
+      host: true, port: Number(env.PORT) || 4173, strictPort: !!env.PORT, allowedHosts: true,
+      proxy: { '/api': { target: apiTarget, changeOrigin: false, xfwd: true }, '/integration': { target: apiTarget, xfwd: true } },
+    },
   };
 });
