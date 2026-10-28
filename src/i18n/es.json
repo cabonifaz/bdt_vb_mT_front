@@ -50,7 +50,8 @@
     "TENANT_ADMIN": "Administrador",
     "RECRUITER": "Reclutador",
     "COMMERCIAL": "Comercial",
-    "VIEWER": "Consulta"
+    "VIEWER": "Consulta",
+    "SELECTION_LEAD": "Jefe de selección"
   },
   "offline": {
     "banner": "Sin conexión. Puedes seguir trabajando; los cambios se sincronizarán al volver la red.",
@@ -335,7 +336,9 @@
     "RQ_CLOSED": "El requerimiento está cerrado.",
     "RQ_HAS_CONFIRMED": "No se puede eliminar: tiene candidatos confirmados.",
     "VACANCY_BELOW_CONFIRMED": "La cantidad no puede ser menor que los confirmados.",
-    "CANDIDATE_NOT_READY": "Para confirmar, el candidato debe tener al menos datos completos."
+    "CANDIDATE_NOT_READY": "Para confirmar, el candidato debe tener al menos datos completos.",
+    "RQ_REOPEN_REQUIRED": "Un requerimiento cerrado solo lo puede reabrir el jefe de selección, indicando el motivo.",
+    "RQ_NOT_CLOSED": "El requerimiento no está cerrado."
   },
   "talents": {
     "title": "Talentos",
@@ -863,11 +866,11 @@
     "statsOverdue_other": "{{count}} vencidos",
     "statsToday_one": "{{count}} vence hoy",
     "statsToday_other": "{{count}} vencen hoy",
-    "searchPlaceholder": "Buscar por código, título o cliente",
+    "searchPlaceholder": "Código, título, cliente, contacto o perfil",
     "allClients": "Todos los clientes",
     "mine": "Solo míos",
     "closedColumn": "Cerrados",
-    "closedHint": "Atendidos, terminados, perdidos y cancelados (últimos 60 días)",
+    "closedHint": "Suelta aquí para cerrar el RQ (atendido, terminado, perdido o cancelado)",
     "emptyColumn": "Sin requerimientos",
     "moveTo": "Mover a…",
     "moved": "{{code}} pasó a {{status}}.",
@@ -983,6 +986,52 @@
       "emptyColumn": "Sin candidatos"
     },
     "applications": "Postulaciones",
-    "noApplications": "Este talento aún no postula a requerimientos."
+    "noApplications": "Este talento aún no postula a requerimientos.",
+    "closedHintView": "Atendidos, terminados, perdidos y cancelados",
+    "scopeLabel": "Vista del tablero",
+    "scope": {
+      "ACTIVE": "Abiertos",
+      "SOON": "Por vencer",
+      "OVERDUE": "Vencidos",
+      "NEW": "Nuevos",
+      "CLOSED": "Cerrados",
+      "ALL": "Todos"
+    },
+    "scopeHint": {
+      "ACTIVE": "Abiertos y en proceso, sin vencer",
+      "SOON": "Abiertos que vencen hoy o en los próximos 3 días",
+      "OVERDUE": "Abiertos con la fecha de vencimiento pasada",
+      "NEW": "Abiertos registrados en los últimos 7 días",
+      "CLOSED": "Atendidos, terminados, perdidos y cancelados",
+      "ALL": "Todos los requerimientos"
+    },
+    "allContacts": "Todos los contactos",
+    "searchContact": "Buscar contacto",
+    "contactNeedsClient": "Elige un cliente para filtrar por contacto",
+    "allProfiles": "Todos los perfiles",
+    "searchProfile": "Buscar perfil",
+    "clearFilters": "Limpiar filtros",
+    "emptyView": "No hay requerimientos en esta vista con los filtros elegidos.",
+    "closedReadOnlyLead": "Este requerimiento está cerrado: el pipeline es de solo lectura. Si un talento renunció o se necesitan más vacantes, usa «Reabrir».",
+    "reopen": {
+      "action": "Reabrir",
+      "title": "Reabrir {{code}}",
+      "hint": "El RQ vuelve a un estado abierto para postular más personas y hacer un nuevo ingreso. Queda registrado en su historial.",
+      "reason": "Motivo",
+      "reasons": {
+        "RESIGNATION": "Renunció un talento",
+        "MORE_VACANCIES": "Se necesitan más vacantes"
+      },
+      "reasonHints": {
+        "RESIGNATION": "Hay que reemplazar a una persona que ya ingresó.",
+        "MORE_VACANCIES": "El cliente amplía el pedido; al reabrir podrás editar las vacantes."
+      },
+      "status": "Vuelve a",
+      "notes": "Detalle (opcional)",
+      "notesPlaceholder": "Quién renunció, cuántas vacantes más, indicaciones del cliente…",
+      "confirm": "Reabrir requerimiento",
+      "done": "{{code}} reabierto",
+      "history": "Reaperturas"
+    }
   }
 }

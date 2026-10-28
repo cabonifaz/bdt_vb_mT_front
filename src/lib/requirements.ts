@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { cachedGet, type I18nLabel, type MasterItem } from './talents';
 import { http } from './api';
+import { todayISO } from './modules';
 
 export const RQ_API = '/api/v1/tenant/requirements';
 export const RQ_TABLES = 'RQ_STATUS,RQ_PROFILE,TIME_UNIT,WORK_MODALITY,CONTRACT_MODALITY,CANDIDATE_STAGE,CURRENCY,TECH_SKILL,ACADEMIC_GRADE,CLIENT';
@@ -38,12 +39,19 @@ export type RQDetail = {
   durationValue?: number | null; durationUnitId?: string | null; contractValue?: number | null; contractUnitId?: string | null;
   workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; ownerId?: string | null; ownerName?: string;
   contacts: RQContact[]; billing: RQBilling[] | null; vacancies: RQVacancy[]; candidates: RQCandidate[];
+  reopens?: { reason: 'RESIGNATION' | 'MORE_VACANCIES'; notes?: string | null; createdAt: string; from: I18nLabel; to: I18nLabel }[];
 };
 export type RQApplication = {
   candidateId: string; requirementId: string; code: string; title: string; dueDate: string; client: I18nLabel; profile: I18nLabel;
   status: { code: string; label: I18nLabel; group: string }; stage: { code: string; label: I18nLabel }; addedAt: string;
 };
-export type BoardFilters = { search: string; clientId: string; mine: boolean };
+/** Vistas del tablero: ACTIVE (por defecto) = abiertos sin vencer; el resto se elige con las pestañas. */
+export const BOARD_SCOPES = ['ACTIVE', 'SOON', 'OVERDUE', 'NEW', 'CLOSED', 'ALL'] as const;
+export type BoardScope = (typeof BOARD_SCOPES)[number];
+export type BoardFilters = { scope: BoardScope; search: string; clientId: string; contactId: string; profileId: string; mine: boolean };
+export const EMPTY_BOARD_FILTERS: BoardFilters = { scope: 'ACTIVE', search: '', clientId: '', contactId: '', profileId: '', mine: false };
+export type BoardCounts = { active: number; soon: number; overdue: number; new: number; closed: number; all: number };
+export type BoardData = { cards: RQCard[]; counts: BoardCounts };
 
 /** Catálogos del módulo (estados, perfiles, unidades, modalidades, etapas, monedas, skills, grados, clientes). */
 export function useRqCatalogs() {
@@ -57,11 +65,18 @@ export function useRqCatalogs() {
   return { ...q, byTable, byCode };
 }
 
+// today: fecha local del usuario; el servidor la usa para decidir qué está vencido
 export const useBoard = (f: BoardFilters) => useQuery({
   queryKey: ['rq-board', f],
-  queryFn: () => http.post<RQCard[]>(`${RQ_API}/board`, { search: f.search.trim(), clientId: f.clientId, mine: f.mine }),
+  queryFn: () => http.post<BoardData>(`${RQ_API}/board`, { ...f, search: f.search.trim(), today: todayISO() }),
   placeholderData: (prev) => prev,
   refetchInterval: 60_000,
+});
+
+/** Contactos de un cliente (para el filtro del tablero y el editor). */
+export const useClientContacts = (clientId: string) => useQuery({
+  queryKey: ['client-contacts', clientId], enabled: !!clientId, staleTime: 60_000,
+  queryFn: () => http.get<RQContact[]>(`/api/v1/tenant/clients/${clientId}/contacts`),
 });
 
 export const useRequirement = (id?: string) => useQuery({

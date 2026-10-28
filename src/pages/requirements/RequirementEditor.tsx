@@ -3,13 +3,13 @@
 // Código autogenerado por defecto (RQ-AAAA-0001); cada vacante tiene uuid propio (guardar es idempotente).
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2 } from 'lucide-react';
 import { ApiError, http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { useLabel } from '../../lib/talents';
 import { todayISO } from '../../lib/modules';
-import { RQ_API, useRqCatalogs, type RQContact, type RQDetail } from '../../lib/requirements';
+import { RQ_API, useClientContacts, useRqCatalogs, type RQDetail } from '../../lib/requirements';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
 import { Chip } from '../../components/talents/bits';
@@ -304,10 +304,7 @@ function ContactsTab({ d, set }: TabProps) {
   const { can } = useAuth();
   const toast = useToast();
   const errText = useErrorText();
-  const contacts = useQuery({
-    queryKey: ['client-contacts', d.clientId], enabled: !!d.clientId,
-    queryFn: () => http.get<RQContact[]>(`/api/v1/tenant/clients/${d.clientId}/contacts`),
-  });
+  const contacts = useClientContacts(d.clientId);
   const [form, setForm] = useState<{ firstName: string; lastName: string; position: string; email: string; phone: string } | null>(null);
   if (!d.clientId) return <p className="muted">{t('rq.pickClientFirst')}</p>;
   const toggle = (id: string, on: boolean) => set('contacts', on ? [...d.contacts, id] : d.contacts.filter((x) => x !== id));

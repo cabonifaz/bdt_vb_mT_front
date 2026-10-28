@@ -50,7 +50,8 @@
     "TENANT_ADMIN": "Administrator",
     "RECRUITER": "Recruiter",
     "COMMERCIAL": "Sales",
-    "VIEWER": "Viewer"
+    "VIEWER": "Viewer",
+    "SELECTION_LEAD": "Selection lead"
   },
   "offline": {
     "banner": "You are offline. Keep working; changes will sync when the connection is back.",
@@ -335,7 +336,9 @@
     "RQ_CLOSED": "The requirement is closed.",
     "RQ_HAS_CONFIRMED": "It cannot be deleted: it has confirmed candidates.",
     "VACANCY_BELOW_CONFIRMED": "The quantity cannot be lower than the confirmed candidates.",
-    "CANDIDATE_NOT_READY": "To confirm, the candidate must at least have complete data."
+    "CANDIDATE_NOT_READY": "To confirm, the candidate must at least have complete data.",
+    "RQ_REOPEN_REQUIRED": "Only the selection lead can reopen a closed requirement, stating the reason.",
+    "RQ_NOT_CLOSED": "The requirement is not closed."
   },
   "talents": {
     "title": "Talents",
@@ -863,11 +866,11 @@
     "statsOverdue_other": "{{count}} overdue",
     "statsToday_one": "{{count}} due today",
     "statsToday_other": "{{count}} due today",
-    "searchPlaceholder": "Search by code, title or client",
+    "searchPlaceholder": "Code, title, client, contact or profile",
     "allClients": "All clients",
     "mine": "Only mine",
     "closedColumn": "Closed",
-    "closedHint": "Fulfilled, finished, lost and cancelled (last 60 days)",
+    "closedHint": "Drop here to close the requirement (fulfilled, finished, lost or cancelled)",
     "emptyColumn": "No requirements",
     "moveTo": "Move to…",
     "moved": "{{code}} moved to {{status}}.",
@@ -983,6 +986,52 @@
       "emptyColumn": "No candidates"
     },
     "applications": "Applications",
-    "noApplications": "This talent has not applied to any requirement yet."
+    "noApplications": "This talent has not applied to any requirement yet.",
+    "closedHintView": "Fulfilled, finished, lost and cancelled",
+    "scopeLabel": "Board view",
+    "scope": {
+      "ACTIVE": "Open",
+      "SOON": "Due soon",
+      "OVERDUE": "Overdue",
+      "NEW": "New",
+      "CLOSED": "Closed",
+      "ALL": "All"
+    },
+    "scopeHint": {
+      "ACTIVE": "Open and in progress, not overdue",
+      "SOON": "Open, due today or within the next 3 days",
+      "OVERDUE": "Open with a past due date",
+      "NEW": "Open, registered in the last 7 days",
+      "CLOSED": "Fulfilled, finished, lost and cancelled",
+      "ALL": "All requirements"
+    },
+    "allContacts": "All contacts",
+    "searchContact": "Search contact",
+    "contactNeedsClient": "Pick a client to filter by contact",
+    "allProfiles": "All profiles",
+    "searchProfile": "Search profile",
+    "clearFilters": "Clear filters",
+    "emptyView": "No requirements in this view with the selected filters.",
+    "closedReadOnlyLead": "This requirement is closed: the pipeline is read-only. If a hire resigned or more openings are needed, use “Reopen”.",
+    "reopen": {
+      "action": "Reopen",
+      "title": "Reopen {{code}}",
+      "hint": "The requirement goes back to an open status so more people can be added and a new hire made. It is recorded in its history.",
+      "reason": "Reason",
+      "reasons": {
+        "RESIGNATION": "A hire resigned",
+        "MORE_VACANCIES": "More openings needed"
+      },
+      "reasonHints": {
+        "RESIGNATION": "Someone who was already hired must be replaced.",
+        "MORE_VACANCIES": "The client expands the order; after reopening you can edit the openings."
+      },
+      "status": "Back to",
+      "notes": "Details (optional)",
+      "notesPlaceholder": "Who resigned, how many more openings, client instructions…",
+      "confirm": "Reopen requirement",
+      "done": "{{code}} reopened",
+      "history": "Reopenings"
+    }
   }
 }

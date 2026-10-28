@@ -78,7 +78,79 @@ test('tablero de RQ: alta en modal, arrastrar entre estados, mover con menú y c
   await expect(page.getByTestId('rq-close-CANCELLED')).toBeVisible();
   await page.waitForTimeout(150);
   await page.getByTestId('rq-close-CANCELLED').click();
-  await expect(column(page, 'rq-board', 'Cerrados').getByTestId(`rq-card-${code}`)).toContainText('Cancelado');
+  await expect(page.getByText(`${code} pasó a Cancelado.`).last()).toBeVisible();
+  // la vista por defecto solo muestra lo abierto: el cerrado se encuentra en la pestaña "Cerrados", en su columna
+  await expect(page.getByTestId(`rq-card-${code}`)).toHaveCount(0);
+  await page.getByTestId('rq-scope-CLOSED').click();
+  await expect(column(page, 'rq-board', 'Cancelado').getByTestId(`rq-card-${code}`)).toBeVisible();
+});
+
+test('vistas del tablero, filtros y reapertura por el jefe de selección', async ({ page }) => {
+  const { admin, H, id, client } = await setup();
+  const lead = await createFractalAdmin('SELECTION_LEAD');
+  const tag = `Vista${Date.now()}`;
+  const day = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const make = async (suffix: string, due: number, profile = 'QA_ANALYST') => {
+    const rq = crypto.randomUUID();
+    const res = await admin.ctx.put(`/api/v1/tenant/requirements/${rq}`, { headers: H, data: {
+      clientId: client, title: `${tag} ${suffix}`, statusId: id('RQ_STATUS', 'IN_SELECTION'), requestDate: day(-20), dueDate: day(due),
+      vacancies: [{ id: crypto.randomUUID(), profileId: id('RQ_PROFILE', profile), quantity: 1 }] } });
+    expect(res.status()).toBe(201);
+    return { id: rq, code: (await res.json()).code as string };
+  };
+  const vigente = await make('vigente', 10, 'JAVA_DEV');
+  const pronto = await make('pronto', 2);
+  const vencido = await make('vencido', -5);
+  const cerrado = await make('cerrado', -1);
+  expect((await admin.ctx.patch(`/api/v1/tenant/requirements/${cerrado.id}/status`, { headers: H, data: { statusId: id('RQ_STATUS', 'FINISHED') } })).ok()).toBeTruthy();
+
+  // reglas del servidor: un cerrado no vuelve a abrirse moviéndolo, y el admin no tiene rq.reopen
+  expect((await admin.ctx.patch(`/api/v1/tenant/requirements/${cerrado.id}/status`, { headers: H, data: { statusId: id('RQ_STATUS', 'ASSIGNED') } })).status()).toBe(409);
+  expect((await admin.ctx.post(`/api/v1/tenant/requirements/${cerrado.id}/reopen`, { headers: H, data: { reason: 'RESIGNATION' } })).status()).toBe(403);
+  // filtro por perfil (API): solo el de Java
+  const byProfile = await (await admin.ctx.post('/api/v1/tenant/requirements/board', { headers: H,
+    data: { scope: 'ALL', search: tag, profileId: id('RQ_PROFILE', 'JAVA_DEV'), today: day(0) } })).json();
+  expect(byProfile.cards.map((c: { code: string }) => c.code)).toEqual([vigente.code]);
+  expect(byProfile.counts).toMatchObject({ all: 1, active: 1 });
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await uiLogin(page, 'fractal', lead.email, lead.password);
+  await page.goto('/fractal/requerimientos');
+  await expect(page.getByTestId('rq-new')).toBeVisible(); // el jefe de selección crea RQ
+  await page.getByTestId('rq-search').fill(tag);
+  const cards = page.getByTestId('rq-board').getByTestId('kanban-card');
+  const shows = async (scope: string, codes: string[]) => {
+    await page.getByTestId(`rq-scope-${scope}`).click();
+    await expect(cards).toHaveCount(codes.length);
+    for (const c of codes) await expect(page.getByTestId(`rq-card-${c}`)).toBeVisible();
+  };
+  // por defecto: abiertos sin vencer (ni vencidos ni cerrados)
+  await expect(cards).toHaveCount(2);
+  await expect(page.getByTestId('rq-scope-OVERDUE')).toContainText('1');
+  await shows('SOON', [pronto.code]);
+  await shows('OVERDUE', [vencido.code]);
+  await shows('CLOSED', [cerrado.code]);
+  await expect(column(page, 'rq-board', 'Terminado').getByTestId(`rq-card-${cerrado.code}`)).toBeVisible();
+  await shows('ALL', [vigente.code, pronto.code, vencido.code, cerrado.code]);
+  await expect(column(page, 'rq-board', 'A procesar')).toBeVisible();
+
+  // reabrir desde la ficha: motivo obligatorio; "más vacantes" abre el editor para ampliarlas
+  await page.getByTestId(`rq-card-${cerrado.code}`).getByRole('link').click();
+  await page.getByTestId('rq-reopen').click();
+  const dlg = page.getByRole('dialog', { name: `Reabrir ${cerrado.code}` });
+  await expect(dlg.getByTestId('rq-reopen-confirm')).toBeDisabled();
+  await dlg.getByTestId('rq-reopen-MORE_VACANCIES').check();
+  await dlg.getByLabel('Detalle (opcional)').fill('El cliente pide 2 personas más');
+  await dlg.getByTestId('rq-reopen-confirm').click();
+  await expect(page.getByText(`${cerrado.code} reabierto`).last()).toBeVisible();
+  const editor = page.getByRole('dialog', { name: `Editar ${cerrado.code}` });
+  await expect(editor).toBeVisible();
+  await editor.getByRole('button', { name: 'Cancelar' }).click();
+  await expect(page.getByTestId('rq-status')).toHaveText('En selección');
+  await expect(page.getByTestId('rq-reopen')).toHaveCount(0);
+  await page.getByTestId('rq-tab-detail').click();
+  await expect(page.getByTestId('rq-reopens')).toContainText('Se necesitan más vacantes');
+  await expect(page.getByTestId('rq-reopens')).toContainText('El cliente pide 2 personas más');
 });
 
 test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirmación y postulaciones', async ({ page }) => {

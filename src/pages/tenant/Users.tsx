@@ -10,7 +10,7 @@ interface User { id: string; email: string; fullName: string; status: string; ro
 interface Invitation { id: string; email: string; role: string; status: string; expiresAt: string; createdAt: string }
 interface InviteResult { invitation: Invitation; link?: string }
 
-const TENANT_ROLES = ['TENANT_ADMIN', 'RECRUITER', 'COMMERCIAL', 'VIEWER'];
+const TENANT_ROLES = ['TENANT_ADMIN', 'SELECTION_LEAD', 'RECRUITER', 'COMMERCIAL', 'VIEWER'];
 
 /** Usuarios e invitaciones. base = '/api/v1/tenant' o '/api/v1/platform' (+ ?tenantId para el SA). */
 export function Users({ base = '/api/v1/tenant', query = '', roles = TENANT_ROLES }: { base?: string; query?: string; roles?: string[] }) {

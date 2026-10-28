@@ -1,21 +1,23 @@
 // Ficha del requerimiento: encabezado (siempre visible), pipeline de candidatos en Kanban por etapa
 // (Observado → Datos completos → En entrevista → Confirmado) y pestaña de detalle (vacantes, contactos, condiciones).
-// Reglas del servidor: confirmar exige haber pasado de "Observado" y cupo en la vacante; un RQ cerrado queda de solo lectura.
+// Reglas del servidor: confirmar exige haber pasado de "Observado" y cupo en la vacante; un RQ cerrado queda de solo lectura
+// hasta que el jefe de selección lo reabre (rq.reopen) por renuncia de un talento o más vacantes.
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarClock, Pencil, Plus, Trash2, TriangleAlert, UserPlus } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Pencil, Plus, RotateCcw, Trash2, TriangleAlert, UserPlus } from 'lucide-react';
 import { ApiError, http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { TALENT_API, useLabel, type TalentSummary } from '../../lib/talents';
 import { RQ_API, daysToDue, dueLevel, fullTalentName, useRequirement, useRqCatalogs, type RQCandidate, type RQDetail } from '../../lib/requirements';
 import { Kanban, MoveMenu } from '../../components/kanban/Kanban';
 import { TalentPhoto } from '../../components/talents/bits';
-import { Button, Modal, useErrorText } from '../../components/ui';
+import { Button, Modal, formatDate, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
 import { Loader } from '../../components/ui/Loader';
 import { RequirementEditor } from './RequirementEditor';
+import { ReopenModal } from './ReopenModal';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -32,6 +34,7 @@ export function RequirementDetail() {
   const [vacancy, setVacancy] = useState('');
   const [editing, setEditing] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [reopening, setReopening] = useState(false);
 
   if (q.isLoading) return <Loader />;
   if (q.isError || !q.data) return <div className="page"><div className="alert alert-error" role="alert">{errText(q.error)}</div></div>;
@@ -91,11 +94,12 @@ export function RequirementDetail() {
           </div>
         </div>
         <div className="pf-actions">
+          {rq.closed && can('rq.reopen') && <Button variant="secondary" size="sm" onClick={() => setReopening(true)} data-testid="rq-reopen"><RotateCcw size={15} />{t('rq.reopen.action')}</Button>}
           {can('rq.write') && <Button variant="secondary" size="sm" onClick={del} aria-label={t('rq.delete')} title={t('rq.delete')}><Trash2 size={15} /></Button>}
           {can('rq.write') && <Button size="sm" onClick={() => setEditing(true)} data-testid="rq-edit"><Pencil size={15} />{t('rq.edit')}</Button>}
         </div>
       </header>
-      {rq.closed && <div className="alert alert-info" role="status">{t('rq.closedReadOnly')}</div>}
+      {rq.closed && <div className="alert alert-info" role="status">{t(can('rq.reopen') ? 'rq.closedReadOnlyLead' : 'rq.closedReadOnly')}</div>}
 
       <div className="tabs" role="tablist">
         <button type="button" role="tab" className="tab" aria-selected={tab === 'pipeline'} onClick={() => setTab('pipeline')} data-testid="rq-tab-pipeline">
@@ -143,13 +147,14 @@ export function RequirementDetail() {
       {tab === 'detail' && <DetailTab rq={rq} />}
 
       {editing && <RequirementEditor rq={rq} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />}
+      {reopening && <ReopenModal rq={rq} onClose={() => setReopening(false)} onDone={(reason) => { if (reason === 'MORE_VACANCIES') void q.refetch().then(() => setEditing(true)); }} />}
       {adding && <AddCandidate rq={rq} onClose={() => setAdding(false)} onAdded={() => { setAdding(false); refresh(); }} />}
     </div>
   );
 }
 
 function DetailTab({ rq }: { rq: RQDetail }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const label = useLabel();
   const cat = useRqCatalogs();
   const lab = (id?: string | null) => label(cat.data?.find((x) => x.id === id)?.label);
@@ -206,6 +211,17 @@ function DetailTab({ rq }: { rq: RQDetail }) {
             </div></div>
           ))}
         </section>
+        {(rq.reopens ?? []).length > 0 && (
+          <section className="pf-section" data-testid="rq-reopens"><header><h3>{t('rq.reopen.history')}</h3></header>
+            {rq.reopens!.map((r, i) => (
+              <div key={i} className="pf-item"><div className="grow">
+                <div className="pf-item-title">{t(`rq.reopen.reasons.${r.reason}`)}</div>
+                <div className="pf-item-meta">{formatDate(r.createdAt, i18n.language)} · {label(r.from)} → {label(r.to)}</div>
+                {r.notes && <div className="pf-item-meta pre">{r.notes}</div>}
+              </div></div>
+            ))}
+          </section>
+        )}
       </aside>
     </div>
   );
