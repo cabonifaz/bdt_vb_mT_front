@@ -3,6 +3,7 @@ import { API_URL, http } from '../lib/api';
 import { offlineCache } from '../lib/offline';
 import { applyTenantOverrides, type Locale } from '../i18n';
 import i18n from '../i18n';
+import type { CvStyle } from '../lib/cv/CvDocument';
 
 export interface Branding {
   tenantId: string;
@@ -25,6 +26,7 @@ export interface Branding {
   cvFooterUrl?: string;
   cvFooterText?: string;
   cvShowPhoto?: boolean;
+  cvStyle?: CvStyle;
 }
 
 export const ALLOWED_FONTS = ['Inter', 'Roboto', 'Open Sans', 'Montserrat', 'Poppins', 'Lato', 'Nunito', 'Source Sans 3'];

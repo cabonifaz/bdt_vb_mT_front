@@ -1,6 +1,7 @@
 // CV en PDF con la marca del tenant (equivalente al "CV Fractal" del sistema heredado, pero configurable por tenant).
 // Estructura: cabecera (imagen del tenant o banda con logo y colores), nombre, puesto, resumen y secciones numeradas
-// que solo aparecen si tienen datos; pie fijo con texto del tenant, fecha de generación y número de página.
+// que solo aparecen si tienen datos; pie fijo con texto del tenant y fecha de generación.
+// Si el tenant adoptó el formato de un CV de ejemplo (PDF), `style` replica su diseño (ver analyzeSample.ts).
 import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 export type CvLang = 'es' | 'en';
@@ -11,9 +12,13 @@ export type CvData = {
   experiences: CvExperience[]; educations: CvEducation[]; certifications: CvEducation[];
   tech: { name: string; years: number }[]; soft: string[]; languages: { name: string; level: string }[];
 };
+export type CvStyle = {
+  nameAlign: 'left' | 'center'; nameColor?: string; headingColor?: string; headingRule: boolean; summaryHeading: boolean;
+  boldPositions: boolean; footerBg?: string; font: 'Helvetica' | 'Times-Roman';
+};
 export type CvTemplate = {
   displayName: string; colorPrimary: string; colorSecondary: string;
-  header?: string; footer?: string; logo?: string; footerText?: string; showPhoto: boolean;
+  header?: string; headerH?: number; footer?: string; logo?: string; footerText?: string; showPhoto: boolean; style?: CvStyle;
 };
 
 const L = {
@@ -26,7 +31,7 @@ const L = {
 };
 
 const s = StyleSheet.create({
-  page: { paddingTop: 92, paddingBottom: 70, paddingHorizontal: 44, fontFamily: 'Helvetica', fontSize: 10, color: '#1f2933', lineHeight: 1.4 },
+  page: { paddingTop: 90, paddingBottom: 70, paddingHorizontal: 44, fontFamily: 'Helvetica', fontSize: 10, color: '#1f2933', lineHeight: 1.4 },
   header: { position: 'absolute', top: 0, left: 0, right: 0, height: 64 },
   headerImg: { width: '100%', height: 64, objectFit: 'cover' },
   band: { height: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 44, gap: 12, backgroundColor: '#ffffff', borderBottomWidth: 4 },
@@ -35,6 +40,7 @@ const s = StyleSheet.create({
   footerBox: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 40 },
   footerImg: { width: '100%', height: 40, objectFit: 'cover' },
   foot: { position: 'absolute', bottom: 22, left: 44, right: 44, fontSize: 8, color: '#6b7280' },
+  footBox: { position: 'absolute', bottom: 18, left: 44, right: 44, paddingVertical: 9, borderRadius: 4, fontSize: 8, color: '#6b7280', textAlign: 'center' },
   top: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 10 },
   photo: { width: 64, height: 64, borderRadius: 32, objectFit: 'cover' },
   name: { fontSize: 18, fontFamily: 'Helvetica-Bold', lineHeight: 1.25, marginBottom: 2 },
@@ -63,16 +69,17 @@ const range = (start: string | undefined, end: string | undefined, current: bool
 export function CvDocument({ data, tpl, lang, generatedAt }: { data: CvData; tpl: CvTemplate; lang: CvLang; generatedAt: Date }) {
   const l = L[lang];
   const sections: { title: string; body: React.ReactNode }[] = [];
+  const strong = tpl.style?.boldPositions ? { fontFamily: tpl.style.font === 'Times-Roman' ? 'Times-Bold' : 'Helvetica-Bold' } : undefined;
   if (data.experiences.length) sections.push({ title: l.experience, body: data.experiences.map((e, i) => (
     <View key={i} style={s.item} wrap={false}>
-      <Text style={s.bold}>{e.company}</Text>
-      <View style={s.row}><Text>{e.position}</Text><Text style={s.muted}>{range(e.start, e.end, e.current, lang)}</Text></View>
-      {e.functions ? <Text style={[s.para, s.muted]}>{e.functions}</Text> : null}
+      <Text style={strong ?? s.bold}>{e.company}</Text>
+      <View style={s.row}><Text style={strong}>{e.position}</Text><Text style={strong ?? s.muted}>{range(e.start, e.end, e.current, lang)}</Text></View>
+      {e.functions ? <Text style={[s.para, tpl.style ? {} : s.muted]}>{e.functions}</Text> : null}
     </View>
   )) });
   const edu = (list: CvEducation[]) => list.map((e, i) => (
     <View key={i} style={s.item} wrap={false}>
-      <Text style={s.bold}>{e.institution}</Text>
+      <Text style={strong ?? s.bold}>{e.institution}</Text>
       <View style={s.row}><Text>{[e.career, e.grade].filter(Boolean).join(' - ')}</Text>
         <Text style={s.muted}>{range(e.start, e.end, e.current, lang, e.yearOnly)}</Text></View>
     </View>
@@ -89,41 +96,46 @@ export function CvDocument({ data, tpl, lang, generatedAt }: { data: CvData; tpl
     <View key={i} style={s.bullet}><Text style={s.dot}>•</Text><Text>{t.name} - {t.level}</Text></View>
   )) });
 
+  const st = tpl.style;
+  const font = st?.font === 'Times-Roman' ? { regular: 'Times-Roman', bold: 'Times-Bold' } : { regular: 'Helvetica', bold: 'Helvetica-Bold' };
+  const headerH = tpl.header ? Math.min(tpl.headerH ?? 64, 220) : 64;
+  const h2 = [s.h2, { fontFamily: font.bold, color: st?.headingColor ?? tpl.colorPrimary, borderBottomColor: tpl.colorSecondary },
+    st && !st.headingRule ? { borderBottomWidth: 0, paddingBottom: 0 } : {}];
   const stamp = generatedAt.toLocaleDateString(lang === 'es' ? 'es-PE' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' });
   return (
     <Document title={`${data.name} - CV`} author={tpl.displayName} language={lang}>
-      <Page size="A4" style={s.page}>
-        <View style={s.header} fixed>
+      <Page size="A4" style={[s.page, { paddingTop: headerH + 26, fontFamily: font.regular }, st ? { color: '#111827' } : {}]}>
+        <View style={[s.header, { height: headerH }]} fixed>
           {tpl.header
-            ? <Image src={tpl.header} style={s.headerImg} />
+            ? <Image src={tpl.header} style={[s.headerImg, { height: headerH }]} />
             : <View style={[s.band, { borderBottomColor: tpl.colorPrimary }]}>
                 {tpl.logo ? <Image src={tpl.logo} style={s.bandLogo} /> : <Text style={[s.bandName, { color: tpl.colorPrimary }]}>{tpl.displayName}</Text>}
               </View>}
         </View>
 
-        <View style={s.top}>
+        <View style={[s.top, st?.nameAlign === 'center' ? { justifyContent: 'center' } : {}]}>
           {tpl.showPhoto && data.photo ? <Image src={data.photo} style={s.photo} /> : null}
-          <View>
-            <Text style={[s.name, { color: tpl.colorPrimary }]}>{data.name}</Text>
+          <View style={st?.nameAlign === 'center' ? { alignItems: 'center' } : {}}>
+            <Text style={[s.name, { fontFamily: font.bold, color: st?.nameColor ?? tpl.colorPrimary }]}>{data.name}</Text>
             {data.headline ? <Text style={s.headline}>{data.headline}</Text> : null}
             {data.location ? <Text style={s.muted}>{data.location}</Text> : null}
           </View>
         </View>
         {data.summary ? (
-          <View style={s.section}>
-            <Text style={[s.h2, { color: tpl.colorPrimary, borderBottomColor: tpl.colorSecondary }]}>{l.profile}</Text>
+          <View style={st && !st.summaryHeading ? {} : s.section}>
+            {!st || st.summaryHeading ? <Text style={h2}>{l.profile}</Text> : null}
             <Text style={s.para}>{data.summary}</Text>
           </View>
         ) : null}
         {sections.map((sec, i) => (
           <View key={sec.title} style={s.section}>
-            <Text style={[s.h2, { color: tpl.colorPrimary, borderBottomColor: tpl.colorSecondary }]} minPresenceAhead={40}>{i + 1}. {sec.title}</Text>
+            <Text style={h2} minPresenceAhead={40}>{i + 1}. {sec.title}</Text>
             {sec.body}
           </View>
         ))}
 
         {tpl.footer ? <View style={s.footerBox} fixed><Image src={tpl.footer} style={s.footerImg} /></View> : null}
-        <Text style={[s.foot, tpl.footer ? { bottom: 46 } : {}]} fixed>{[tpl.footerText || tpl.displayName, `${l.generated}: ${stamp}`].join('  |  ')}</Text>
+        <Text style={st?.footerBg ? [s.footBox, { backgroundColor: st.footerBg }] : [s.foot, tpl.footer ? { bottom: 46 } : {}]} fixed>{[tpl.footerText || tpl.displayName, `${l.generated}: ${stamp}`].join('  |  ')}</Text>
       </Page>
     </Document>
   );

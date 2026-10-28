@@ -76,6 +76,48 @@ test('CV con la marca del tenant: plantilla, español, inglés (IA) y original',
   expect((await admin.ctx.put('/api/v1/tenant/branding/cv', { headers: H, data: { footerText: '', showPhoto: false, clearHeader: true, clearFooter: true } })).ok()).toBeTruthy();
 });
 
+test('CV: se adopta el formato de un CV de ejemplo en PDF', async ({ page }) => {
+  const admin = await createFractalAdmin();
+  const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
+  const H = { Authorization: `Bearer ${tok}` };
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.goto('/fractal/marca');
+  const card = page.getByTestId('cv-template');
+
+  // no se aceptan otros formatos
+  await card.getByTestId('cv-adopt-input').setInputFiles({ name: 'cv.png', mimeType: 'image/png', buffer: PNG });
+  await expect(page.getByText('El CV de ejemplo debe ser un PDF.').last()).toBeVisible();
+
+  // el PDF de ejemplo (e2e/fixtures/make-cv-sample.mjs): cabecera gráfica, nombre centrado, títulos numerados sin línea,
+  // puesto y fechas en negrita, pie en recuadro gris con texto propio y fecha de generación
+  await card.getByTestId('cv-adopt-input').setInputFiles('e2e/fixtures/cv-sample.pdf');
+  await expect(page.getByText('Formato adoptado del CV de ejemplo.').last()).toBeVisible({ timeout: 20000 });
+  await expect(page.getByTestId('cv-sample-frame')).toBeVisible({ timeout: 20000 });
+  await page.getByRole('dialog', { name: 'CV de ejemplo' }).getByRole('button', { name: 'Cerrar' }).click();
+
+  await expect(card.locator('img.cv-tpl-img')).toBeVisible();
+  await expect(card.getByLabel('Texto del pie')).toHaveValue('Generado con ACME © 2025');
+  await expect(card.getByTestId('cv-format-kind')).toHaveText('Formato adoptado');
+  await expect(card.getByLabel('Nombre', { exact: true })).toHaveValue('center');
+  await expect(card.getByTestId('cv-style-footerBox')).toBeChecked();
+  await expect(card.getByTestId('cv-style-headingRule')).not.toBeChecked();
+  await expect(card.getByTestId('cv-style-summaryHeading')).not.toBeChecked();
+  await expect(card.getByTestId('cv-style-boldPositions')).toBeChecked();
+  await expect(card.getByLabel('Color del nombre')).toHaveValue(/^#1[0-9a-f]1[0-9a-f]1[0-9a-f]$/i);
+  await expect(card.getByLabel('Color de los títulos')).toHaveValue(/^#[0-3][0-9a-f]{5}$/i);
+
+  // se puede ajustar a mano y guardar; el formato llega en la marca pública del tenant
+  await card.getByTestId('cv-style-headingRule').check();
+  await card.getByTestId('cv-template-save').click();
+  await expect(page.getByText('Plantilla de CV guardada.').last()).toBeVisible();
+  const pub = await (await admin.ctx.get('/api/v1/public/tenants/fractal')).json();
+  expect(pub.cvStyle).toMatchObject({ nameAlign: 'center', headingRule: true, boldPositions: true, footerBg: '#F3F4F6', font: 'Helvetica' });
+
+  // validación del backend
+  expect((await admin.ctx.put('/api/v1/tenant/branding/cv', { headers: H, data: { footerText: '', style: { nameAlign: 'right', font: 'Helvetica' } } })).status()).toBe(422);
+  expect((await admin.ctx.put('/api/v1/tenant/branding/cv', { headers: H, data: { footerText: '', showPhoto: false, clearHeader: true, clearFooter: true } })).ok()).toBeTruthy();
+});
+
 test('CV: el endpoint de traducción exige permiso y valida el idioma', async () => {
   const admin = await createFractalAdmin();
   const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
