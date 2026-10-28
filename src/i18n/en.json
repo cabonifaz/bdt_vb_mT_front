@@ -105,7 +105,8 @@
     "favorites": "Favorites",
     "interviews": "Interviews",
     "blacklist": "Blacklist",
-    "clients": "Clients"
+    "clients": "Clients",
+    "usage": "Usage"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -694,5 +695,28 @@
     "regenerate": "Regenerate",
     "regenerateHint": "Generate the CV again with the current profile data",
     "regenerateHintEn": "Translate with AI again and regenerate the CV with the current data"
+  },
+  "usage": {
+    "title": "Usage by tenant",
+    "subtitle": "ID (DNI) lookups and AI tokens (CV translation) per tenant, to keep costs under control.",
+    "from": "From",
+    "to": "To",
+    "dni": "DNI lookups",
+    "ai": "AI translations",
+    "tokens": "AI tokens",
+    "tenants": "Tenants with usage",
+    "tokensSplit": "{{prompt}} input · {{completion}} output",
+    "errors_one": "{{count}} failed",
+    "errors_other": "{{count}} failed",
+    "byTenant": "By tenant",
+    "tenant": "Tenant",
+    "promptTokens": "Input tokens",
+    "completionTokens": "Output tokens",
+    "totalTokens": "Total tokens",
+    "detail": "Monthly detail",
+    "kindDni": "DNI",
+    "kindAi": "AI",
+    "none": "No usage in this period.",
+    "badRange": "«From» must be the same month as or earlier than «To»."
   }
 }

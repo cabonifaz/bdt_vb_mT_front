@@ -27,6 +27,7 @@ const pages = {
   clients: () => import('./pages/clients/Clients'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
+  usage: () => import('./pages/platform/Usage'),
 };
 const prefetchPages = () => {
   const run = () => Object.values(pages).forEach((load) => { load().catch(() => { /* se reintenta al navegar */ }); });
@@ -47,6 +48,7 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
 const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
 const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
+const Usage = lazy(() => pages.usage().then((m) => ({ default: m.Usage })));
 
 const DEFAULT_TENANT = (import.meta.env.VITE_DEFAULT_TENANT as string | undefined) ?? 'fractal';
 
@@ -142,10 +144,12 @@ function PlatformRoutes() {
           { title: t('nav.platform'), items: [
             { to: '', label: t('nav.tenants'), icon: 'building', end: true },
             { to: '/api-keys', label: t('nav.approvals'), icon: 'check', perm: 'platform.apikeys.approve' },
+            { to: '/consumo', label: t('nav.usage'), icon: 'chart', perm: 'platform.usage.read' },
           ] },
         ]} />}>
           <Route index element={<Tenants />} />
           <Route path="api-keys" element={<ApiKeyApprovals />} />
+          <Route path="consumo" element={<Usage />} />
           <Route path="tenants/:id/users" element={<PlatformTenantUsers />} />
           <Route path="*" element={<NotFound />} />
         </Route>

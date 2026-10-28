@@ -105,7 +105,8 @@
     "favorites": "Favoritos",
     "interviews": "Entrevistas",
     "blacklist": "Lista negra",
-    "clients": "Clientes"
+    "clients": "Clientes",
+    "usage": "Consumo"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -694,5 +695,28 @@
     "regenerate": "Regenerar",
     "regenerateHint": "Vuelve a generar el CV con los datos actuales de la ficha",
     "regenerateHintEn": "Vuelve a traducir con IA y generar el CV con los datos actuales"
+  },
+  "usage": {
+    "title": "Consumo por tenant",
+    "subtitle": "Consultas de DNI y tokens de IA (traducción de CV) de cada tenant, para controlar costos.",
+    "from": "Desde",
+    "to": "Hasta",
+    "dni": "Consultas DNI",
+    "ai": "Traducciones IA",
+    "tokens": "Tokens de IA",
+    "tenants": "Tenants con consumo",
+    "tokensSplit": "{{prompt}} entrada · {{completion}} salida",
+    "errors_one": "{{count}} con error",
+    "errors_other": "{{count}} con error",
+    "byTenant": "Por tenant",
+    "tenant": "Tenant",
+    "promptTokens": "Tokens entrada",
+    "completionTokens": "Tokens salida",
+    "totalTokens": "Tokens total",
+    "detail": "Detalle por mes",
+    "kindDni": "DNI",
+    "kindAi": "IA",
+    "none": "Sin consumo en el período.",
+    "badRange": "El mes «Desde» debe ser anterior o igual a «Hasta»."
   }
 }
