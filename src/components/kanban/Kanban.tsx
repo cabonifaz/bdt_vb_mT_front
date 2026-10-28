@@ -73,8 +73,10 @@ function Column({ col, count, children }: { col: KanbanColumn; count: number; ch
 
 function Card({ id, disabled, children }: { id: string; disabled: boolean; children: ReactNode }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id, disabled });
+  // sin permiso para mover, la tarjeta no es un "botón deshabilitado": sus enlaces deben seguir siendo accesibles
+  const drag = disabled ? {} : { ...attributes, ...listeners };
   return (
-    <div ref={setNodeRef} className={`kanban-card${isDragging ? ' placeholder' : ''}${disabled ? ' locked' : ''}`} {...attributes} {...listeners}
+    <div ref={setNodeRef} className={`kanban-card${isDragging ? ' placeholder' : ''}${disabled ? ' locked' : ''}`} {...drag}
       data-testid="kanban-card" data-card-id={id}>
       {children}
     </div>
