@@ -2,9 +2,10 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { http } from '../../lib/api';
-import { assetUrl, useTheme } from '../../providers/theme';
+import { useTheme } from '../../providers/theme';
 import { Button, Field, LangSwitch, PasswordField, useErrorText } from '../../components/ui';
 import i18n from '../../i18n';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 
 interface InvitationInfo { email: string; role: string; tenantSlug?: string; tenantName?: string; expiresAt: string }
 
@@ -48,7 +49,7 @@ export function AcceptInvitation() {
     <div className="auth">
       <div className="auth-panel">
         <div className="row">
-          {branding && info?.tenantSlug ? <img className="logo" src={assetUrl(branding.logoUrl)} alt={branding.displayName} /> : <strong>{t('app.name')}</strong>}
+          {branding && info?.tenantSlug ? <BrandLogo className="logo" logoUrl={branding.logoUrl} name={branding.displayName} /> : <strong>{t('app.name')}</strong>}
           <span className="spacer" /><LangSwitch />
         </div>
         {loadError && <div className="alert alert-error" role="alert">{loadError}</div>}

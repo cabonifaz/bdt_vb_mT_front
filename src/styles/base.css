@@ -669,8 +669,8 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
 .rq-progress span { display: block; height: 100%; background: var(--color-success); }
 .rq-card-foot { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 12px; color: var(--color-text-muted); }
 .rq-due { display: inline-flex; align-items: center; gap: 4px; }
-.rq-due.due-overdue, .due-overdue { color: var(--color-danger); font-weight: var(--weight-semibold); }
-.rq-due.due-today, .due-today { color: var(--color-warning); font-weight: var(--weight-semibold); }
+.rq-due.due-overdue, .rq-stat-overdue { color: var(--color-danger); font-weight: var(--weight-semibold); }
+.rq-due.due-today, .rq-stat-today { color: var(--color-warning); font-weight: var(--weight-semibold); }
 .rq-due.due-soon { color: var(--color-warning); }
 .rq-meta { display: inline-flex; align-items: center; gap: 3px; }
 .avatar-xs { width: 22px; height: 22px; font-size: 10px; }
@@ -699,3 +699,5 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
 .kv dt { color: var(--color-text-muted); }
 .kv dd { margin: 0; }
 @media (max-width: 640px) { .kanban { grid-auto-columns: 82vw; } .rq-filters > .input, .rq-filter-client { width: 100%; } }
+
+.brand-text { font-size: 18px; font-weight: var(--weight-semibold); color: var(--brand-primary); letter-spacing: -0.01em; }

@@ -3,12 +3,13 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { Loader } from '../ui/Loader';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../providers/auth';
-import { assetUrl, useTheme } from '../../providers/theme';
+import { useTheme } from '../../providers/theme';
 import { useSync } from '../../providers/sync';
 import { UserMenu } from './UserMenu';
 import { NotificationBell } from './NotificationBell';
 import { disablePush } from '../../lib/notifications';
 import { Icon } from '../ui/Icon';
+import { BrandLogo } from '../ui/BrandLogo';
 
 interface NavItem { to: string; label: string; icon: string; perm?: string; end?: boolean }
 
@@ -74,7 +75,7 @@ export function AppShell({ base, sections, platform = false }: {
         <div className="sidebar-brand">
           {compact
             ? <span className="avatar" aria-hidden>{(branding?.name ?? 'B')[0]}</span>
-            : platform || !branding ? <strong>{t('app.name')}</strong> : <img src={assetUrl(branding.logoUrl)} alt={branding.displayName} />}
+            : platform || !branding ? <strong>{t('app.name')}</strong> : <BrandLogo logoUrl={branding.logoUrl} name={branding.displayName} />}
         </div>
         <nav aria-label="principal">
           {sections.map((s, i) => {

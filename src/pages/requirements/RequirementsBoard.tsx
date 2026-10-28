@@ -81,8 +81,8 @@ export function RequirementsBoard() {
           <h1>{t('rq.title')}</h1>
           <p className="muted" data-testid="rq-stats">
             {t('rq.statsOpen', { count: stats.open })}
-            {stats.overdue > 0 && <> · <span className="due-overdue">{t('rq.statsOverdue', { count: stats.overdue })}</span></>}
-            {stats.today > 0 && <> · <span className="due-today">{t('rq.statsToday', { count: stats.today })}</span></>}
+            {stats.overdue > 0 && <> · <span className="rq-stat-overdue">{t('rq.statsOverdue', { count: stats.overdue })}</span></>}
+            {stats.today > 0 && <> · <span className="rq-stat-today">{t('rq.statsToday', { count: stats.today })}</span></>}
           </p>
         </div>
         {canWrite && <Button onClick={() => setCreating(true)} data-testid="rq-new"><Plus size={16} />{t('rq.new')}</Button>}

@@ -74,6 +74,9 @@ test('tablero de RQ: alta en modal, arrastrar entre estados, mover con menú y c
 
   // soltar en "Cerrados" pide el motivo
   await drag(page, card, column(page, 'rq-board', 'Cerrados'));
+  // dnd-kit bloquea los clics hasta 50 ms después de soltar (evita que el soltar active algo); una persona tarda más
+  await expect(page.getByTestId('rq-close-CANCELLED')).toBeVisible();
+  await page.waitForTimeout(150);
   await page.getByTestId('rq-close-CANCELLED').click();
   await expect(column(page, 'rq-board', 'Cerrados').getByTestId(`rq-card-${code}`)).toContainText('Cancelado');
 });
