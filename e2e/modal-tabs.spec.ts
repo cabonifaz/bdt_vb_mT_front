@@ -16,7 +16,7 @@ test('modales con pestañas: pestañas y modal no cambian de posición al navega
   await uiLogin(page, 'fractal', admin.email, admin.password);
 
   // talento: todas las pestañas
-  await page.locator('.ws-side-head button').first().click();
+  await page.getByTestId('new-talent').click();
   const tdlg = page.getByRole('dialog', { name: 'Nuevo talento' });
   const t0 = await layout(tdlg);
   for (const tab of await tdlg.getByRole('tab').all()) {

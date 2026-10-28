@@ -13,6 +13,8 @@ import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
 import { Chip, Pagination, Stars, TalentPhoto } from '../../components/talents/bits';
 import { TalentEditor } from './TalentEditor';
+import { QuickTalentModal } from '../../components/talents/QuickTalentModal';
+import { Sparkles } from 'lucide-react';
 import { WsBack } from '../../components/layout/WsBack';
 import { Loader } from '../../components/ui/Loader';
 
@@ -38,6 +40,7 @@ export function TalentsWorkspace() {
   const [skillText, setSkillText] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [quick, setQuick] = useState(false);
 
   const update = (patch: Partial<TalentFilters>) => setFilters({ ...f, ...patch, page: 'page' in patch ? patch.page! : 1 });
 
@@ -90,6 +93,11 @@ export function TalentsWorkspace() {
           <h1>{t('talents.title')}</h1>
           {list.data && <span className="muted" data-testid="talent-count">{list.data.total}</span>}
           <span className="spacer" />
+          {can('talent.write') && (
+            <button className="btn btn-secondary btn-sm icon-btn" onClick={() => setQuick(true)} aria-label={t('talents.quick.title')} title={t('talents.quick.title')} data-testid="quick-talent">
+              <Sparkles size={17} />
+            </button>
+          )}
           {can('talent.write') && (
             <button className="btn btn-primary btn-sm icon-btn" onClick={() => setCreating(true)} aria-label={t('talents.new')} title={t('talents.new')} data-testid="new-talent">
               <Icon name="plus" size={18} />
@@ -181,11 +189,14 @@ export function TalentsWorkspace() {
             </Link>
           ))}
           {list.data?.items.length === 0 && <div className="empty" style={{ padding: 16 }}>{t('talents.noResults')}</div>}
-          {list.data && list.data.total > PAGE_SIZE && (
+        </nav>
+        {/* el paginado queda fijo bajo la lista: no se mueve con su scroll */}
+        {list.data && list.data.total > PAGE_SIZE && (
+          <div className="ws-pager">
             <Pagination page={f.page} total={list.data.total} pageSize={PAGE_SIZE} onPage={(p) => update({ page: p })}
               labels={{ prev: '‹', next: '›', of: t('talents.of') }} />
-          )}
-        </nav>
+          </div>
+        )}
       </aside>
 
       <section className="ws-detail" aria-live="polite">
@@ -193,6 +204,11 @@ export function TalentsWorkspace() {
         <Suspense fallback={<Loader />}><Outlet /></Suspense>
       </section>
 
+      {quick && <QuickTalentModal onClose={() => setQuick(false)} onCreated={(id) => {
+        setQuick(false);
+        qc.invalidateQueries({ queryKey: ['talents'] });
+        nav(`/${tenant}/talentos/${id}`);
+      }} />}
       {creating && <TalentEditor onClose={() => setCreating(false)} onSaved={(id, offline) => {
         setCreating(false);
         qc.invalidateQueries({ queryKey: ['talents'] });

@@ -324,7 +324,8 @@
     "IDENTITY_UNAVAILABLE": "El servicio de RENIEC no responde. Inténtalo en unos minutos o ingresa los datos a mano.",
     "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida.",
     "AI_NOT_CONFIGURED": "La traducción con IA no está configurada (falta la key de OpenAI).",
-    "AI_UNAVAILABLE": "El servicio de IA no respondió. Inténtalo nuevamente."
+    "AI_UNAVAILABLE": "El servicio de IA no respondió. Inténtalo nuevamente.",
+    "CV_NO_TEXT": "No se pudo leer texto del PDF (¿es un escaneo o imagen?). Sube un CV con texto seleccionable."
   },
   "talents": {
     "title": "Talentos",
@@ -488,7 +489,45 @@
     "origin": "Procedencia",
     "originShort": "Procede de",
     "originCountry": "País de procedencia",
-    "originCity": "Ciudad de procedencia"
+    "originCity": "Ciudad de procedencia",
+    "cvRead": {
+      "button": "Leer CV con IA",
+      "hint": "Sube el CV en PDF y la IA completa el formulario (datos, experiencia, estudios, habilidades e idiomas). El PDF queda como CV original.",
+      "reading": "Leyendo el CV con IA…",
+      "pdfOnly": "El CV debe ser un archivo PDF.",
+      "filled": "Datos del CV cargados. Revisa el formulario antes de guardar.",
+      "filledWith": "Datos del CV cargados ({{items}}). Revisa el formulario antes de guardar.",
+      "exp_one": "{{count}} experiencia",
+      "exp_other": "{{count}} experiencias",
+      "edu_one": "{{count}} estudio",
+      "edu_other": "{{count}} estudios",
+      "skills_one": "{{count}} habilidad",
+      "skills_other": "{{count}} habilidades",
+      "lang_one": "{{count}} idioma",
+      "lang_other": "{{count}} idiomas"
+    },
+    "quick": {
+      "title": "Carga rápida con CV",
+      "subtitle": "Solo revisas nombres, apellidos, celular y correo. Lo demás que traiga el CV (experiencia, estudios, habilidades e idiomas) se guarda igual.",
+      "pick": "Seleccionar CV (PDF)",
+      "pickHint": "El CV se guardará junto al talento",
+      "change": "Pulsa para cambiar el archivo",
+      "analyze": "Analizar CV",
+      "alsoSaved": "Del CV también se guardarán {{items}}.",
+      "missing": "El CV no traía {{fields}}. Complétalo antes de crear.",
+      "create": "Aceptar y crear talento",
+      "created": "Talento creado desde su CV.",
+      "partial": "El talento se creó, pero algunos datos no se guardaron.",
+      "required": "Obligatorio",
+      "badPhone": "Celular inválido",
+      "badEmail": "Correo inválido",
+      "field": {
+        "firstName": "nombres",
+        "lastName": "apellido paterno",
+        "email": "correo",
+        "phone": "celular"
+      }
+    }
   },
   "favorites": {
     "new": "Nueva colección",
@@ -702,7 +741,7 @@
     "from": "Desde",
     "to": "Hasta",
     "dni": "Consultas DNI",
-    "ai": "Traducciones IA",
+    "ai": "Usos de IA",
     "tokens": "Tokens de IA",
     "tenants": "Tenants con consumo",
     "tokensSplit": "{{prompt}} entrada · {{completion}} salida",
@@ -714,9 +753,12 @@
     "completionTokens": "Tokens salida",
     "totalTokens": "Tokens total",
     "detail": "Detalle por mes",
-    "kindDni": "DNI",
-    "kindAi": "IA",
     "none": "Sin consumo en el período.",
-    "badRange": "El mes «Desde» debe ser anterior o igual a «Hasta»."
+    "badRange": "El mes «Desde» debe ser anterior o igual a «Hasta».",
+    "kind": {
+      "DNI_LOOKUP": "DNI",
+      "AI_TRANSLATE": "IA · traducción de CV",
+      "AI_CV_READ": "IA · lectura de CV"
+    }
   }
 }

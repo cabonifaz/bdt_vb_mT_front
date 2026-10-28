@@ -22,7 +22,7 @@ test('carga con el logo del tenant: arranque, ficha y guardado largo', async ({ 
   await page.unrouteAll({ behavior: 'ignoreErrors' });
 
   // guardado largo: superposición con el logo y el avance
-  await page.locator('.ws-side-head button').first().click();
+  await page.getByTestId('new-talent').click();
   const dlg = page.getByRole('dialog', { name: 'Nuevo talento' });
   await dlg.getByLabel('Nombres').fill('Ovi');
   await dlg.getByLabel('Apellido paterno').fill(`Lento${Date.now()}`);

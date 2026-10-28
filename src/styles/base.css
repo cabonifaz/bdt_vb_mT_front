@@ -103,6 +103,7 @@ a { color: var(--color-link); }
 .alert-error { background: var(--color-danger-bg); color: var(--color-danger); }
 .alert-success { background: var(--color-success-bg); color: var(--color-success); }
 .alert-info { background: var(--color-info-bg); color: var(--color-text); }
+.alert-warning { background: var(--color-warning-bg); color: var(--color-text); }
 .secret { font-family: ui-monospace, Consolas, monospace; word-break: break-all; background: var(--color-surface-muted); padding: var(--space-3); border-radius: var(--radius-md); }
 
 /* ---------- Layout: Sidebar + Topbar ---------- */
@@ -543,3 +544,26 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
 .usage-filters .field { min-width: 160px; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .usage-sub td { font-size: var(--text-xs); color: var(--color-text-muted); background: var(--color-surface-2, transparent); }
+
+/* Lectura de CV con IA (alta de talento) y carga rápida */
+.cv-read-bar { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; padding: 10px 12px; margin-bottom: var(--space-3);
+  border: 1px dashed var(--brand-primary); border-radius: var(--radius-md); background: var(--color-info-bg); font-size: var(--text-sm); }
+.cv-read-bar > svg { color: var(--brand-primary); flex: none; }
+.cv-read-bar .grow { flex: 1 1 220px; min-width: 0; }
+.file-drop { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; text-align: left; cursor: pointer;
+  border: 1px dashed var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); }
+.file-drop:hover:not(:disabled) { border-color: var(--brand-primary); background: var(--color-info-bg); }
+.file-drop:disabled { opacity: .6; cursor: default; }
+.file-drop-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--radius-md); background: var(--color-surface-2, var(--color-info-bg)); color: var(--color-text-muted); }
+.file-drop-text { display: flex; flex-direction: column; min-width: 0; font-size: var(--text-sm); }
+.file-drop-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Paginado de la lista fijo (fuera del scroll) y encabezado de la ficha siempre visible al hacer scroll */
+.ws-pager { flex: none; padding: var(--space-2) var(--space-3); border-top: 1px solid var(--color-border); background: var(--color-surface); }
+.pf-head { position: sticky; top: 0; z-index: 5; background: var(--color-bg);
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-6)) 0; padding: var(--space-5) var(--space-6) var(--space-4); }
+@media (max-width: 900px) {
+  .ws-pager { position: sticky; bottom: 0; z-index: 5; }
+  .ws-detail { overflow: visible; } /* en móvil scrollea la página: el encabezado se fija bajo la barra superior */
+  .pf-head { top: var(--topbar-height); margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-4)) 0; padding: var(--space-3) var(--space-4); }
+}

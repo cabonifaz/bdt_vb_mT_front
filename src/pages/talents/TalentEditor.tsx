@@ -1,57 +1,23 @@
 // Editor de talento en modal con pestañas: alta con TODAS las secciones y edición completa.
 // Cada elemento tiene uuid propio => guardar es idempotente (reintentos y cola offline no duplican).
-import { useMemo, useState, type ReactNode } from 'react';
+// En el alta, "Leer CV con IA" completa el formulario desde el PDF del CV y lo adjunta como CV original.
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApiError, http } from '../../lib/api';
+import { applyCvRead, buildSaveSteps, fromTalent, uid, type Draft, type Edu, type Exp, type Lang, type Main } from '../../lib/talentDraft';
+import { isPdf, readCv } from '../../lib/cv/readCv';
 import { useAuth } from '../../providers/auth';
-import { TALENT_API, useLabel, useMasters, type Rates, type Talent } from '../../lib/talents';
+import { useLabel, useMasters, type Rates, type Talent } from '../../lib/talents';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { useToast } from '../../components/ui/Toast';
-import { Search } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 import { Chip, Stars } from '../../components/talents/bits';
 import { Loader } from '../../components/ui/Loader';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
 import { hasRates, type ProfileFacts } from '../../lib/completeness';
 
-type Main = {
-  firstName: string; lastName: string; secondLastName: string; headline: string; docTypeId: string; docNumber: string;
-  email: string; phone: string; birthDate: string; countryId: string; city: string; originCountryId: string; originCity: string; linkedinUrl: string; githubUrl: string; summary: string;
-  availabilityId: string; hasEquipment: '' | 'yes' | 'no';
-};
-type Tech = { id: string; skillId?: string; label: string; years: number };
-type Soft = { id: string; skillId?: string; label: string };
-type Exp = { id: string; company: string; position: string; startDate: string; endDate: string; isCurrent: boolean; functions: string };
-type Edu = { id: string; institution: string; career: string; gradeId: string; startDate: string; endDate: string; isCurrent: boolean; datePrecision: string };
-type Lang = { id: string; languageId: string; levelId: string; stars: number };
-type NewFile = { id: string; category: string; file: File };
-type Draft = { main: Main; rates: Rates; tech: Tech[]; soft: Soft[]; exp: Exp[]; edu: Edu[]; lang: Lang[]; feedback: { stars: number; comment: string }; files: NewFile[] };
-
 const TABS = ['data', 'skills', 'experience', 'education', 'languages', 'feedback', 'files'] as const;
 type Tab = (typeof TABS)[number];
-const uid = () => crypto.randomUUID();
-const nz = (s: string) => (s.trim() === '' ? null : s.trim());
-const num = (v: unknown) => (v === '' || v === undefined || v === null ? undefined : Number(v));
-
-function fromTalent(t?: Talent, label?: (l?: Record<string, string>) => string): Draft {
-  const L = label ?? ((l?: Record<string, string>) => l?.es ?? '');
-  return {
-    main: {
-      firstName: t?.firstName ?? '', lastName: t?.lastName ?? '', secondLastName: t?.secondLastName ?? '', headline: t?.headline ?? '',
-      docTypeId: t?.docTypeId ?? '', docNumber: t?.docNumber ?? '', email: t?.email ?? '', phone: t?.phone ?? '', birthDate: t?.birthDate ?? '',
-      countryId: t?.countryId ?? '', city: t?.city ?? '', originCountryId: t?.originCountryId ?? '', originCity: t?.originCity ?? '', linkedinUrl: t?.linkedinUrl ?? '', githubUrl: t?.githubUrl ?? '',
-      summary: t?.summary ?? '', availabilityId: t?.availabilityId ?? '',
-      hasEquipment: t?.hasEquipment === undefined || t?.hasEquipment === null ? '' : t.hasEquipment ? 'yes' : 'no',
-    },
-    rates: t?.rates ?? {},
-    tech: (t?.techSkills ?? []).map((s) => ({ id: s.id, skillId: s.skillId, label: L(s.label), years: s.years })),
-    soft: (t?.softSkills ?? []).map((s) => ({ id: s.id, skillId: s.skillId, label: L(s.label) })),
-    exp: (t?.experiences ?? []).map((e) => ({ id: e.id, company: e.company, position: e.position, startDate: e.startDate, endDate: e.endDate ?? '', isCurrent: e.isCurrent, functions: e.functions ?? '' })),
-    edu: (t?.educations ?? []).map((e) => ({ id: e.id, institution: e.institution, career: e.career, gradeId: e.gradeId ?? '', startDate: e.startDate ?? '', endDate: e.endDate ?? '', isCurrent: e.isCurrent, datePrecision: e.datePrecision })),
-    lang: (t?.languages ?? []).map((l) => ({ id: l.id, languageId: l.languageId, levelId: l.levelId, stars: l.stars })),
-    feedback: { stars: 0, comment: '' },
-    files: [],
-  };
-}
 
 export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; onClose: () => void; onSaved: (id: string, offline: boolean) => void }) {
   const { t } = useTranslation();
@@ -71,6 +37,30 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
   const [done, setDone] = useState<Set<string>>(new Set()); // pasos ya guardados (para reintentos)
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...cur, [k]: v }));
+  const masters = useMasters();
+  const toast = useToast();
+  const cvInput = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState(false);
+  const readFromCv = async (file?: File) => {
+    if (!file) return;
+    if (!isPdf(file)) { toast.error(t('talents.cvRead.pdfOnly')); return; }
+    setReading(true);
+    try {
+      // los maestros deben estar cargados para cruzar país, idiomas, niveles, grados y habilidades
+      const [r, items] = await Promise.all([readCv(file), masters.data ?? masters.refetch().then((x) => x.data ?? [])]);
+      const { draft, applied } = applyCvRead(d, r, items, label, file);
+      setD(draft);
+      const parts = [
+        applied.exp && t('talents.cvRead.exp', { count: applied.exp }), applied.edu && t('talents.cvRead.edu', { count: applied.edu }),
+        applied.tech + applied.soft && t('talents.cvRead.skills', { count: applied.tech + applied.soft }), applied.lang && t('talents.cvRead.lang', { count: applied.lang }),
+      ].filter(Boolean);
+      toast.success(parts.length ? t('talents.cvRead.filledWith', { items: parts.join(', ') }) : t('talents.cvRead.filled'));
+    } catch (e) {
+      toast.error(errText(e));
+    } finally {
+      setReading(false);
+    }
+  };
   const valid = d.main.firstName.trim() !== '' && d.main.lastName.trim() !== '';
 
   const save = async () => {
@@ -79,48 +69,8 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
     let offline = false;
     const errs: string[] = [];
     const doneNow = new Set(done);
-    type Step = { key: string; label: string; run: () => Promise<unknown>; online?: boolean };
-    const steps: Step[] = [];
-    const m = d.main;
-    if (!mainSaved) {
-      const body: Record<string, unknown> = {
-        id: talentId, firstName: m.firstName.trim(), lastName: m.lastName.trim(), secondLastName: nz(m.secondLastName), headline: nz(m.headline),
-        docTypeId: nz(m.docTypeId), docNumber: m.docNumber.trim(), email: m.email.trim(), phone: m.phone.trim(), birthDate: m.birthDate, countryId: nz(m.countryId),
-        city: nz(m.city), originCountryId: nz(m.originCountryId), originCity: nz(m.originCity), linkedinUrl: nz(m.linkedinUrl), githubUrl: nz(m.githubUrl), summary: nz(m.summary), availabilityId: nz(m.availabilityId),
-        hasEquipment: m.hasEquipment === '' ? null : m.hasEquipment === 'yes',
-      };
-      if (editing) body.expectedVersion = talent!.version;
-      if (canRates) body.rates = { modalityId: d.rates.modalityId || undefined, payrollMin: num(d.rates.payrollMin), payrollMax: num(d.rates.payrollMax),
-        payrollCurrencyId: d.rates.payrollCurrencyId || undefined, rxhMin: num(d.rates.rxhMin), rxhMax: num(d.rates.rxhMax),
-        rxhCurrencyId: d.rates.rxhCurrencyId || undefined, notes: d.rates.notes || undefined };
-      steps.push({ key: 'main', label: t('talents.personal'), run: () => editing ? http.put(`${TALENT_API}/${talentId}`, body, true) : http.post(TALENT_API, body, true) });
-    }
-    // eliminaciones (solo edición)
-    const removed = <T extends { id: string }>(orig: T[], cur: T[]) => orig.filter((o) => !cur.some((c) => c.id === o.id));
-    const changed = <T extends { id: string }>(orig: T[], cur: T[]) => cur.filter((c) => JSON.stringify(orig.find((o) => o.id === c.id)) !== JSON.stringify(c));
-    for (const [sec, o, c] of [['tech-skills', original.tech, d.tech], ['soft-skills', original.soft, d.soft], ['experiences', original.exp, d.exp],
-      ['educations', original.edu, d.edu], ['languages', original.lang, d.lang]] as [string, { id: string }[], { id: string }[]][]) {
-      removed(o, c).forEach((x) => steps.push({ key: `del:${x.id}`, label: t('talents.delete'), run: () => http.del(`${TALENT_API}/sections/${sec}/${x.id}`) }));
-    }
-    changed(original.tech, d.tech).forEach((s) => steps.push({ key: `tech:${s.id}:${s.years}`, label: s.label,
-      run: () => http.put(`${TALENT_API}/${talentId}/tech-skills`, s.skillId ? { id: s.id, skillId: s.skillId, years: s.years } : { id: s.id, label: s.label, years: s.years }, true) }));
-    changed(original.soft, d.soft).forEach((s) => steps.push({ key: `soft:${s.id}`, label: s.label,
-      run: () => http.post(`${TALENT_API}/${talentId}/soft-skills`, s.skillId ? { id: s.id, skillId: s.skillId } : { id: s.id, label: s.label }, true) }));
-    changed(original.exp, d.exp).forEach((e) => steps.push({ key: `exp:${JSON.stringify(e)}`, label: e.position,
-      run: () => http.put(`${TALENT_API}/${talentId}/experiences`, { ...e, endDate: e.isCurrent ? null : e.endDate || null, functions: e.functions || null }, true) }));
-    changed(original.edu, d.edu).forEach((e) => steps.push({ key: `edu:${JSON.stringify(e)}`, label: e.career,
-      run: () => http.put(`${TALENT_API}/${talentId}/educations`, { ...e, gradeId: e.gradeId || null, startDate: e.startDate || null, endDate: e.isCurrent ? null : e.endDate || null }, true) }));
-    changed(original.lang, d.lang).forEach((l) => steps.push({ key: `lang:${JSON.stringify(l)}`, label: t('talents.language'),
-      run: () => http.put(`${TALENT_API}/${talentId}/languages`, l, true) }));
-    if (d.feedback.stars > 0 && d.feedback.comment.trim()) {
-      steps.push({ key: `fb:${d.feedback.stars}:${d.feedback.comment}`, label: t('talents.feedback'), run: () => http.put(`${TALENT_API}/${talentId}/feedback`, { id: uid(), ...d.feedback }, true) });
-    }
-    d.files.forEach((f) => steps.push({ key: `file:${f.id}`, label: f.file.name, online: true, run: () => {
-      const fd = new FormData();
-      fd.append('file', f.file);
-      return http.post(`${TALENT_API}/${talentId}/files?category=${f.category}`, fd);
-    } }));
-
+    type Step = ReturnType<typeof buildSaveSteps>[number];
+    const steps: Step[] = buildSaveSteps({ d, original, talentId, talent, canRates, t }).filter((x) => !(mainSaved && x.key === 'main'));
     let i = 0;
     for (const s of steps) {
       i++;
@@ -180,6 +130,16 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
         <Button onClick={save} loading={busy} disabled={!valid} data-testid="save-talent">{t('common.save')}</Button>
       </>}>
       {busy && <Loader variant="overlay" label={progress || t('common.savingDots')} />}
+      {reading && <Loader variant="overlay" label={t('talents.cvRead.reading')} />}
+      {!editing && (
+        <div className="cv-read-bar">
+          <Sparkles size={16} aria-hidden />
+          <span className="grow">{t('talents.cvRead.hint')}</span>
+          <input ref={cvInput} type="file" accept=".pdf,application/pdf" hidden data-testid="cv-read-input"
+            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void readFromCv(f); }} />
+          <Button size="sm" variant="secondary" onClick={() => cvInput.current?.click()} disabled={reading || busy} data-testid="cv-read">{t('talents.cvRead.button')}</Button>
+        </div>
+      )}
       {errors.length > 0 && <div className="alert alert-error" role="alert"><ul style={{ margin: 0, paddingLeft: 18 }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
       {tab === 'data' && <DataTab d={d} set={set} canRates={canRates} />}
       {tab === 'skills' && <SkillsTab d={d} set={set} />}

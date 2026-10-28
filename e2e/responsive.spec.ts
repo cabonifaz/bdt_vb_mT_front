@@ -29,7 +29,7 @@ test('móvil: listado y ficha por turnos, sin scroll horizontal, tablas y modale
   await expect(page.getByPlaceholder('Nombre o puesto')).toHaveValue(last);
 
   // el modal de creación ocupa el ancho de la pantalla
-  await page.locator('.ws-side-head button').first().click();
+  await page.getByTestId('new-talent').click();
   const box = await page.getByRole('dialog').boundingBox();
   expect(box!.width).toBeLessThanOrEqual(390);
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Cancelar' })).toBeInViewport();

@@ -9,7 +9,7 @@ import { Icon } from '../../components/ui/Icon';
 import { Loader } from '../../components/ui/Loader';
 
 type UsageRow = {
-  tenantId: string; slug: string; name: string; month: string; kind: 'DNI_LOOKUP' | 'AI_TRANSLATE'; provider: string;
+  tenantId: string; slug: string; name: string; month: string; kind: 'DNI_LOOKUP' | 'AI_TRANSLATE' | 'AI_CV_READ'; provider: string;
   calls: number; errors: number; promptTokens: number; completionTokens: number;
 };
 type Totals = { dni: number; dniErrors: number; ai: number; aiErrors: number; prompt: number; completion: number };
@@ -92,8 +92,8 @@ export function Usage() {
                   </tr>
                   {open === x.id && x.rows.map((r) => (
                     <tr key={`${r.month}-${r.kind}-${r.provider}`} className="usage-sub">
-                      <td>{monthLabel(r.month, i18n.language)} · {r.kind === 'DNI_LOOKUP' ? t('usage.kindDni') : t('usage.kindAi')} <span className="muted">({r.provider})</span></td>
-                      <td className="num">{r.kind === 'DNI_LOOKUP' ? n(r.calls) : ''}</td><td className="num">{r.kind === 'AI_TRANSLATE' ? n(r.calls) : ''}</td>
+                      <td>{monthLabel(r.month, i18n.language)} · {t(`usage.kind.${r.kind}`)} <span className="muted">({r.provider})</span></td>
+                      <td className="num">{r.kind === 'DNI_LOOKUP' ? n(r.calls) : ''}</td><td className="num">{r.kind !== 'DNI_LOOKUP' ? n(r.calls) : ''}</td>
                       <td className="num">{r.promptTokens ? n(r.promptTokens) : ''}</td><td className="num">{r.completionTokens ? n(r.completionTokens) : ''}</td>
                       <td className="num">{r.promptTokens + r.completionTokens ? n(r.promptTokens + r.completionTokens) : ''}</td><td />
                     </tr>
