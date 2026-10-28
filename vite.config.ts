@@ -8,16 +8,22 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      // PWA: precachea la app para que abra sin red; los datos se cachean en IndexedDB (src/lib/offline.ts)
+      // PWA: precachea la app para que abra sin red; los datos se cachean en IndexedDB (src/lib/offline.ts).
+      // Instalable en el sistema operativo; las notificaciones push las atiende public/push-sw.js (importado en el SW).
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
         manifest: {
           name: 'Banco de Talentos', short_name: 'Talentos', lang: 'es', display: 'standalone',
           start_url: '/', theme_color: '#009688', background_color: '#ffffff',
-          icons: [{ src: '/tenants/fractal/logo.png', sizes: '244x64', type: 'image/png' }],
+          icons: [
+            { src: '/pwa-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/pwa-512.png', sizes: '512x512', type: 'image/png' },
+            { src: '/pwa-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
         },
         workbox: {
+          importScripts: ['push-sw.js'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^\/integration\//],
           runtimeCaching: [

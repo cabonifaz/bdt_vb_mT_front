@@ -6,6 +6,8 @@ import { useAuth } from '../../providers/auth';
 import { assetUrl, useTheme } from '../../providers/theme';
 import { useSync } from '../../providers/sync';
 import { UserMenu } from './UserMenu';
+import { NotificationBell } from './NotificationBell';
+import { disablePush } from '../../lib/notifications';
 import { Icon } from '../ui/Icon';
 
 interface NavItem { to: string; label: string; icon: string; perm?: string; end?: boolean }
@@ -115,7 +117,12 @@ export function AppShell({ base, sections, platform = false }: {
             <Icon name="menu" />
           </button>
           <span className="spacer" />
-          <UserMenu onLogout={async () => { const slug = user?.tenantSlug ?? ''; await logout(); nav(platform ? '/admin/login' : `/${slug}/login`); }} />
+          {!platform && <NotificationBell />}
+          <UserMenu onLogout={async () => {
+            const slug = user?.tenantSlug ?? '';
+            if (!platform) await disablePush().catch(() => undefined); // un equipo compartido no sigue recibiendo avisos
+            await logout(); nav(platform ? '/admin/login' : `/${slug}/login`);
+          }} />
         </header>
         <main className="content"><Suspense fallback={<Loader variant="panel" />}><Outlet /></Suspense></main>
       </div>

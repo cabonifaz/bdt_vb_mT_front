@@ -787,5 +787,54 @@
       "AI_TRANSLATE": "IA · traducción de CV",
       "AI_CV_READ": "IA · lectura de CV"
     }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "titleUnread_one": "Notificaciones: {{count}} sin leer",
+    "titleUnread_other": "Notificaciones: {{count}} sin leer",
+    "readAll": "Marcar todas como leídas",
+    "all": "Todas",
+    "unread": "No leídas",
+    "unreadOne": "No leída",
+    "none": "No tienes notificaciones.",
+    "noneUnread": "No tienes notificaciones sin leer.",
+    "more": "Ver anteriores",
+    "someone": "Alguien",
+    "newMany_one": "{{count}} notificación nueva",
+    "newMany_other": "{{count}} notificaciones nuevas",
+    "changes_one": "({{count}} cambio)",
+    "changes_other": "({{count}} cambios)",
+    "text": {
+      "TALENT_CREATED": "{{who}} registró al talento {{name}}",
+      "TALENT_UPDATED": "{{who}} actualizó al talento {{name}}"
+    },
+    "types": {
+      "TALENT_CREATED": "Nuevo talento",
+      "TALENT_UPDATED": "Talento actualizado"
+    },
+    "push": {
+      "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
+      "enable": "Activar",
+      "disable": "Desactivar en este dispositivo",
+      "denied": "Las notificaciones del sistema están bloqueadas para este sitio. Puedes permitirlas en la configuración del navegador.",
+      "error": "No se pudieron activar las notificaciones del sistema.",
+      "state": {
+        "unsupported": "Disponible al usar la app instalada (o un navegador compatible).",
+        "disabled-server": "El servidor aún no tiene activado el push.",
+        "denied": "Bloqueadas en este navegador.",
+        "off": "Desactivadas en este dispositivo.",
+        "on": "Activadas en este dispositivo."
+      }
+    },
+    "prefs": {
+      "title": "Preferencias de notificaciones",
+      "device": "Notificaciones del sistema",
+      "type": "Tipo",
+      "inApp": "En la app",
+      "push": "Del sistema",
+      "devices_one": "{{count}} dispositivo con notificaciones del sistema",
+      "devices_other": "{{count}} dispositivos con notificaciones del sistema",
+      "hint": "Pronto: llegada de un nuevo requerimiento (RQ) y cambios de un RQ."
+    }
   }
 }

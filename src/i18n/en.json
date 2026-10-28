@@ -787,5 +787,54 @@
       "AI_TRANSLATE": "AI · CV translation",
       "AI_CV_READ": "AI · CV reading"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "titleUnread_one": "Notifications: {{count}} unread",
+    "titleUnread_other": "Notifications: {{count}} unread",
+    "readAll": "Mark all as read",
+    "all": "All",
+    "unread": "Unread",
+    "unreadOne": "Unread",
+    "none": "You have no notifications.",
+    "noneUnread": "You have no unread notifications.",
+    "more": "Show older",
+    "someone": "Someone",
+    "newMany_one": "{{count}} new notification",
+    "newMany_other": "{{count}} new notifications",
+    "changes_one": "({{count}} change)",
+    "changes_other": "({{count}} changes)",
+    "text": {
+      "TALENT_CREATED": "{{who}} added the talent {{name}}",
+      "TALENT_UPDATED": "{{who}} updated the talent {{name}}"
+    },
+    "types": {
+      "TALENT_CREATED": "New talent",
+      "TALENT_UPDATED": "Talent updated"
+    },
+    "push": {
+      "offer": "Turn on system notifications to stay informed even when the app is closed.",
+      "enable": "Turn on",
+      "disable": "Turn off on this device",
+      "denied": "System notifications are blocked for this site. You can allow them in the browser settings.",
+      "error": "System notifications could not be turned on.",
+      "state": {
+        "unsupported": "Available in the installed app (or a compatible browser).",
+        "disabled-server": "Push is not enabled on the server yet.",
+        "denied": "Blocked in this browser.",
+        "off": "Off on this device.",
+        "on": "On on this device."
+      }
+    },
+    "prefs": {
+      "title": "Notification preferences",
+      "device": "System notifications",
+      "type": "Type",
+      "inApp": "In the app",
+      "push": "System",
+      "devices_one": "{{count}} device with system notifications",
+      "devices_other": "{{count}} devices with system notifications",
+      "hint": "Coming soon: new requirement (RQ) arrivals and RQ changes."
+    }
   }
 }
