@@ -95,7 +95,7 @@ export function RequirementDetail() {
               {new Date(`${rq.dueDate}T12:00:00`).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short', year: 'numeric' })}
               {!rq.closed && ` · ${days < 0 ? t('rq.overdueBy', { count: -days }) : days === 0 ? t('rq.dueToday') : t('rq.dueIn', { count: days })}`}</span>
             <span data-testid="rq-coverage">{t('rq.coverage', { covered, total })}</span>
-            {rq.ownerName && <span>{t('rq.ownerShort')}: {rq.ownerName}</span>}
+            {rq.owners.length > 0 && <span data-testid="rq-owners">{t('rq.ownersShort', { count: rq.owners.length })}: {rq.owners.map((o) => o.name).join(', ')}</span>}
           </div>
         </div>
         <div className="pf-actions">

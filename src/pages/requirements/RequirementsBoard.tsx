@@ -25,6 +25,7 @@ import { ReopenModal } from './ReopenModal';
 
 const CLOSED = 'CLOSED';
 type Item = { id: string; table: string; code: string; label: Record<string, string>; sortOrder: number; str1?: string };
+const initials = (name: string) => name.split(' ').filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
 const countKey: Record<BoardScope, keyof BoardCounts> = { ACTIVE: 'active', SOON: 'soon', OVERDUE: 'overdue', NEW: 'new', CLOSED: 'closed', ALL: 'all' };
 
 export function RequirementsBoard() {
@@ -180,7 +181,12 @@ export function RequirementsBoard() {
                   </span>
                   <span className="spacer" />
                   <span className="rq-meta" title={t('rq.candidatesCount', { count: c.candidates })}><Users size={13} />{c.candidates}</span>
-                  {c.ownerName && <span className="avatar avatar-xs" title={c.ownerName}>{c.ownerName.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}</span>}
+                  {c.owners.length > 0 && (
+                    <span className="avatar-stack" title={c.owners.map((o) => o.name).join(', ')} aria-label={t('rq.ownersShort', { count: c.owners.length }) + ': ' + c.owners.map((o) => o.name).join(', ')}>
+                      {c.owners.slice(0, 3).map((o) => <span key={o.id} className="avatar avatar-xs" aria-hidden>{initials(o.name)}</span>)}
+                      {c.owners.length > 3 && <span className="avatar avatar-xs avatar-more" aria-hidden>+{c.owners.length - 3}</span>}
+                    </span>
+                  )}
                 </div>
               </article>
             );

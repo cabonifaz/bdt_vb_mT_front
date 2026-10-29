@@ -85,10 +85,12 @@ a { color: var(--color-link); }
 
 /* ---------- Modal ---------- */
 .modal-backdrop { position: fixed; inset: 0; background: rgb(15 23 42 / 0.45); display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: var(--space-4); z-index: 50; }
-.modal { width: min(520px, 100%); background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+/* todo modal cabe en la ventana: cabecera y botones fijos, solo el contenido hace scroll (con cualquier zoom o contenido que crezca) */
+.modal { width: min(520px, 100%); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }
+.modal > .modal-header, .modal > .modal-footer, .modal > div:has(> .tabs) { flex-shrink: 0; }
 .modal-header { padding: var(--space-5) var(--space-6) 0; }
-.modal-body { padding: var(--space-5) var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
-.modal-footer { padding: 0 var(--space-6) var(--space-5); display: flex; justify-content: flex-end; gap: var(--space-2); }
+.modal-body { padding: var(--space-5) var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.modal-footer { padding: var(--space-3) var(--space-6) var(--space-5); display: flex; justify-content: flex-end; gap: var(--space-2); border-top: 1px solid var(--color-border); }
 
 /* ---------- Toast ---------- */
 .toasts { position: fixed; top: var(--space-4); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: var(--space-2); z-index: 60; }
@@ -203,10 +205,8 @@ button.star { cursor: pointer; }
 }
 
 /* ---------- Modal grande con pestañas ---------- */
-.modal-lg { width: min(980px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
-.modal-lg .modal-body { overflow-y: auto; flex: 1; }
+.modal-lg { width: min(980px, 100%); }
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--color-border); padding: 0 var(--space-6); overflow-x: auto; overflow-y: hidden; flex-shrink: 0; scrollbar-width: thin; }
-.modal-lg .modal-header, .modal-lg .modal-footer { flex-shrink: 0; }
 .tab:focus-visible { outline: none; box-shadow: inset 0 -2px 0 var(--color-focus); background: var(--color-surface-muted); }
 .tab { border: 0; background: none; font: inherit; padding: var(--space-3) var(--space-3); color: var(--color-text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-weight: var(--weight-medium); }
 .tab[aria-selected="true"] { color: var(--brand-primary); border-bottom-color: var(--brand-primary); }
@@ -394,8 +394,7 @@ svg.ss-btn { pointer-events: none; }
   .page-header { flex-wrap: wrap; gap: var(--space-3); }
   .page-header > .btn, .page-header > div > .btn { flex-shrink: 0; }
   .modal-backdrop { padding: 0; align-items: end; }
-  .modal:not(.modal-lg) { overflow-y: auto; }
-  .modal, .modal-lg { width: 100%; max-width: 100%; max-height: 92vh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .modal, .modal-lg { width: 100%; max-width: 100%; max-height: 92dvh; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
   .modal-footer { flex-wrap: wrap; }
   .form-grid { grid-template-columns: 1fr; }
   .kv { grid-template-columns: 1fr; gap: 2px; }
@@ -428,11 +427,9 @@ svg.ss-btn { pointer-events: none; }
 }
 
 /* Modales con pestañas: tamaño fijo (las pestañas no se mueven en X/Y); solo el contenido hace scroll */
-.modal-tabbed { display: flex; flex-direction: column; height: min(760px, calc(100vh - 32px)); }
-.modal-tabbed > .modal-body { flex: 1; min-height: 0; overflow-y: auto; }
-.modal-tabbed > .modal-header, .modal-tabbed > .modal-footer, .modal-tabbed > div:has(> .tabs) { flex-shrink: 0; }
+.modal-tabbed { height: min(760px, calc(100dvh - 32px)); }
 .tab .count { min-width: 20px; display: inline-block; text-align: center; }
-@media (max-width: 900px) { .modal-tabbed { height: 92vh; } }
+@media (max-width: 900px) { .modal-tabbed { height: 92dvh; } }
 
 /* ---------- Pantalla de carga con el logo del tenant ---------- */
 .loader { --loader-a: var(--brand-primary); --loader-b: var(--brand-secondary, var(--brand-primary)); display: grid; place-items: center; }
@@ -698,6 +695,11 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
 .rq-due.due-soon { color: var(--color-warning); }
 .rq-meta { display: inline-flex; align-items: center; gap: 3px; }
 .avatar-xs { width: 22px; height: 22px; font-size: 10px; }
+/* varios responsables: avatares superpuestos con borde del color de la tarjeta */
+.avatar-stack { display: inline-flex; }
+.avatar-stack .avatar { box-shadow: 0 0 0 2px var(--color-surface); }
+.avatar-stack .avatar + .avatar { margin-left: -6px; }
+.avatar-more { background: var(--color-surface-muted); color: var(--color-text-muted); }
 .rq-st-registered { background: #dcfce7; color: #15803d; } .rq-st-assigned, .rq-st-finished { background: #dbeafe; color: #1d4ed8; }
 .rq-st-in_selection, .rq-st-in_production { background: #ede9fe; color: #6d28d9; } .rq-st-lost, .rq-st-cancelled { background: var(--color-danger-bg); color: var(--color-danger); }
 .rq-st-attended { background: var(--color-surface-muted); color: var(--color-text-muted); }

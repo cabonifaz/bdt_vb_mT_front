@@ -909,7 +909,7 @@
     "status": "Status",
     "owner": "Owner",
     "ownerPlaceholder": "Search user…",
-    "ownerMe": "Me (creator)",
+    "ownerMe": "If you pick no one, you become the owner.",
     "titleField": "Title",
     "description": "Description",
     "requestDate": "Request date",
@@ -1044,6 +1044,10 @@
       "effective": "offboarded",
       "tipPending": "Resigned on {{date}}. Offboarding not yet confirmed by FMI.",
       "tipEffective": "Resigned on {{date}}. Offboarded since {{offboard}}."
-    }
+    },
+    "owners": "Owners",
+    "removeOwner": "Remove {{name}}",
+    "ownersShort_one": "Owner",
+    "ownersShort_other": "Owners"
   }
 }

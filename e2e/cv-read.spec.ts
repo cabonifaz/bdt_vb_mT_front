@@ -86,6 +86,9 @@ test('carga rápida con CV: se revisa identidad y contacto y se guarda todo lo d
   await expect(dlg.getByTestId('quick-summary')).toContainText('1 experiencia, 1 estudio, 3 habilidades, 1 idioma', { timeout: 20000 });
   await expect(dlg.getByText('El CV no traía celular')).toBeVisible();
   await expect(dlg.getByLabel('Nombres')).toHaveValue('Lucía');
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await expect(dlg.getByTestId('quick-create')).toBeInViewport();
+  await expect(dlg.getByRole('heading', { name: 'Carga rápida con CV' })).toBeInViewport();
 
   await dlg.getByTestId('quick-create').click();
   await expect(dlg.getByText('Obligatorio')).toBeVisible(); // falta el celular

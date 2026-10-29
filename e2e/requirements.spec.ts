@@ -56,6 +56,7 @@ test('tablero de RQ: alta en modal, arrastrar entre estados, mover con menú y c
   await expect(page.getByTestId('rq-coverage')).toHaveText('0 de 2 cubiertas');
   const code = (await page.locator('.rq-head .rq-code').textContent())!;
   expect(code).toMatch(/^RQ-\d{4}-\d{4}$/);
+  await expect(page.getByTestId('rq-owners')).toHaveText('Responsable: Prueba E2E');
 
   // tablero: aparece en "Registrado"; se arrastra a "Asignado"
   await page.getByRole('link', { name: 'Tablero' }).click();

@@ -4,12 +4,12 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import { ApiError, http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { useLabel } from '../../lib/talents';
 import { todayISO } from '../../lib/modules';
-import { RQ_API, useClientContacts, useRqCatalogs, type RQDetail } from '../../lib/requirements';
+import { RQ_API, useClientContacts, useRqCatalogs, type RQDetail, type RQOwner } from '../../lib/requirements';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
 import { Chip } from '../../components/talents/bits';
@@ -23,7 +23,7 @@ type Bill = { contractId: string; currencyId: string } & Record<BandKey, string>
 type BandKey = `${'base' | 'mobility' | 'monthly' | 'quarterly' | 'semiannual'}${'Min' | 'Max'}`;
 type Draft = {
   autoCode: boolean; code: string; clientId: string; title: string; description: string; statusId: string; requestDate: string; dueDate: string;
-  durationValue: string; durationUnitId: string; contractValue: string; contractUnitId: string; workModalityId: string; ownerId: string; ownerLabel: string;
+  durationValue: string; durationUnitId: string; contractValue: string; contractUnitId: string; workModalityId: string; owners: RQOwner[];
   needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; contacts: string[]; billing: Bill[]; vacancies: Vac[];
 };
 const BANDS = ['base', 'mobility', 'monthly', 'quarterly', 'semiannual'] as const;
@@ -39,7 +39,7 @@ function fromDetail(rq: RQDetail | undefined, defaults: { statusId: string; cont
     statusId: rq?.status.id ?? defaults.statusId, requestDate: rq?.requestDate ?? today, dueDate: rq?.dueDate ?? plusDays(today, 15),
     durationValue: s(rq?.durationValue), durationUnitId: rq?.durationUnitId ?? '', contractValue: s(rq?.contractValue),
     contractUnitId: rq?.contractUnitId ?? (rq ? '' : defaults.contractUnitId), workModalityId: rq?.workModalityId ?? '',
-    ownerId: rq?.ownerId ?? '', ownerLabel: rq?.ownerName ?? '', needsEmo: !!rq?.needsEmo, needsSctr: !!rq?.needsSctr, needsLaptop: !!rq?.needsLaptop,
+    owners: rq?.owners ?? [], needsEmo: !!rq?.needsEmo, needsSctr: !!rq?.needsSctr, needsLaptop: !!rq?.needsLaptop,
     contacts: rq?.contacts.map((c) => c.id) ?? [],
     billing: (rq?.billing ?? []).map((b) => ({ contractId: b.contractId, currencyId: b.currencyId,
       ...Object.fromEntries(BANDS.flatMap((k) => [[`${k}Min`, s(b[`${k}Min`])], [`${k}Max`, s(b[`${k}Max`])]])) } as Bill)),
@@ -98,7 +98,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
       statusId: draft.statusId, requestDate: draft.requestDate, dueDate: draft.dueDate,
       durationValue: num(draft.durationValue), durationUnitId: draft.durationValue ? draft.durationUnitId || null : null,
       contractValue: num(draft.contractValue), contractUnitId: draft.contractValue ? draft.contractUnitId || null : null,
-      workModalityId: draft.workModalityId || null, ownerId: draft.ownerId || null,
+      workModalityId: draft.workModalityId || null, ownerIds: draft.owners.map((o) => o.id),
       needsEmo: draft.needsEmo, needsSctr: draft.needsSctr, needsLaptop: draft.needsLaptop, contacts: draft.contacts,
       billing: canRates ? draft.billing.map((b) => ({ contractId: b.contractId, currencyId: b.currencyId, ...Object.fromEntries(BANDS.flatMap((k) => [[`${k}Min`, num(b[`${k}Min`])], [`${k}Max`, num(b[`${k}Max`])]])) })) : null,
       vacancies: draft.vacancies.map((v) => ({ id: v.id, profileId: v.profileId, quantity: Number(v.quantity),
@@ -139,7 +139,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
       {busy && <Loader variant="overlay" label={t('common.savingDots')} />}
       {errors.length > 0 && <div className="alert alert-error" role="alert"><ul style={{ margin: 0, paddingLeft: 18 }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
       {!draft ? <Loader /> : <>
-        {tab === 'data' && <DataTab d={draft} set={set} />}
+        {tab === 'data' && <DataTab d={draft} set={set} editing={!!rq} />}
         {tab === 'vacancies' && <VacanciesTab d={draft} set={set} canRates={canRates} />}
         {tab === 'contacts' && <ContactsTab d={draft} set={set} />}
         {tab === 'billing' && canRates && <BillingTab d={draft} set={set} />}
@@ -150,7 +150,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
 
 type TabProps = { d: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K]) => void };
 
-function DataTab({ d, set }: TabProps) {
+function DataTab({ d, set, editing }: TabProps & { editing: boolean }) {
   const { t } = useTranslation();
   const label = useLabel();
   const cat = useRqCatalogs();
@@ -172,8 +172,25 @@ function DataTab({ d, set }: TabProps) {
           onChange={(v) => setD2(v)} options={cat.byTable('CLIENT').map((c) => ({ value: c.id, label: label(c.label) }))} />
         <div className="field"><label htmlFor="rq-status">{t('rq.status')}</label>
           <select id="rq-status" className="select" value={d.statusId} onChange={f('statusId')}>{opts('RQ_STATUS')}</select></div>
-        <SearchSelect id="rq-owner" label={t('rq.owner')} value={d.ownerId} selectedLabel={d.ownerLabel || undefined} placeholder={t('rq.ownerPlaceholder')} minChars={2}
-          emptyLabel={t('rq.ownerMe')} load={searchUsers} onChange={(v, o) => { set('ownerId', v); if (o) set('ownerLabel', o.label); }} />
+      </div>
+      {/* responsables: varios del equipo de selección; en el alta, si no se elige ninguno, queda quien registra */}
+      <div className="field" data-testid="rq-owners">
+        <label htmlFor="rq-owner-add">{t('rq.owners')}</label>
+        {d.owners.length > 0 && (
+          <div className="chips" style={{ marginBottom: 6 }}>
+            {d.owners.map((o) => (
+              <span key={o.id} className="chip" data-testid="rq-owner-chip">{o.name}
+                {/* en la edición siempre queda al menos uno */}
+                {(!editing || d.owners.length > 1) && (
+                  <button type="button" className="chip-x" aria-label={t('rq.removeOwner', { name: o.name })} onClick={() => set('owners', d.owners.filter((x) => x.id !== o.id))}><X size={12} /></button>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+        <SearchSelect id="rq-owner-add" value="" placeholder={t('rq.ownerPlaceholder')} minChars={2} load={searchUsers} testId="rq-owner-add"
+          onChange={(v, o) => { if (v && o && !d.owners.some((x) => x.id === v)) set('owners', [...d.owners, { id: v, name: o.label }]); }} />
+        {d.owners.length === 0 && <span className="hint">{t('rq.ownerMe')}</span>}
       </div>
       <Field label={t('rq.titleField')} required maxLength={200} value={d.title} onChange={f('title')} />
       <div className="field"><label htmlFor="rq-desc">{t('rq.description')}</label>

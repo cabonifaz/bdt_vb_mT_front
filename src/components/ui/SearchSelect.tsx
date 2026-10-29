@@ -9,6 +9,9 @@ export const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').to
 
 const SHOWN = 50;
 
+// Dentro de un modal con scroll, la lista abierta se trae a la vista (si ya se ve, no se mueve nada).
+const keepInView = (el: HTMLUListElement | null) => el?.scrollIntoView({ block: 'nearest' });
+
 /**
  * Combo con búsqueda para listados grandes (clientes, usuarios...).
  * - `options`: filtra en memoria (catálogos ya cargados).
@@ -79,7 +82,7 @@ export function SearchSelect({ label, value, onChange, options, load, selectedLa
         ? <button type="button" className="ss-btn" aria-label={t('common.clear')} onMouseDown={(e) => e.preventDefault()} onClick={() => onChange('')}><X size={14} /></button>
         : <ChevronDown size={15} className="ss-btn" aria-hidden />}
       {open && (
-        <ul id={listId} role="listbox" className="ss-list" onMouseDown={(e) => e.preventDefault()}>
+        <ul id={listId} role="listbox" className="ss-list" ref={keepInView} onMouseDown={(e) => e.preventDefault()}>
           {!enough && <li className="ss-note">{t('common.typeMin', { count: minChars })}</li>}
           {enough && loading && shown.length === 0 && <li className="ss-note">{t('common.loading')}</li>}
           {enough && !loading && shown.length === 0 && <li className="ss-note">{t('common.noResults')}</li>}

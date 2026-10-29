@@ -909,7 +909,7 @@
     "status": "Estado",
     "owner": "Responsable",
     "ownerPlaceholder": "Buscar usuario…",
-    "ownerMe": "Yo (quien lo registra)",
+    "ownerMe": "Si no eliges a nadie, quedas tú como responsable.",
     "titleField": "Título",
     "description": "Descripción",
     "requestDate": "Fecha de solicitud",
@@ -1044,6 +1044,10 @@
       "effective": "baja efectiva",
       "tipPending": "Renunció el {{date}}. La baja aún no está confirmada por el FMI.",
       "tipEffective": "Renunció el {{date}}. Baja efectiva desde el {{offboard}}."
-    }
+    },
+    "owners": "Responsables",
+    "removeOwner": "Quitar a {{name}}",
+    "ownersShort_one": "Responsable",
+    "ownersShort_other": "Responsables"
   }
 }

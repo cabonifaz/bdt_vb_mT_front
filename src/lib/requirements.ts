@@ -8,11 +8,13 @@ import { todayISO } from './modules';
 export const RQ_API = '/api/v1/tenant/requirements';
 export const RQ_TABLES = 'RQ_STATUS,RQ_PROFILE,TIME_UNIT,WORK_MODALITY,CONTRACT_MODALITY,CANDIDATE_STAGE,CURRENCY,TECH_SKILL,ACADEMIC_GRADE,CLIENT';
 
+/** Responsable del RQ (equipo de selección); cuenta para su carga de trabajo e indicadores. */
+export type RQOwner = { id: string; name: string };
 export type RQStatus = { id: string; code: string; label: I18nLabel; group: 'OPEN' | 'CLOSED' };
 export type RQCard = {
   id: string; code: string; title: string; version: number; boardOrder: number; requestDate: string; dueDate: string; updatedAt: string;
   client: { id: string; label: I18nLabel }; status: RQStatus; modality?: { code: string; label: I18nLabel } | null;
-  ownerId?: string; ownerName?: string; vacancies: number; covered: number; candidates: number;
+  owners: RQOwner[]; vacancies: number; covered: number; candidates: number;
   profiles: { label: I18nLabel; total: number; covered: number }[] | null;
 };
 export type RQVacancy = {
@@ -40,7 +42,7 @@ export type RQDetail = {
   closed: boolean; canSeeRates: boolean; createdAt: string; updatedAt?: string | null;
   client: { id: string; label: I18nLabel; ruc?: string | null; address?: string | null }; status: RQStatus;
   durationValue?: number | null; durationUnitId?: string | null; contractValue?: number | null; contractUnitId?: string | null;
-  workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; ownerId?: string | null; ownerName?: string;
+  workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; owners: RQOwner[];
   contacts: RQContact[]; billing: RQBilling[] | null; vacancies: RQVacancy[]; candidates: RQCandidate[];
   reopens?: { reason: 'RESIGNATION' | 'MORE_VACANCIES'; notes?: string | null; createdAt: string; from: I18nLabel; to: I18nLabel;
     resigned?: { candidateId: string; firstName: string; lastName: string; secondLastName?: string | null }[] | null }[];
