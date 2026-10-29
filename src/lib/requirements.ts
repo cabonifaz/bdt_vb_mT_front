@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { cachedGet, type I18nLabel, type MasterItem } from './talents';
 import { http } from './api';
 import { todayISO } from './modules';
+import type { CandidateDocState, RQDocument } from './documents';
 
 export const RQ_API = '/api/v1/tenant/requirements';
 export const RQ_TABLES = 'RQ_STATUS,RQ_PROFILE,TIME_UNIT,WORK_MODALITY,CONTRACT_MODALITY,CANDIDATE_STAGE,CURRENCY,TECH_SKILL,ACADEMIC_GRADE,CLIENT';
@@ -35,6 +36,8 @@ export type RQCandidate = {
   id: string; vacancyId: string; boardOrder: number; notes?: string | null; updatedAt: string;
   stage: { id: string; code: string; label: I18nLabel };
   resignation?: RQResignation | null;
+  /** estado de cada documento que pide el RQ */
+  docs?: CandidateDocState[];
   talent: { id: string; firstName: string; lastName: string; secondLastName?: string | null; headline?: string | null; photoId?: string | null; status: string; blacklisted: boolean };
 };
 export type RQDetail = {
@@ -43,7 +46,7 @@ export type RQDetail = {
   client: { id: string; label: I18nLabel; ruc?: string | null; address?: string | null }; status: RQStatus;
   durationValue?: number | null; durationUnitId?: string | null; contractValue?: number | null; contractUnitId?: string | null;
   workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; owners: RQOwner[];
-  contacts: RQContact[]; billing: RQBilling[] | null; vacancies: RQVacancy[]; candidates: RQCandidate[];
+  contacts: RQContact[]; billing: RQBilling[] | null; vacancies: RQVacancy[]; candidates: RQCandidate[]; documents?: RQDocument[];
   reopens?: { reason: 'RESIGNATION' | 'MORE_VACANCIES'; notes?: string | null; createdAt: string; from: I18nLabel; to: I18nLabel;
     resigned?: { candidateId: string; firstName: string; lastName: string; secondLastName?: string | null }[] | null }[];
 };

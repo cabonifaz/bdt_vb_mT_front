@@ -19,6 +19,9 @@ import { Loader } from '../../components/ui/Loader';
 import { RequirementEditor } from './RequirementEditor';
 import { ReopenModal } from './ReopenModal';
 import { ResignationBadge } from './ResignationBadge';
+import { CandidateModal } from './CandidateModal';
+import { DocMeter } from './DocMeter';
+import { docSummary } from '../../lib/documents';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -39,6 +42,7 @@ export function RequirementDetail() {
   // el pedido de abrir el editor se consume una vez (no vuelve a abrirse al recargar)
   useEffect(() => { if (location.state) void nav(location.pathname, { replace: true, state: null }); }, [location.state, location.pathname, nav]);
   const [adding, setAdding] = useState(false);
+  const [openCand, setOpenCand] = useState<string | null>(null);
   const [reopening, setReopening] = useState(false);
 
   if (q.isLoading) return <Loader />;
@@ -122,6 +126,11 @@ export function RequirementDetail() {
             ))}
           </div>
           <span className="spacer" />
+          {(rq.documents ?? []).some((x) => x.mode === 'REQUIRED') && (() => {
+            const active = rq.candidates.filter((x) => !x.resignation);
+            const done = active.filter((x) => { const s = docSummary(x.docs); return s.total > 0 && s.verified === s.total; }).length;
+            return <span className="badge badge-neutral rq-docs-summary" data-testid="rq-docs-summary">{t('rq.docs.summary', { done, total: active.length })}</span>;
+          })()}
           {canMove && <Button size="sm" onClick={() => setAdding(true)} data-testid="rq-add-candidate"><UserPlus size={15} />{t('rq.cand.add')}</Button>}
         </div>
         <Kanban<RQCandidate> ariaLabel={t('rq.tab.pipeline')} testId="rq-pipeline" items={cands} columnOf={(c) => c.stage.id} canDrag={(c) => canMove && !c.resignation}
@@ -132,7 +141,7 @@ export function RequirementDetail() {
               <div className="row" style={{ gap: 8, flexWrap: 'nowrap', alignItems: 'flex-start' }}>
                 <TalentPhoto fileId={c.talent.photoId ?? undefined} name={fullTalentName(c.talent)} size={30} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <Link to={`/${tenant}/talentos/${c.talent.id}`} className="cand-name" draggable={false}>{fullTalentName(c.talent)}</Link>
+                  <button type="button" className="cand-name link-button" onClick={() => setOpenCand(c.id)} data-testid="cand-open">{fullTalentName(c.talent)}</button>
                   {c.talent.headline && <div className="cand-sub">{c.talent.headline}</div>}
                 </div>
                 {canMove && !c.resignation && (
@@ -141,6 +150,7 @@ export function RequirementDetail() {
                     onPick={(opt) => (opt === 'remove' ? void remove(c) : opt.startsWith('vac:') ? void move(c, c.stage.id, opt.slice(4)) : void move(c, opt))} />
                 )}
               </div>
+              {(c.docs ?? []).length > 0 && <DocMeter docs={c.docs!} labels={rq.documents ?? []} onOpen={() => setOpenCand(c.id)} />}
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}
@@ -154,6 +164,7 @@ export function RequirementDetail() {
 
       {editing && <RequirementEditor rq={rq} initialTab={editing} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />}
       {reopening && <ReopenModal rq={rq} onClose={() => setReopening(false)} onDone={(reason) => { if (reason === 'MORE_VACANCIES') void q.refetch().then(() => setEditing('vacancies')); }} />}
+      {openCand && <CandidateModal candidateId={openCand} onClose={() => setOpenCand(null)} />}
       {adding && <AddCandidate rq={rq} onClose={() => setAdding(false)} onAdded={() => { setAdding(false); refresh(); }} />}
     </div>
   );

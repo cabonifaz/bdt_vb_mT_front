@@ -727,3 +727,59 @@ a.home-row:hover { background: var(--color-surface-muted); border-radius: var(--
 @media (max-width: 640px) { .kanban { grid-auto-columns: 82vw; } .rq-filters > .input, .rq-filter-client { width: 100%; } }
 
 .brand-text { font-size: 18px; font-weight: var(--weight-semibold); color: var(--brand-primary); letter-spacing: -0.01em; }
+
+/* ---------- Documentos de postulación ---------- */
+.text-danger { color: var(--color-danger); }
+.row-muted td { color: var(--color-text-muted); }
+.doc-usage-required { background: var(--color-warning-bg); color: var(--color-warning); }
+.doc-usage-optional { background: var(--color-info-bg); color: var(--brand-primary); }
+.doc-usage-none { background: var(--color-surface-muted); color: var(--color-text-muted); }
+.choice-group { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.choice-group legend { font-size: var(--text-sm); font-weight: var(--weight-medium); margin-bottom: 4px; }
+/* estado de un documento: el ícono acompaña al color (no solo color) */
+.doc-st { display: inline-flex; align-items: center; gap: 3px; }
+.doc-st-verified { background: var(--color-success-bg); color: var(--color-success); }
+.doc-st-pending { background: var(--color-warning-bg); color: var(--color-warning); }
+.doc-st-rejected, .doc-st-expired { background: var(--color-danger-bg); color: var(--color-danger); }
+.doc-st-missing { background: var(--color-surface-muted); color: var(--color-text-muted); }
+/* indicador en la tarjeta del kanban */
+.doc-meter { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; border: 1px solid var(--color-border); background: var(--color-surface);
+  border-radius: 999px; padding: 2px 8px; font: inherit; font-size: 11px; color: var(--color-text-muted); cursor: pointer; }
+.doc-meter:hover { border-color: var(--color-border-strong); color: var(--color-text); }
+.doc-meter.tone-ok { color: var(--color-success); }
+.doc-meter.tone-bad { color: var(--color-danger); }
+.doc-meter-bar { display: inline-flex; gap: 2px; }
+.doc-meter-bar .seg { width: 10px; height: 6px; border-radius: 2px; background: var(--color-border-strong); }
+.doc-meter-bar .seg-verified { background: var(--color-success); }
+.doc-meter-bar .seg-pending { background: var(--color-warning); }
+.doc-meter-bar .seg-rejected, .doc-meter-bar .seg-expired { background: var(--color-danger); }
+.doc-meter-count { font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+.rq-docs-summary { align-self: center; }
+/* el nombre del postulante es un botón (abre su ficha en el RQ): mismo aspecto que el enlace anterior */
+button.cand-name { text-align: left; text-decoration: none; color: var(--color-text); padding: 0; }
+button.cand-name:hover { color: var(--color-link); text-decoration: underline; }
+a.btn { text-decoration: none; }
+/* modal del postulante */
+.cand-head { display: flex; align-items: center; gap: 12px; padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.cand-head .grow { min-width: 180px; }
+.doc-list { display: flex; flex-direction: column; gap: 8px; }
+.doc-row { border: 1px solid var(--color-border); border-left-width: 3px; border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.doc-row-verified { border-left-color: var(--color-success); }
+.doc-row-pending { border-left-color: var(--color-warning); }
+.doc-row-rejected, .doc-row-expired { border-left-color: var(--color-danger); }
+.doc-row-main { display: flex; gap: 10px; align-items: flex-start; }
+.doc-row-ico { color: var(--color-text-muted); margin-top: 2px; flex-shrink: 0; }
+.doc-row-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.doc-row-meta { font-size: 12px; margin-top: 4px; line-height: 1.5; overflow-wrap: anywhere; }
+.doc-row-actions, .doc-reject-form { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.doc-reject-form .input { flex: 1; min-width: 200px; }
+/* línea de tiempo del proceso */
+.cand-timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.cand-timeline::before { content: ''; position: absolute; left: 13px; top: 6px; bottom: 6px; width: 2px; background: var(--color-border); }
+.cand-timeline-item { position: relative; display: flex; gap: 12px; padding: 6px 0; }
+.cand-timeline-dot { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text-muted); }
+.ev-doc_verified .cand-timeline-dot { border-color: var(--color-success); color: var(--color-success); }
+.ev-doc_rejected .cand-timeline-dot, .ev-resigned .cand-timeline-dot { border-color: var(--color-danger); color: var(--color-danger); }
+.ev-doc_check_failed .cand-timeline-dot { border-color: var(--color-warning); color: var(--color-warning); }
+.ev-stage .cand-timeline-dot, .ev-added .cand-timeline-dot { border-color: var(--brand-primary); color: var(--brand-primary); }

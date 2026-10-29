@@ -108,7 +108,8 @@
     "blacklist": "Blacklist",
     "clients": "Clients",
     "usage": "Usage",
-    "requirements": "Requirements"
+    "requirements": "Requirements",
+    "documents": "Documents"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -900,7 +901,8 @@
       "contacts": "Contacts",
       "billing": "Salary band",
       "pipeline": "Candidates",
-      "detail": "Details"
+      "detail": "Details",
+      "documents": "Documents"
     },
     "code": "Code",
     "autoCode": "Assigned on save (RQ-YYYY-0001)",
@@ -1048,6 +1050,114 @@
     "owners": "Owners",
     "removeOwner": "Remove {{name}}",
     "ownersShort_one": "Owner",
-    "ownersShort_other": "Owners"
+    "ownersShort_other": "Owners",
+    "docs": {
+      "noRules": "The company document list is empty. An administrator can set it up in Administration › Documents.",
+      "hint": "Documents the applicants of this requirement must submit. Based on the company list.",
+      "request": "Requested",
+      "requestFor": "Request {{name}}",
+      "notRequested": "Not requested",
+      "summary": "Documents complete: {{done}} of {{total}}"
+    }
+  },
+  "docs": {
+    "title": "Application documents",
+    "subtitle": "Which documents applicants are asked for by default, whether they are reused across requirements, how long they last and how they are checked. Each requirement can adjust this.",
+    "newType": "New document type",
+    "document": "Document",
+    "usage": "Use",
+    "reuse": "Reuse",
+    "validity": "Validity",
+    "verification": "Check",
+    "usageOpt": {
+      "REQUIRED": "Required",
+      "OPTIONAL": "Optional",
+      "NONE": "Not used"
+    },
+    "usageHint": {
+      "REQUIRED": "requested by default in new requirements",
+      "OPTIONAL": "suggested by default, not mandatory",
+      "NONE": "not shown in requirements"
+    },
+    "reusable": "Reusable",
+    "perApplication": "Per application",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "verif": {
+      "MANUAL": "Manual",
+      "AUTO_CUL": "Automatic (MTPE)"
+    },
+    "editRule": "Edit {{name}}",
+    "saved": "Document saved.",
+    "typeName": "Document name",
+    "typeNamePlaceholder": "E.g. Criminal record certificate, Proof of studies",
+    "reusableLabel": "Reusable across requirements",
+    "reusableHint": "what was submitted counts for other requirements while valid; otherwise it is requested per application",
+    "validityLabel": "Validity (days)",
+    "validityHint": "Empty = never expires. The CUL expires 90 days after it is issued.",
+    "autoCulHint": "The CUL QR code is read and compared with the official MTPE certificate using the company tax ID.",
+    "status": {
+      "MISSING": "Missing",
+      "PENDING": "To review",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected",
+      "EXPIRED": "Expired"
+    },
+    "reason": {
+      "TENANT_RUC_MISSING": "The company has no tax ID (RUC): the CUL could not be checked with the MTPE.",
+      "CUL_CODE_MISSING": "The CUL code was not found (unreadable QR or the file is not a CUL).",
+      "CUL_DOC_MISSING": "The holder's ID document could not be determined.",
+      "CUL_OTHER_PERSON": "The CUL belongs to a different ID document.",
+      "CUL_DOC_TYPE": "The MTPE does not check this type of ID document.",
+      "CUL_UNREACHABLE": "The MTPE did not respond. You can check again in a few minutes.",
+      "CUL_NOT_FOUND": "The MTPE has no record of this certificate.",
+      "CUL_FILE_ALTERED": "The file is not identical to the official MTPE certificate (it was modified).",
+      "CUL_EXPIRED": "The certificate is no longer valid."
+    },
+    "meterLabel": "Required documents verified: {{done}} of {{total}}",
+    "optionalOnly": "opt."
+  },
+  "cand": {
+    "tab": {
+      "documents": "Documents",
+      "process": "Process"
+    },
+    "openTalent": "Open talent profile",
+    "noDocs": "This requirement does not request documents.",
+    "culVerified": "CUL verified: identical to the official MTPE certificate.",
+    "uploaded": "Document uploaded.",
+    "approved": "Document approved.",
+    "rejected": "Document rejected.",
+    "uploadedOn": "uploaded on {{date}}",
+    "expiresOn": "expires on {{date}}",
+    "expiredOn": "expired on {{date}}",
+    "fromOtherRq": "submitted for another requirement",
+    "verifiedBy": "Verified by {{name}} on {{date}}",
+    "rejectedBy": "Rejected by {{name}} on {{date}}",
+    "system": "automatic check",
+    "culData": "CUL {{code}} · {{names}} · issued on {{date}}",
+    "notPresented": "Not submitted yet.",
+    "upload": "Upload",
+    "replace": "Replace",
+    "approve": "Approve",
+    "reject": "Reject",
+    "recheck": "Check again",
+    "rejectReason": "Reason for rejection",
+    "stages": {
+      "OBSERVED": "Observed",
+      "DATA_COMPLETE": "Data complete",
+      "INTERVIEW": "Interview",
+      "CONFIRMED": "Confirmed"
+    },
+    "ev": {
+      "ADDED": "Added to the requirement",
+      "STAGE": "Moved from {{from}} to {{to}}",
+      "VACANCY": "Changed opening",
+      "RESIGNED": "Resigned",
+      "DOC_UPLOADED": "Uploaded {{doc}}",
+      "DOC_VERIFIED": "{{doc}} verified",
+      "DOC_REJECTED": "{{doc}} rejected. {{reason}}",
+      "DOC_CHECK_FAILED": "{{doc}}: could not be checked. {{reason}}"
+    }
   }
 }

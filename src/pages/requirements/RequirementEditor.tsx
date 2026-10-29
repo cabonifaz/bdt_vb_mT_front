@@ -10,6 +10,7 @@ import { useAuth } from '../../providers/auth';
 import { useLabel } from '../../lib/talents';
 import { todayISO } from '../../lib/modules';
 import { RQ_API, useClientContacts, useRqCatalogs, type RQDetail, type RQOwner } from '../../lib/requirements';
+import { byOrder, useDocRules, type DocMode, type DocRule, type RQDocument } from '../../lib/documents';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
 import { Chip } from '../../components/talents/bits';
@@ -25,6 +26,8 @@ type Draft = {
   autoCode: boolean; code: string; clientId: string; title: string; description: string; statusId: string; requestDate: string; dueDate: string;
   durationValue: string; durationUnitId: string; contractValue: string; contractUnitId: string; workModalityId: string; owners: RQOwner[];
   needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; contacts: string[]; billing: Bill[]; vacancies: Vac[];
+  /** documentos que se piden por tipo; null = los del maestro del tenant (alta, hasta que se cambie algo) */
+  documents: Record<string, DocMode> | null;
 };
 const BANDS = ['base', 'mobility', 'monthly', 'quarterly', 'semiannual'] as const;
 const uid = () => crypto.randomUUID();
@@ -41,6 +44,7 @@ function fromDetail(rq: RQDetail | undefined, defaults: { statusId: string; cont
     contractUnitId: rq?.contractUnitId ?? (rq ? '' : defaults.contractUnitId), workModalityId: rq?.workModalityId ?? '',
     owners: rq?.owners ?? [], needsEmo: !!rq?.needsEmo, needsSctr: !!rq?.needsSctr, needsLaptop: !!rq?.needsLaptop,
     contacts: rq?.contacts.map((c) => c.id) ?? [],
+    documents: rq ? Object.fromEntries((rq.documents ?? []).map((x) => [x.typeId, x.mode])) : null,
     billing: (rq?.billing ?? []).map((b) => ({ contractId: b.contractId, currencyId: b.currencyId,
       ...Object.fromEntries(BANDS.flatMap((k) => [[`${k}Min`, s(b[`${k}Min`])], [`${k}Max`, s(b[`${k}Max`])]])) } as Bill)),
     vacancies: (rq?.vacancies ?? []).map((v) => ({ id: v.id, profileId: v.profileId, quantity: String(v.quantity), rateInitial: s(v.rateInitial), rateFinal: s(v.rateFinal),
@@ -49,7 +53,7 @@ function fromDetail(rq: RQDetail | undefined, defaults: { statusId: string; cont
   };
 }
 
-const TABS = ['data', 'vacancies', 'contacts', 'billing'] as const;
+const TABS = ['data', 'vacancies', 'contacts', 'billing', 'documents'] as const;
 type Tab = (typeof TABS)[number];
 
 export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }: {
@@ -65,6 +69,9 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
   const qc = useQueryClient();
   const cat = useRqCatalogs();
   const canRates = rq ? rq.canSeeRates : can('rq.rates.read');
+  const rules = useDocRules();
+  // por defecto (alta): lo que el maestro pide como obligatorio u opcional
+  const defaults = useMemo(() => Object.fromEntries((rules.data ?? []).filter((r) => r.active).map((r) => [r.typeId, r.defaultMode])) as Record<string, DocMode>, [rules.data]);
   const [id] = useState(rq?.id ?? uid());
   const [tab, setTab] = useState<Tab>(initialTab);
   const [d, setD] = useState<Draft | null>(null);
@@ -105,6 +112,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
         rateInitial: canRates ? num(v.rateInitial) : null, rateFinal: canRates ? num(v.rateFinal) : null,
         skills: v.skills.map((k) => ({ skillId: k.skillId, years: num(k.years), optional: k.optional })),
         careers: v.careers.filter((c) => c.career.trim()).map((c) => ({ career: c.career.trim(), gradeId: c.gradeId || null, optional: c.optional })) })),
+      documents: Object.entries(draft.documents ?? defaults).map(([typeId, mode]) => ({ typeId, mode })),
       expectedVersion: rq?.version,
     };
     try {
@@ -125,6 +133,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
   const tabLabel: Record<Tab, ReactNode> = {
     data: t('rq.tab.data'), vacancies: <>{t('rq.tab.vacancies')}{count(draft?.vacancies.length ?? 0)}</>,
     contacts: <>{t('rq.tab.contacts')}{count(draft?.contacts.length ?? 0)}</>, billing: <>{t('rq.tab.billing')}{count(draft?.billing.length ?? 0)}</>,
+    documents: <>{t('rq.tab.documents')}{count(Object.keys(draft?.documents ?? defaults).length)}</>,
   };
   return (
     <Modal open wide persistent title={rq ? t('rq.editTitle', { code: rq.code }) : t('rq.new')} onClose={onClose}
@@ -143,6 +152,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
         {tab === 'vacancies' && <VacanciesTab d={draft} set={set} canRates={canRates} />}
         {tab === 'contacts' && <ContactsTab d={draft} set={set} />}
         {tab === 'billing' && canRates && <BillingTab d={draft} set={set} />}
+        {tab === 'documents' && <DocumentsTab rules={rules.data ?? []} loading={rules.isLoading} rqDocs={rq?.documents ?? []} value={draft.documents ?? defaults} onChange={(v) => set('documents', v)} />}
       </>}
     </Modal>
   );
@@ -414,3 +424,47 @@ function BillingTab({ d, set }: TabProps) {
   );
 }
 
+
+/** Documentos que se pedirán a los postulantes: parte del maestro del tenant; aquí se ajusta para este RQ. */
+function DocumentsTab({ rules, loading, rqDocs, value, onChange }: {
+  rules: DocRule[]; loading: boolean; rqDocs: RQDocument[]; value: Record<string, DocMode>; onChange: (v: Record<string, DocMode>) => void;
+}) {
+  const { t } = useTranslation();
+  const label = useLabel();
+  // los activos del maestro y, si este RQ pedía alguno que luego se desactivó, también ese
+  const rows = [...rules.filter((r) => r.active), ...rqDocs.filter((d) => !rules.some((r) => r.active && r.typeId === d.typeId))].sort(byOrder);
+  if (loading) return <Loader />;
+  if (rows.length === 0) return <p className="muted" data-testid="rq-docs-empty">{t('rq.docs.noRules')}</p>;
+  const setMode = (typeId: string, mode: DocMode | 'NONE') => {
+    const next = { ...value };
+    if (mode === 'NONE') delete next[typeId]; else next[typeId] = mode;
+    onChange(next);
+  };
+  return (
+    <div className="stack" data-testid="rq-docs">
+      <p className="muted" style={{ margin: 0 }}>{t('rq.docs.hint')}</p>
+      <div className="table-wrap">
+        <table className="table">
+          <thead><tr><th>{t('docs.document')}</th><th>{t('rq.docs.request')}</th><th>{t('docs.verification')}</th></tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.typeId} data-testid="rq-doc-row">
+                <td><strong>{label(r.label)}</strong>
+                  <div className="muted" style={{ fontSize: 12 }}>{t(r.reusable ? 'docs.reusable' : 'docs.perApplication')}{r.validityDays ? ` · ${t('docs.days', { count: r.validityDays })}` : ''}</div></td>
+                <td>
+                  <select className="select" aria-label={t('rq.docs.requestFor', { name: label(r.label) })} value={value[r.typeId] ?? 'NONE'}
+                    onChange={(e) => setMode(r.typeId, e.target.value as DocMode | 'NONE')} data-testid={`rq-doc-mode-${r.code}`}>
+                    <option value="REQUIRED">{t('docs.usageOpt.REQUIRED')}</option>
+                    <option value="OPTIONAL">{t('docs.usageOpt.OPTIONAL')}</option>
+                    <option value="NONE">{t('rq.docs.notRequested')}</option>
+                  </select>
+                </td>
+                <td>{t(`docs.verif.${r.verification}`)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

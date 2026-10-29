@@ -108,7 +108,8 @@
     "blacklist": "Lista negra",
     "clients": "Clientes",
     "usage": "Consumo",
-    "requirements": "Requerimientos"
+    "requirements": "Requerimientos",
+    "documents": "Documentos"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -900,7 +901,8 @@
       "contacts": "Contactos",
       "billing": "Banda salarial",
       "pipeline": "Candidatos",
-      "detail": "Detalle"
+      "detail": "Detalle",
+      "documents": "Documentos"
     },
     "code": "Código",
     "autoCode": "Se asigna al guardar (RQ-AAAA-0001)",
@@ -1048,6 +1050,114 @@
     "owners": "Responsables",
     "removeOwner": "Quitar a {{name}}",
     "ownersShort_one": "Responsable",
-    "ownersShort_other": "Responsables"
+    "ownersShort_other": "Responsables",
+    "docs": {
+      "noRules": "El maestro de documentos de la empresa está vacío. Un administrador puede configurarlo en Administración › Documentos.",
+      "hint": "Documentos que deberán presentar los postulantes de este requerimiento. Parte del maestro de la empresa.",
+      "request": "Se pide",
+      "requestFor": "Se pide {{name}}",
+      "notRequested": "No se pide",
+      "summary": "Documentos completos: {{done}} de {{total}}"
+    }
+  },
+  "docs": {
+    "title": "Documentos de postulación",
+    "subtitle": "Qué documentos se piden a los postulantes por defecto, si se reutilizan entre requerimientos, su vigencia y cómo se validan. Cada RQ puede ajustarlo.",
+    "newType": "Nuevo tipo de documento",
+    "document": "Documento",
+    "usage": "Uso",
+    "reuse": "Reutilización",
+    "validity": "Vigencia",
+    "verification": "Validación",
+    "usageOpt": {
+      "REQUIRED": "Obligatorio",
+      "OPTIONAL": "Opcional",
+      "NONE": "No se usa"
+    },
+    "usageHint": {
+      "REQUIRED": "se pide por defecto en los nuevos RQ",
+      "OPTIONAL": "se sugiere por defecto, no es exigible",
+      "NONE": "no aparece en los RQ"
+    },
+    "reusable": "Reutilizable",
+    "perApplication": "Por postulación",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "verif": {
+      "MANUAL": "Manual",
+      "AUTO_CUL": "Automática (MTPE)"
+    },
+    "editRule": "Editar {{name}}",
+    "saved": "Documento guardado.",
+    "typeName": "Nombre del documento",
+    "typeNamePlaceholder": "Ej.: Certificado de antecedentes, Constancia de estudios",
+    "reusableLabel": "Reutilizable entre requerimientos",
+    "reusableHint": "lo presentado sirve para otros RQ mientras esté vigente; si no, se pide en cada postulación",
+    "validityLabel": "Vigencia (días)",
+    "validityHint": "Vacío = no vence. El CUL vence a los 90 días de su emisión.",
+    "autoCulHint": "Se lee el QR del CUL y se compara con el certificado oficial del MTPE usando el RUC de la empresa.",
+    "status": {
+      "MISSING": "Falta",
+      "PENDING": "Por revisar",
+      "VERIFIED": "Verificado",
+      "REJECTED": "Rechazado",
+      "EXPIRED": "Vencido"
+    },
+    "reason": {
+      "TENANT_RUC_MISSING": "La empresa no tiene RUC registrado: no se pudo consultar el CUL en el MTPE.",
+      "CUL_CODE_MISSING": "No se encontró el código del CUL (QR ilegible o el archivo no es un CUL).",
+      "CUL_DOC_MISSING": "No se pudo determinar el documento de identidad del titular.",
+      "CUL_OTHER_PERSON": "El CUL pertenece a otro documento de identidad.",
+      "CUL_DOC_TYPE": "El MTPE no verifica este tipo de documento de identidad.",
+      "CUL_UNREACHABLE": "El MTPE no respondió. Puedes volver a consultar en unos minutos.",
+      "CUL_NOT_FOUND": "El MTPE no tiene registrado este certificado.",
+      "CUL_FILE_ALTERED": "El archivo no es idéntico al certificado oficial del MTPE (fue modificado).",
+      "CUL_EXPIRED": "El certificado ya no está vigente."
+    },
+    "meterLabel": "Documentos obligatorios verificados: {{done}} de {{total}}",
+    "optionalOnly": "opc."
+  },
+  "cand": {
+    "tab": {
+      "documents": "Documentos",
+      "process": "Proceso"
+    },
+    "openTalent": "Ver ficha del talento",
+    "noDocs": "Este requerimiento no pide documentos.",
+    "culVerified": "CUL verificado: es idéntico al certificado oficial del MTPE.",
+    "uploaded": "Documento cargado.",
+    "approved": "Documento aprobado.",
+    "rejected": "Documento rechazado.",
+    "uploadedOn": "cargado el {{date}}",
+    "expiresOn": "vence el {{date}}",
+    "expiredOn": "venció el {{date}}",
+    "fromOtherRq": "presentado en otro requerimiento",
+    "verifiedBy": "Verificado por {{name}} el {{date}}",
+    "rejectedBy": "Rechazado por {{name}} el {{date}}",
+    "system": "verificación automática",
+    "culData": "CUL {{code}} · {{names}} · emitido el {{date}}",
+    "notPresented": "Aún no presentado.",
+    "upload": "Cargar",
+    "replace": "Reemplazar",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "recheck": "Volver a consultar",
+    "rejectReason": "Motivo del rechazo",
+    "stages": {
+      "OBSERVED": "Observado",
+      "DATA_COMPLETE": "Datos completos",
+      "INTERVIEW": "En entrevista",
+      "CONFIRMED": "Confirmado"
+    },
+    "ev": {
+      "ADDED": "Se agregó al requerimiento",
+      "STAGE": "Pasó de {{from}} a {{to}}",
+      "VACANCY": "Cambió de vacante",
+      "RESIGNED": "Renunció",
+      "DOC_UPLOADED": "Cargó {{doc}}",
+      "DOC_VERIFIED": "{{doc}} verificado",
+      "DOC_REJECTED": "{{doc}} rechazado. {{reason}}",
+      "DOC_CHECK_FAILED": "{{doc}}: no se pudo verificar. {{reason}}"
+    }
   }
 }

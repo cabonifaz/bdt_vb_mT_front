@@ -258,7 +258,8 @@ test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirm
   await expect(page.getByText('La vacante ya tiene todos sus puestos confirmados.').last()).toBeVisible();
 
   // ficha del talento: postulaciones
-  await uno.getByRole('link', { name: names[0] }).click();
+  await uno.getByTestId('cand-open').click();
+  await page.getByRole('dialog', { name: names[0] }).getByRole('link', { name: 'Ver ficha del talento' }).click();
   await expect(page.getByTestId('talent-application')).toContainText('Confirmado');
 });
 
@@ -280,4 +281,76 @@ test('RQ: el alta notifica a los demás usuarios del tenant', async ({ page }) =
   await expect(item).toContainText(`registró el requerimiento ${code} · ${title}`);
   await item.click();
   await expect(page).toHaveURL(new RegExp(`/fractal/requerimientos/${rq}$`));
+});
+
+test('documentos de postulación: maestro, pedido por RQ, carga, validación manual, CUL y proceso', async ({ page }) => {
+  const { admin, H, id, client } = await setup();
+  const rec = await createFractalAdmin('RECRUITER');
+  const m = await (await admin.ctx.get('/api/v1/masters/items?tables=DOCUMENT_TYPE', { headers: H })).json() as Masters;
+  const doc = (code: string) => m.find((x) => x.table === 'DOCUMENT_TYPE' && x.code === code)!.id;
+  const rule = (code: string, data: object) => admin.ctx.put(`/api/v1/tenant/document-rules/${doc(code)}`, { headers: H, data });
+  expect((await rule('CUL', { defaultMode: 'REQUIRED', reusable: true, validityDays: 90, verification: 'AUTO_CUL', active: true, sortOrder: 1 })).status()).toBe(204);
+  expect((await rule('CERTIFICATE', { defaultMode: 'REQUIRED', reusable: false, verification: 'MANUAL', active: true, sortOrder: 2 })).status()).toBe(204);
+  const today = new Date().toISOString().slice(0, 10);
+  const rq = crypto.randomUUID();
+  const vac = crypto.randomUUID();
+  expect((await admin.ctx.put(`/api/v1/tenant/requirements/${rq}`, { headers: H, data: {
+    clientId: client, title: `Con documentos ${Date.now()}`, statusId: id('RQ_STATUS', 'REGISTERED'), requestDate: today, dueDate: today,
+    vacancies: [{ id: vac, profileId: id('RQ_PROFILE', 'QA_ANALYST'), quantity: 1 }],
+    documents: [{ typeId: doc('CUL'), mode: 'REQUIRED' }, { typeId: doc('CERTIFICATE'), mode: 'REQUIRED' }] } })).status()).toBe(201);
+  const last = `Docs${Date.now()}`;
+  const talent = crypto.randomUUID();
+  expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: H, data: { id: talent, firstName: 'Luz', lastName: last } })).status()).toBe(201);
+  expect((await admin.ctx.post(`/api/v1/tenant/requirements/${rq}/candidates`, { headers: H, data: { id: crypto.randomUUID(), talentId: talent, vacancyId: vac } })).status()).toBe(201);
+
+  // el admin ve el maestro
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await uiLogin(page, 'fractal', admin.email, admin.password);
+  await page.getByRole('link', { name: 'Documentos' }).click();
+  await expect(page.getByTestId('doc-rule-row').filter({ hasText: 'Certificado Único Laboral' })).toContainText('Automática (MTPE)');
+  // y el editor del RQ trae la pestaña de documentos con lo pedido
+  await page.goto(`/fractal/requerimientos/${rq}`);
+  await page.getByTestId('rq-edit').click();
+  const editor = page.getByRole('dialog', { name: /^Editar RQ-/ });
+  await editor.getByTestId('rq-tab-documents').click();
+  await expect(editor.getByTestId('rq-doc-mode-CUL')).toHaveValue('REQUIRED');
+  await expect(editor.getByTestId('rq-doc-mode-CERTIFICATE')).toHaveValue('REQUIRED');
+  await editor.getByRole('button', { name: 'Cancelar' }).click();
+
+  // el analista trabaja los documentos del postulante
+  await page.context().clearCookies();
+  await uiLogin(page, 'fractal', rec.email, rec.password);
+  await page.goto(`/fractal/requerimientos/${rq}`);
+  await expect(page.getByTestId('rq-docs-summary')).toHaveText('Documentos completos: 0 de 1');
+  const card = page.getByTestId('kanban-card').filter({ hasText: last });
+  await expect(card.getByTestId('doc-meter')).toContainText('0/2');
+  await card.getByTestId('cand-open').click();
+  const dlg = page.getByRole('dialog', { name: `Luz ${last}` });
+  const cert = dlg.getByTestId('cand-doc-CERTIFICATE');
+  await expect(cert.getByTestId('doc-status')).toHaveText('Falta');
+  await cert.getByTestId('doc-file').setInputFiles({ name: 'certificado.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n% e2e\n%%EOF\n') });
+  await expect(cert.getByTestId('doc-status')).toHaveText('Por revisar');
+  await cert.getByTestId('doc-reject').click();
+  await expect(cert.getByTestId('doc-reject-confirm')).toBeDisabled(); // el motivo es obligatorio
+  await cert.getByTestId('doc-reject-reason').fill('Ilegible');
+  await cert.getByTestId('doc-reject-confirm').click();
+  await expect(cert.getByTestId('doc-status')).toHaveText('Rechazado');
+  await expect(cert.getByTestId('doc-reason')).toHaveText('Ilegible');
+  await cert.getByTestId('doc-approve').click();
+  await expect(cert.getByTestId('doc-status')).toHaveText('Verificado');
+  await expect(cert).toContainText('Verificado por Prueba E2E');
+
+  // CUL: Fractal no tiene RUC, así que queda por revisar con el motivo (no se consulta al MTPE)
+  const cul = dlg.getByTestId('cand-doc-CUL');
+  await cul.getByTestId('doc-file').setInputFiles({ name: 'cul.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n% no es un CUL\n%%EOF\n') });
+  await expect(cul.getByTestId('doc-status')).toHaveText('Por revisar');
+  await expect(cul.getByTestId('doc-reason')).toContainText('no tiene RUC');
+
+  // proceso: línea de tiempo
+  await dlg.getByTestId('cand-tab-process').click();
+  await expect(dlg.getByTestId('cand-event')).toHaveCount(6);
+  await expect(dlg.getByTestId('cand-timeline')).toContainText('Certificado o diploma verificado');
+  await expect(dlg.getByTestId('cand-timeline')).toContainText('Se agregó al requerimiento');
+  await dlg.getByRole('button', { name: 'Cerrar' }).click();
+  await expect(card.getByTestId('doc-meter')).toContainText('1/2');
 });

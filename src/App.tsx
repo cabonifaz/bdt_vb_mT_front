@@ -27,6 +27,7 @@ const pages = {
   rqBoard: () => import('./pages/requirements/RequirementsBoard'),
   rqDetail: () => import('./pages/requirements/RequirementDetail'),
   clients: () => import('./pages/clients/Clients'),
+  documentRules: () => import('./pages/tenant/DocumentRules'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
   usage: () => import('./pages/platform/Usage'),
@@ -50,6 +51,7 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
 const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
+const DocumentRules = lazy(() => pages.documentRules().then((m) => ({ default: m.DocumentRules })));
 const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
 const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
 const Usage = lazy(() => pages.usage().then((m) => ({ default: m.Usage })));
@@ -112,6 +114,7 @@ function TenantRoutes() {
           { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/requerimientos', label: t('nav.requirements'), icon: 'requirements', perm: 'rq.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
           { title: t('nav.administration'), items: [
             { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
+            { to: '/documentos', label: t('nav.documents'), icon: 'fileCheck', perm: 'tenant.masters.manage' },
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
             { to: '/usuarios', label: t('nav.users'), icon: 'users', perm: 'tenant.users.manage' },
             { to: '/api', label: t('nav.apiKeys'), icon: 'key', perm: 'tenant.apikeys.request' },
@@ -131,6 +134,7 @@ function TenantRoutes() {
           <Route path="lista-negra" element={<Blacklist />} />
           <Route path="lista-negra/:id" element={<Blacklist />} />
           <Route path="clientes" element={<Clients />} />
+          <Route path="documentos" element={<DocumentRules />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />
