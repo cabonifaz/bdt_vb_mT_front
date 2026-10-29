@@ -338,7 +338,9 @@
     "VACANCY_BELOW_CONFIRMED": "The quantity cannot be lower than the confirmed candidates.",
     "CANDIDATE_NOT_READY": "To confirm, the candidate must at least have complete data.",
     "RQ_REOPEN_REQUIRED": "Only the selection lead can reopen a closed requirement, stating the reason.",
-    "RQ_NOT_CLOSED": "The requirement is not closed."
+    "RQ_NOT_CLOSED": "The requirement is not closed.",
+    "CANDIDATE_RESIGNED": "The candidate resigned: they stay in the requirement history and can no longer be moved or removed.",
+    "RESIGNED_CANDIDATE_INVALID": "Select who resigned: it must be a confirmed candidate of this requirement."
   },
   "talents": {
     "title": "Talents",
@@ -1023,7 +1025,7 @@
         "MORE_VACANCIES": "More openings needed"
       },
       "reasonHints": {
-        "RESIGNATION": "Someone who was already hired must be replaced.",
+        "RESIGNATION": "Select who resigned; their position becomes free for a new hire.",
         "MORE_VACANCIES": "The client expands the order; after reopening you can edit the openings."
       },
       "status": "Back to",
@@ -1031,7 +1033,17 @@
       "notesPlaceholder": "Who resigned, how many more openings, client instructions…",
       "confirm": "Reopen requirement",
       "done": "{{code}} reopened",
-      "history": "Reopenings"
+      "history": "Reopenings",
+      "noConfirmed": "There are no confirmed candidates in this requirement.",
+      "whoResigned": "Who resigned?",
+      "resignedHint": "They stay visible in the pipeline marked as resigned and no longer fill the opening. Their offboarding stays pending until FMI confirms it."
+    },
+    "resign": {
+      "label": "Resigned",
+      "pending": "offboarding pending",
+      "effective": "offboarded",
+      "tipPending": "Resigned on {{date}}. Offboarding not yet confirmed by FMI.",
+      "tipEffective": "Resigned on {{date}}. Offboarded since {{offboard}}."
     }
   }
 }

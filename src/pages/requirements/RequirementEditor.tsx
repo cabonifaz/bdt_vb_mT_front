@@ -52,7 +52,11 @@ function fromDetail(rq: RQDetail | undefined, defaults: { statusId: string; cont
 const TABS = ['data', 'vacancies', 'contacts', 'billing'] as const;
 type Tab = (typeof TABS)[number];
 
-export function RequirementEditor({ rq, onClose, onSaved }: { rq?: RQDetail; onClose: () => void; onSaved: (id: string) => void }) {
+export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }: {
+  rq?: RQDetail; onClose: () => void; onSaved: (id: string) => void;
+  /** pestaña con la que abre (p. ej. vacantes tras reabrir por más vacantes) */
+  initialTab?: Tab;
+}) {
   const { t } = useTranslation();
   const label = useLabel();
   const { can } = useAuth();
@@ -62,7 +66,7 @@ export function RequirementEditor({ rq, onClose, onSaved }: { rq?: RQDetail; onC
   const cat = useRqCatalogs();
   const canRates = rq ? rq.canSeeRates : can('rq.rates.read');
   const [id] = useState(rq?.id ?? uid());
-  const [tab, setTab] = useState<Tab>('data');
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [d, setD] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);

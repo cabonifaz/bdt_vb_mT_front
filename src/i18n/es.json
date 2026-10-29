@@ -338,7 +338,9 @@
     "VACANCY_BELOW_CONFIRMED": "La cantidad no puede ser menor que los confirmados.",
     "CANDIDATE_NOT_READY": "Para confirmar, el candidato debe tener al menos datos completos.",
     "RQ_REOPEN_REQUIRED": "Un requerimiento cerrado solo lo puede reabrir el jefe de selección, indicando el motivo.",
-    "RQ_NOT_CLOSED": "El requerimiento no está cerrado."
+    "RQ_NOT_CLOSED": "El requerimiento no está cerrado.",
+    "CANDIDATE_RESIGNED": "El candidato renunció: queda en el historial del requerimiento y ya no se puede mover ni quitar.",
+    "RESIGNED_CANDIDATE_INVALID": "Indica quién renunció: debe ser un candidato confirmado de este requerimiento."
   },
   "talents": {
     "title": "Talentos",
@@ -1023,7 +1025,7 @@
         "MORE_VACANCIES": "Se necesitan más vacantes"
       },
       "reasonHints": {
-        "RESIGNATION": "Hay que reemplazar a una persona que ya ingresó.",
+        "RESIGNATION": "Indica quién renunció; su puesto queda libre para un nuevo ingreso.",
         "MORE_VACANCIES": "El cliente amplía el pedido; al reabrir podrás editar las vacantes."
       },
       "status": "Vuelve a",
@@ -1031,7 +1033,17 @@
       "notesPlaceholder": "Quién renunció, cuántas vacantes más, indicaciones del cliente…",
       "confirm": "Reabrir requerimiento",
       "done": "{{code}} reabierto",
-      "history": "Reaperturas"
+      "history": "Reaperturas",
+      "noConfirmed": "No hay candidatos confirmados en este requerimiento.",
+      "whoResigned": "¿Quién renunció?",
+      "resignedHint": "Seguirá visible en el pipeline marcado como renuncia y ya no cubrirá la vacante. Su baja quedará pendiente hasta que el FMI la confirme."
+    },
+    "resign": {
+      "label": "Renunció",
+      "pending": "baja pendiente",
+      "effective": "baja efectiva",
+      "tipPending": "Renunció el {{date}}. La baja aún no está confirmada por el FMI.",
+      "tipEffective": "Renunció el {{date}}. Baja efectiva desde el {{offboard}}."
     }
   }
 }

@@ -145,12 +145,58 @@ test('vistas del tablero, filtros y reapertura por el jefe de selección', async
   await expect(page.getByText(`${cerrado.code} reabierto`).last()).toBeVisible();
   const editor = page.getByRole('dialog', { name: `Editar ${cerrado.code}` });
   await expect(editor).toBeVisible();
+  await expect(editor.getByTestId('rq-tab-vacancies')).toHaveAttribute('aria-selected', 'true'); // directo a ampliar vacantes
   await editor.getByRole('button', { name: 'Cancelar' }).click();
   await expect(page.getByTestId('rq-status')).toHaveText('En selección');
   await expect(page.getByTestId('rq-reopen')).toHaveCount(0);
   await page.getByTestId('rq-tab-detail').click();
   await expect(page.getByTestId('rq-reopens')).toContainText('Se necesitan más vacantes');
   await expect(page.getByTestId('rq-reopens')).toContainText('El cliente pide 2 personas más');
+});
+
+test('reapertura por renuncia: se indica quién renunció y queda marcado en el pipeline', async ({ page }) => {
+  const { admin, H, id, client } = await setup();
+  const lead = await createFractalAdmin('SELECTION_LEAD');
+  const today = new Date().toISOString().slice(0, 10);
+  const rq = crypto.randomUUID();
+  const vac = crypto.randomUUID();
+  const res = await admin.ctx.put(`/api/v1/tenant/requirements/${rq}`, { headers: H, data: {
+    clientId: client, title: `Renuncia ${Date.now()}`, statusId: id('RQ_STATUS', 'IN_PRODUCTION'), requestDate: today, dueDate: today,
+    vacancies: [{ id: vac, profileId: id('RQ_PROFILE', 'QA_ANALYST'), quantity: 1 }] } });
+  expect(res.status()).toBe(201);
+  const code = (await res.json()).code as string;
+  const last = `Renuncia${Date.now()}`;
+  const talent = crypto.randomUUID();
+  expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: H, data: { id: talent, firstName: 'Rosa', lastName: last } })).status()).toBe(201);
+  const cand = crypto.randomUUID();
+  expect((await admin.ctx.post(`/api/v1/tenant/requirements/${rq}/candidates`, { headers: H, data: { id: cand, talentId: talent, vacancyId: vac } })).status()).toBe(201);
+  for (const st of ['DATA_COMPLETE', 'CONFIRMED']) {
+    expect((await admin.ctx.patch(`/api/v1/tenant/requirements/candidates/${cand}`, { headers: H, data: { stageId: id('CANDIDATE_STAGE', st) } })).ok()).toBeTruthy();
+  }
+  expect((await admin.ctx.patch(`/api/v1/tenant/requirements/${rq}/status`, { headers: H, data: { statusId: id('RQ_STATUS', 'ATTENDED') } })).ok()).toBeTruthy();
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await uiLogin(page, 'fractal', lead.email, lead.password);
+  await page.goto(`/fractal/requerimientos/${rq}`);
+  await expect(page.getByTestId('rq-coverage')).toHaveText('1 de 1 cubiertas');
+  await page.getByTestId('rq-reopen').click();
+  const dlg = page.getByRole('dialog', { name: `Reabrir ${code}` });
+  await dlg.getByTestId('rq-reopen-RESIGNATION').check();
+  await expect(dlg.getByTestId('rq-reopen-confirm')).toBeDisabled(); // falta indicar quién
+  await dlg.getByTestId('rq-reopen-candidates').getByText(`Rosa ${last}`).click();
+  await dlg.getByTestId('rq-reopen-confirm').click();
+  await expect(page.getByText(`${code} reabierto`).last()).toBeVisible();
+
+  // queda en el pipeline, marcado, sin menú para moverlo, y la vacante vuelve a estar libre
+  const card = page.getByTestId('kanban-card').filter({ hasText: last });
+  await expect(card.getByTestId('cand-resigned')).toHaveText('Renunció · baja pendiente');
+  await expect(card.getByTestId('cand-move')).toHaveCount(0);
+  await expect(page.getByTestId('rq-coverage')).toHaveText('0 de 1 cubiertas');
+  await page.getByTestId('rq-tab-detail').click();
+  await expect(page.getByTestId('rq-reopens')).toContainText(`Rosa ${last}`);
+  // y en las postulaciones del talento
+  await page.goto(`/fractal/talentos/${talent}`);
+  await expect(page.getByTestId('talent-application').getByTestId('cand-resigned')).toBeVisible();
 });
 
 test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirmación y postulaciones', async ({ page }) => {

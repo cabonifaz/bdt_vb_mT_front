@@ -27,9 +27,12 @@ export type RQBilling = {
   semiannualMin?: number | null; semiannualMax?: number | null;
 };
 export type RQContact = { id: string; firstName: string; lastName: string; secondLastName?: string | null; position?: string | null; email?: string | null; phone?: string | null; phone2?: string | null; email2?: string | null };
+/** Renuncia de un confirmado (al reabrir el RQ): deja de cubrir la vacante; la baja la confirma el FMI. */
+export type RQResignation = { at: string; offboard: 'PENDING' | 'EFFECTIVE'; offboardAt?: string | null };
 export type RQCandidate = {
   id: string; vacancyId: string; boardOrder: number; notes?: string | null; updatedAt: string;
   stage: { id: string; code: string; label: I18nLabel };
+  resignation?: RQResignation | null;
   talent: { id: string; firstName: string; lastName: string; secondLastName?: string | null; headline?: string | null; photoId?: string | null; status: string; blacklisted: boolean };
 };
 export type RQDetail = {
@@ -39,11 +42,13 @@ export type RQDetail = {
   durationValue?: number | null; durationUnitId?: string | null; contractValue?: number | null; contractUnitId?: string | null;
   workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; ownerId?: string | null; ownerName?: string;
   contacts: RQContact[]; billing: RQBilling[] | null; vacancies: RQVacancy[]; candidates: RQCandidate[];
-  reopens?: { reason: 'RESIGNATION' | 'MORE_VACANCIES'; notes?: string | null; createdAt: string; from: I18nLabel; to: I18nLabel }[];
+  reopens?: { reason: 'RESIGNATION' | 'MORE_VACANCIES'; notes?: string | null; createdAt: string; from: I18nLabel; to: I18nLabel;
+    resigned?: { candidateId: string; firstName: string; lastName: string; secondLastName?: string | null }[] | null }[];
 };
 export type RQApplication = {
   candidateId: string; requirementId: string; code: string; title: string; dueDate: string; client: I18nLabel; profile: I18nLabel;
   status: { code: string; label: I18nLabel; group: string }; stage: { code: string; label: I18nLabel }; addedAt: string;
+  resignation?: RQResignation | null;
 };
 /** Vistas del tablero: ACTIVE (por defecto) = abiertos sin vencer; el resto se elige con las pestañas. */
 export const BOARD_SCOPES = ['ACTIVE', 'SOON', 'OVERDUE', 'NEW', 'CLOSED', 'ALL'] as const;

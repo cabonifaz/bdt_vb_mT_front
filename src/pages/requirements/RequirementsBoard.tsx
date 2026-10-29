@@ -191,7 +191,8 @@ export function RequirementsBoard() {
         void qc.invalidateQueries({ queryKey: ['rq-board'] });
         nav(`/${tenant}/requerimientos/${id}`);
       }} />}
-      {reopening && <ReopenModal rq={reopening.card} statusId={reopening.statusId} onClose={() => setReopening(null)} />}
+      {reopening && <ReopenModal rq={reopening.card} statusId={reopening.statusId} onClose={() => setReopening(null)}
+        onDone={(reason) => { if (reason === 'MORE_VACANCIES') nav(`/${tenant}/requerimientos/${reopening.card.id}`, { state: { edit: 'vacancies' } }); }} />}
       {closing && (
         <Modal open title={t('rq.closeTitle', { code: closing.code })} onClose={() => setClosing(null)}
           footer={<><span className="spacer" /><Button variant="secondary" onClick={() => setClosing(null)}>{t('common.cancel')}</Button></>}>

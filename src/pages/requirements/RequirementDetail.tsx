@@ -2,9 +2,9 @@
 // (Observado → Datos completos → En entrevista → Confirmado) y pestaña de detalle (vacantes, contactos, condiciones).
 // Reglas del servidor: confirmar exige haber pasado de "Observado" y cupo en la vacante; un RQ cerrado queda de solo lectura
 // hasta que el jefe de selección lo reabre (rq.reopen) por renuncia de un talento o más vacantes.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CalendarClock, Pencil, Plus, RotateCcw, Trash2, TriangleAlert, UserPlus } from 'lucide-react';
 import { ApiError, http } from '../../lib/api';
@@ -18,6 +18,7 @@ import { useToast } from '../../components/ui/Toast';
 import { Loader } from '../../components/ui/Loader';
 import { RequirementEditor } from './RequirementEditor';
 import { ReopenModal } from './ReopenModal';
+import { ResignationBadge } from './ResignationBadge';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -32,7 +33,11 @@ export function RequirementDetail() {
   const q = useRequirement(id);
   const [tab, setTab] = useState<'pipeline' | 'detail'>('pipeline');
   const [vacancy, setVacancy] = useState('');
-  const [editing, setEditing] = useState(false);
+  const location = useLocation();
+  const [editing, setEditing] = useState<false | 'data' | 'vacancies'>(
+    (location.state as { edit?: 'vacancies' } | null)?.edit === 'vacancies' ? 'vacancies' : false);
+  // el pedido de abrir el editor se consume una vez (no vuelve a abrirse al recargar)
+  useEffect(() => { if (location.state) void nav(location.pathname, { replace: true, state: null }); }, [location.state, location.pathname, nav]);
   const [adding, setAdding] = useState(false);
   const [reopening, setReopening] = useState(false);
 
@@ -95,8 +100,8 @@ export function RequirementDetail() {
         </div>
         <div className="pf-actions">
           {rq.closed && can('rq.reopen') && <Button variant="secondary" size="sm" onClick={() => setReopening(true)} data-testid="rq-reopen"><RotateCcw size={15} />{t('rq.reopen.action')}</Button>}
-          {can('rq.write') && <Button variant="secondary" size="sm" onClick={del} aria-label={t('rq.delete')} title={t('rq.delete')}><Trash2 size={15} /></Button>}
-          {can('rq.write') && <Button size="sm" onClick={() => setEditing(true)} data-testid="rq-edit"><Pencil size={15} />{t('rq.edit')}</Button>}
+          {can('rq.delete') && <Button variant="secondary" size="sm" onClick={del} aria-label={t('rq.delete')} title={t('rq.delete')}><Trash2 size={15} /></Button>}
+          {can('rq.write') && <Button size="sm" onClick={() => setEditing('data')} data-testid="rq-edit"><Pencil size={15} />{t('rq.edit')}</Button>}
         </div>
       </header>
       {rq.closed && <div className="alert alert-info" role="status">{t(can('rq.reopen') ? 'rq.closedReadOnlyLead' : 'rq.closedReadOnly')}</div>}
@@ -119,18 +124,18 @@ export function RequirementDetail() {
           <span className="spacer" />
           {canMove && <Button size="sm" onClick={() => setAdding(true)} data-testid="rq-add-candidate"><UserPlus size={15} />{t('rq.cand.add')}</Button>}
         </div>
-        <Kanban<RQCandidate> ariaLabel={t('rq.tab.pipeline')} testId="rq-pipeline" items={cands} columnOf={(c) => c.stage.id} canDrag={canMove}
+        <Kanban<RQCandidate> ariaLabel={t('rq.tab.pipeline')} testId="rq-pipeline" items={cands} columnOf={(c) => c.stage.id} canDrag={(c) => canMove && !c.resignation}
           columns={stages.map((s) => ({ id: s.id, title: label(s.label), tone: s.code.toLowerCase() }))} empty={t('rq.cand.emptyColumn')}
           onMove={(c, to) => void move(c, to)}
           renderCard={(c) => (
-            <article className="cand-card" data-testid="cand-card">
+            <article className={`cand-card${c.resignation ? ' resigned' : ''}`} data-testid="cand-card">
               <div className="row" style={{ gap: 8, flexWrap: 'nowrap', alignItems: 'flex-start' }}>
                 <TalentPhoto fileId={c.talent.photoId ?? undefined} name={fullTalentName(c.talent)} size={30} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Link to={`/${tenant}/talentos/${c.talent.id}`} className="cand-name" draggable={false}>{fullTalentName(c.talent)}</Link>
                   {c.talent.headline && <div className="cand-sub">{c.talent.headline}</div>}
                 </div>
-                {canMove && (
+                {canMove && !c.resignation && (
                   <MoveMenu label={t('rq.moveTo')} current={c.stage.id} testId="cand-move"
                     options={[...stageOptions, ...rq.vacancies.filter((v) => v.id !== c.vacancyId).map((v) => ({ id: `vac:${v.id}`, label: t('rq.cand.toVacancy', { profile: label(v.profile) }) })), { id: 'remove', label: t('rq.cand.remove') }]}
                     onPick={(opt) => (opt === 'remove' ? void remove(c) : opt.startsWith('vac:') ? void move(c, c.stage.id, opt.slice(4)) : void move(c, opt))} />
@@ -138,6 +143,7 @@ export function RequirementDetail() {
               </div>
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
+                {c.resignation && <ResignationBadge r={c.resignation} />}
                 {c.talent.blacklisted && <span className="badge badge-danger" title={t('blacklist.inBlacklist')}><TriangleAlert size={12} />{t('rq.cand.blacklisted')}</span>}
               </div>
             </article>
@@ -146,8 +152,8 @@ export function RequirementDetail() {
 
       {tab === 'detail' && <DetailTab rq={rq} />}
 
-      {editing && <RequirementEditor rq={rq} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />}
-      {reopening && <ReopenModal rq={rq} onClose={() => setReopening(false)} onDone={(reason) => { if (reason === 'MORE_VACANCIES') void q.refetch().then(() => setEditing(true)); }} />}
+      {editing && <RequirementEditor rq={rq} initialTab={editing} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />}
+      {reopening && <ReopenModal rq={rq} onClose={() => setReopening(false)} onDone={(reason) => { if (reason === 'MORE_VACANCIES') void q.refetch().then(() => setEditing('vacancies')); }} />}
       {adding && <AddCandidate rq={rq} onClose={() => setAdding(false)} onAdded={() => { setAdding(false); refresh(); }} />}
     </div>
   );
@@ -216,6 +222,7 @@ function DetailTab({ rq }: { rq: RQDetail }) {
             {rq.reopens!.map((r, i) => (
               <div key={i} className="pf-item"><div className="grow">
                 <div className="pf-item-title">{t(`rq.reopen.reasons.${r.reason}`)}</div>
+                {(r.resigned ?? []).length > 0 && <div className="pf-item-meta">{r.resigned!.map(fullTalentName).join(', ')}</div>}
                 <div className="pf-item-meta">{formatDate(r.createdAt, i18n.language)} · {label(r.from)} → {label(r.to)}</div>
                 {r.notes && <div className="pf-item-meta pre">{r.notes}</div>}
               </div></div>
@@ -286,3 +293,4 @@ function AddCandidate({ rq, onClose, onAdded }: { rq: RQDetail; onClose: () => v
     </Modal>
   );
 }
+

@@ -24,6 +24,7 @@ import type { RQApplication } from '../../lib/requirements';
 import { ProfileMeter } from '../../components/talents/ProfileMeter';
 import { talentFacts } from '../../lib/completeness';
 import { CvModal } from '../../components/talents/CvModal';
+import { ResignationBadge } from '../requirements/ResignationBadge';
 
 const CATEGORIES = ['CV', 'CV_TENANT_ES', 'CV_TENANT_EN', 'CERTIFICATE', 'OTHER', 'PHOTO'];
 
@@ -188,7 +189,8 @@ export function TalentDetail() {
               <div key={a.candidateId} className="pf-item compact" data-testid="talent-application">
                 <Icon name="requirements" size={15} />
                 <div className="grow"><Link className="fav-link pf-item-title" to={`/${tenant}/requerimientos/${a.requirementId}`}>{a.code} · {a.title}</Link>
-                  <div className="pf-item-meta">{label(a.client)} · {label(a.profile)} · {label(a.stage.label)}</div></div>
+                  <div className="pf-item-meta">{label(a.client)} · {label(a.profile)} · {label(a.stage.label)}</div>
+                  {a.resignation && <div style={{ marginTop: 4 }}><ResignationBadge r={a.resignation} /></div>}</div>
                 <span className={`badge rq-st-${a.status.code.toLowerCase()}`}>{label(a.status.label)}</span>
               </div>
             ))}
