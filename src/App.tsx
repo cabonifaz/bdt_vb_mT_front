@@ -28,6 +28,7 @@ const pages = {
   rqDetail: () => import('./pages/requirements/RequirementDetail'),
   clients: () => import('./pages/clients/Clients'),
   documentRules: () => import('./pages/tenant/DocumentRules'),
+  support: () => import('./pages/support/SupportPages'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
   usage: () => import('./pages/platform/Usage'),
@@ -51,6 +52,9 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
 const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
+const SupportList = lazy(() => pages.support().then((m) => ({ default: m.SupportList })));
+const SupportDetail = lazy(() => pages.support().then((m) => ({ default: m.SupportDetail })));
+const ReleasesPage = lazy(() => pages.support().then((m) => ({ default: m.ReleasesPage })));
 const DocumentRules = lazy(() => pages.documentRules().then((m) => ({ default: m.DocumentRules })));
 const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
 const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
@@ -112,6 +116,10 @@ function TenantRoutes() {
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
           { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/requerimientos', label: t('nav.requirements'), icon: 'requirements', perm: 'rq.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
+          { title: t('nav.help'), items: [
+            { to: '/novedades', label: t('nav.news'), icon: 'sparkles' },
+            { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy' },
+          ] },
           { title: t('nav.administration'), items: [
             { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
             { to: '/documentos', label: t('nav.documents'), icon: 'fileCheck', perm: 'tenant.masters.manage' },
@@ -135,6 +143,9 @@ function TenantRoutes() {
           <Route path="lista-negra/:id" element={<Blacklist />} />
           <Route path="clientes" element={<Clients />} />
           <Route path="documentos" element={<DocumentRules />} />
+          <Route path="soporte" element={<SupportList />} />
+          <Route path="soporte/:id" element={<SupportDetail />} />
+          <Route path="novedades" element={<ReleasesPage />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />
@@ -143,6 +154,14 @@ function TenantRoutes() {
       </Routes>
     </TenantArea>
   );
+}
+
+/** Enlaces de notificaciones push sin tenant (/novedades, /soporte/:id): a la pantalla del usuario con sesión. */
+function GoToOwn({ to }: { to: string }) {
+  const { user } = useAuth();
+  const { id } = useParams();
+  const base = !user ? `/${DEFAULT_TENANT}/login` : user.tenantSlug ? `/${user.tenantSlug}/${to}` : `/admin/${to}`;
+  return <Navigate to={user && id ? `${base}/${id}` : base} replace />;
 }
 
 function PlatformRoutes() {
@@ -155,11 +174,16 @@ function PlatformRoutes() {
             { to: '', label: t('nav.tenants'), icon: 'building', end: true },
             { to: '/api-keys', label: t('nav.approvals'), icon: 'check', perm: 'platform.apikeys.approve' },
             { to: '/consumo', label: t('nav.usage'), icon: 'chart', perm: 'platform.usage.read' },
+            { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy', perm: 'platform.support.manage' },
+            { to: '/novedades', label: t('nav.news'), icon: 'sparkles', perm: 'platform.releases.manage' },
           ] },
         ]} />}>
           <Route index element={<Tenants />} />
           <Route path="api-keys" element={<ApiKeyApprovals />} />
           <Route path="consumo" element={<Usage />} />
+          <Route path="soporte" element={<SupportList admin />} />
+          <Route path="soporte/:id" element={<SupportDetail admin />} />
+          <Route path="novedades" element={<ReleasesPage admin />} />
           <Route path="tenants/:id/users" element={<PlatformTenantUsers />} />
           <Route path="*" element={<NotFound />} />
         </Route>
@@ -181,6 +205,8 @@ export default function App() {
                   <Route path="/" element={<Navigate to={`/${DEFAULT_TENANT}/login`} replace />} />
                   <Route path="/404" element={<NotFound />} />
                   <Route path="/admin/login" element={<Login platform />} />
+                  <Route path="/novedades" element={<GoToOwn to="novedades" />} />
+                  <Route path="/soporte/:id" element={<GoToOwn to="soporte" />} />
                   <Route path="/admin/*" element={<PlatformRoutes />} />
                   <Route path="/invitacion/:token" element={<AcceptInvitation />} />
                   <Route path="/:tenant/login" element={<Login />} />

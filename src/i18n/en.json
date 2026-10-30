@@ -30,7 +30,8 @@
     "moreResults_one": "{{count}} more: keep typing to filter",
     "moreResults_other": "{{count}} more: keep typing to filter",
     "savingDots": "Saving…",
-    "uploading": "Uploading file…"
+    "uploading": "Uploading file…",
+    "remove": "Remove"
   },
   "status": {
     "ACTIVE": "Active",
@@ -109,7 +110,10 @@
     "clients": "Clients",
     "usage": "Usage",
     "requirements": "Requirements",
-    "documents": "Documents"
+    "documents": "Documents",
+    "help": "Help",
+    "news": "What's new",
+    "support": "Support"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -824,13 +828,19 @@
       "TALENT_CREATED": "{{who}} added the talent {{name}}",
       "TALENT_UPDATED": "{{who}} updated the talent {{name}}",
       "RQ_CREATED": "{{who}} added the requirement {{code}} · {{title}}",
-      "RQ_UPDATED": "{{who}} updated the requirement {{code}} · {{title}}"
+      "RQ_UPDATED": "{{who}} updated the requirement {{code}} · {{title}}",
+      "SUPPORT_NEW": "{{who}} sent request #{{number}} · {{title}}",
+      "SUPPORT_REPLY": "There is a reply on request #{{number}} · {{title}} ({{status}})",
+      "RELEASE_NOTE": "What's new: {{title}}"
     },
     "types": {
       "TALENT_CREATED": "New talent",
       "TALENT_UPDATED": "Talent updated",
       "RQ_CREATED": "New requirement",
-      "RQ_UPDATED": "Requirement updated"
+      "RQ_UPDATED": "Requirement updated",
+      "SUPPORT_NEW": "New support requests",
+      "SUPPORT_REPLY": "Replies on support requests",
+      "RELEASE_NOTE": "Platform news"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1159,5 +1169,128 @@
       "DOC_REJECTED": "{{doc}} rejected. {{reason}}",
       "DOC_CHECK_FAILED": "{{doc}}: could not be checked. {{reason}}"
     }
+  },
+  "tour": {
+    "help": "Guide for this screen",
+    "skip": "Skip guide",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Got it",
+    "example": "Example:",
+    "step": "Step {{n}} of {{total}}"
+  },
+  "support": {
+    "report": "Report or suggest",
+    "newTitle": "Report or suggest",
+    "send": "Send",
+    "sent": "Request #{{number}} sent. We will notify you when there is a reply.",
+    "from": "Will be sent from",
+    "kind": "Type",
+    "kinds": {
+      "INCIDENT": "Incident",
+      "OBSERVATION": "Observation",
+      "IMPROVEMENT": "Improvement"
+    },
+    "kindHints": {
+      "INCIDENT": "something does not work",
+      "OBSERVATION": "something looks or behaves oddly",
+      "IMPROVEMENT": "an idea or request"
+    },
+    "title": "Title",
+    "titlePlaceholder": {
+      "INCIDENT": "E.g. Saving the requirement shows an error",
+      "OBSERVATION": "E.g. The openings count does not match",
+      "IMPROVEMENT": "E.g. Export the board to Excel"
+    },
+    "body": "Details",
+    "bodyPlaceholder": {
+      "INCIDENT": "What you were doing, what you expected and what happened. If you can, paste a screenshot (Ctrl+V).",
+      "OBSERVATION": "What you noticed and where.",
+      "IMPROVEMENT": "What you would like to do and how it would help."
+    },
+    "impact": "Impact",
+    "impactShort": "Impact: {{impact}}",
+    "impacts": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High (blocks my work)"
+    },
+    "attachments": "Images or files",
+    "addImages": "Add images",
+    "dropHint": "or drop them here, or paste a screenshot with Ctrl+V (PNG, JPG, WEBP, GIF or PDF; up to 5 MB)",
+    "uploading": "Uploading…",
+    "removeFile": "Remove {{name}}",
+    "refs": "References",
+    "refPlaceholder": "Link, requirement code, talent name…",
+    "refN": "Reference {{n}}",
+    "addRef": "Add reference",
+    "myTitle": "My requests",
+    "mySubtitle": "Incidents, observations and improvements you sent to the platform team.",
+    "adminTitle": "Support",
+    "adminSubtitle": "Requests from users of every company.",
+    "search": "Search by number, title or company",
+    "statusFilter": "Status",
+    "allStatuses": "All statuses",
+    "active": "Pending (not closed)",
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In progress",
+      "ANSWERED": "Answered",
+      "CLOSED": "Closed"
+    },
+    "empty": "You have not sent any requests yet. Use the help button (life buoy) in the top bar from any screen.",
+    "emptyAdmin": "No requests with these filters.",
+    "back": "Requests",
+    "conversation": "Conversation",
+    "team": "Platform team",
+    "statusChanged": "Status changed to",
+    "reply": "Reply",
+    "replyStaff": "Reply to the user…",
+    "replyUser": "Add information or reply…",
+    "replyReopen": "Write to reopen the request…",
+    "setStatus": "Status",
+    "statusAuto": "Status: Answered (automatic)",
+    "sendReply": "Send",
+    "replied": "Reply sent.",
+    "originTitle": "Origin",
+    "screen": "Screen",
+    "module": "Module",
+    "path": "Path",
+    "company": "Company",
+    "reporter": "Reported by",
+    "device": "Device",
+    "pwa": "Installed app",
+    "browser": "Browser",
+    "createdAt": "Sent",
+    "goScreen": "Go to the screen"
+  },
+  "news": {
+    "title": "What's new",
+    "subtitle": "New in the platform.",
+    "adminSubtitle": "Publish announcements: every user is notified.",
+    "publish": "Publish announcement",
+    "publishNow": "Publish and notify",
+    "published": "Announcement published and sent to everyone.",
+    "publishHint": "Every user of every company will be notified (in the app and push).",
+    "titleEs": "Title (Spanish)",
+    "bodyEs": "Details (Spanish)",
+    "titleEn": "Title (English, optional)",
+    "bodyEn": "Details (English, optional)",
+    "module": "Related screen",
+    "noModule": "None",
+    "moduleHint": "Users can open it from the announcement and its guide is shown again.",
+    "modules": {
+      "talents": "Talents",
+      "requirements": "Requirements board",
+      "requirement-detail": "Requirement detail",
+      "favorites": "Favorites",
+      "interviews": "Interviews",
+      "blacklist": "Blacklist",
+      "documents": "Application documents",
+      "home": "Home"
+    },
+    "open": "Open",
+    "openGuide": "See the guide",
+    "empty": "No announcements yet."
   }
 }

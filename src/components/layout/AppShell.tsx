@@ -7,6 +7,8 @@ import { useTheme } from '../../providers/theme';
 import { useSync } from '../../providers/sync';
 import { UserMenu } from './UserMenu';
 import { NotificationBell } from './NotificationBell';
+import { HelpButton, TourHost } from '../tour/Tour';
+import { ReportButton } from '../support/ReportButton';
 import { disablePush } from '../../lib/notifications';
 import { Icon } from '../ui/Icon';
 import { BrandLogo } from '../ui/BrandLogo';
@@ -118,7 +120,9 @@ export function AppShell({ base, sections, platform = false }: {
             <Icon name="menu" />
           </button>
           <span className="spacer" />
-          {!platform && <NotificationBell />}
+          <HelpButton />
+          {!platform && <ReportButton />}
+          <NotificationBell platform={platform} />
           <UserMenu onLogout={async () => {
             const slug = user?.tenantSlug ?? '';
             if (!platform) await disablePush().catch(() => undefined); // un equipo compartido no sigue recibiendo avisos
@@ -126,6 +130,7 @@ export function AppShell({ base, sections, platform = false }: {
           }} />
         </header>
         <main className="content"><Suspense fallback={<Loader variant="panel" />}><Outlet /></Suspense></main>
+        <TourHost platform={platform} />
       </div>
     </div>
   );

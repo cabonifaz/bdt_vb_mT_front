@@ -5,22 +5,23 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bell, BellRing, Check, ClipboardList, Pencil, Settings, UserPlus } from 'lucide-react';
+import { Bell, BellRing, Check, ClipboardList, LifeBuoy, MessageSquareReply, Pencil, Settings, Sparkles, UserPlus } from 'lucide-react';
 import { useAuth } from '../../providers/auth';
 import {
-  INBOX_KEY, disablePush, enablePush, getPrefs, notificationLink, notificationText, olderNotifications, pushState, setPref, timeAgo,
+  INBOX_KEY, disablePush, setNotificationScope, enablePush, getPrefs, notificationLink, notificationText, olderNotifications, pushState, setPref, timeAgo,
   useInbox, useMarkRead, type AppNotification, type Inbox, type NotificationPrefs, type PushState,
 } from '../../lib/notifications';
 import { Button, Modal, useErrorText } from '../ui';
 import { useToast } from '../ui/Toast';
 
-export function NotificationBell() {
+export function NotificationBell({ platform = false }: { platform?: boolean }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const nav = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
-  const inbox = useInbox(!!user?.tenantSlug);
+  setNotificationScope(platform);
+  const inbox = useInbox(!!user && (platform || !!user.tenantSlug));
   const markRead = useMarkRead();
   const { mutate: read } = markRead;
   const [open, setOpen] = useState(false);
@@ -120,7 +121,7 @@ export function NotificationBell() {
             {inbox.data && items.length === 0 && <p className="muted notif-empty">{onlyUnread ? t('notifications.noneUnread') : t('notifications.none')}</p>}
             {items.map((n) => (
               <button type="button" key={n.id} className={`notif-item${n.readAt ? '' : ' unread'}`} onClick={() => go(n)} data-testid="notif-item">
-                <span className={`notif-ico ${n.type.endsWith('_CREATED') ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : n.type === 'RQ_CREATED' ? <ClipboardList size={15} /> : <Pencil size={14} />}</span>
+                <span className={`notif-ico ${n.type.endsWith('_CREATED') || n.type === 'SUPPORT_NEW' || n.type === 'RELEASE_NOTE' ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : n.type === 'RQ_CREATED' ? <ClipboardList size={15} /> : n.type === 'SUPPORT_NEW' ? <LifeBuoy size={15} /> : n.type === 'SUPPORT_REPLY' ? <MessageSquareReply size={15} /> : n.type === 'RELEASE_NOTE' ? <Sparkles size={15} /> : <Pencil size={14} />}</span>
                 <span className="notif-body">
                   <span className="notif-text">{notificationText(n, t)}</span>
                   {(n.payload.headline || n.payload.client) && <span className="notif-sub">{n.payload.headline || n.payload.client}</span>}

@@ -30,7 +30,8 @@
     "moreResults_one": "{{count}} más: sigue escribiendo para filtrar",
     "moreResults_other": "{{count}} más: sigue escribiendo para filtrar",
     "savingDots": "Guardando…",
-    "uploading": "Subiendo archivo…"
+    "uploading": "Subiendo archivo…",
+    "remove": "Quitar"
   },
   "status": {
     "ACTIVE": "Activo",
@@ -109,7 +110,10 @@
     "clients": "Clientes",
     "usage": "Consumo",
     "requirements": "Requerimientos",
-    "documents": "Documentos"
+    "documents": "Documentos",
+    "help": "Ayuda",
+    "news": "Novedades",
+    "support": "Soporte"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -824,13 +828,19 @@
       "TALENT_CREATED": "{{who}} registró al talento {{name}}",
       "TALENT_UPDATED": "{{who}} actualizó al talento {{name}}",
       "RQ_CREATED": "{{who}} registró el requerimiento {{code}} · {{title}}",
-      "RQ_UPDATED": "{{who}} actualizó el requerimiento {{code}} · {{title}}"
+      "RQ_UPDATED": "{{who}} actualizó el requerimiento {{code}} · {{title}}",
+      "SUPPORT_NEW": "{{who}} envió la solicitud #{{number}} · {{title}}",
+      "SUPPORT_REPLY": "Hay una respuesta en la solicitud #{{number}} · {{title}} ({{status}})",
+      "RELEASE_NOTE": "Novedad: {{title}}"
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
       "TALENT_UPDATED": "Talento actualizado",
       "RQ_CREATED": "Nuevo requerimiento",
-      "RQ_UPDATED": "Requerimiento actualizado"
+      "RQ_UPDATED": "Requerimiento actualizado",
+      "SUPPORT_NEW": "Nuevas solicitudes de soporte",
+      "SUPPORT_REPLY": "Respuestas en solicitudes de soporte",
+      "RELEASE_NOTE": "Novedades de la plataforma"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1159,5 +1169,128 @@
       "DOC_REJECTED": "{{doc}} rechazado. {{reason}}",
       "DOC_CHECK_FAILED": "{{doc}}: no se pudo verificar. {{reason}}"
     }
+  },
+  "tour": {
+    "help": "Guía de esta pantalla",
+    "skip": "Omitir guía",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "done": "Entendido",
+    "example": "Ejemplo:",
+    "step": "Paso {{n}} de {{total}}"
+  },
+  "support": {
+    "report": "Reportar o sugerir",
+    "newTitle": "Reportar o sugerir",
+    "send": "Enviar",
+    "sent": "Solicitud #{{number}} enviada. Te avisaremos cuando haya respuesta.",
+    "from": "Se enviará desde",
+    "kind": "Tipo",
+    "kinds": {
+      "INCIDENT": "Incidencia",
+      "OBSERVATION": "Observación",
+      "IMPROVEMENT": "Mejora"
+    },
+    "kindHints": {
+      "INCIDENT": "algo no funciona",
+      "OBSERVATION": "algo se ve o se comporta raro",
+      "IMPROVEMENT": "una idea o pedido"
+    },
+    "title": "Título",
+    "titlePlaceholder": {
+      "INCIDENT": "Ej.: Al guardar el RQ sale un error",
+      "OBSERVATION": "Ej.: El conteo de vacantes no coincide",
+      "IMPROVEMENT": "Ej.: Exportar el tablero a Excel"
+    },
+    "body": "Detalle",
+    "bodyPlaceholder": {
+      "INCIDENT": "Qué hacías, qué esperabas y qué pasó. Si puedes, pega una captura (Ctrl+V).",
+      "OBSERVATION": "Qué notaste y dónde.",
+      "IMPROVEMENT": "Qué te gustaría poder hacer y para qué te ayudaría."
+    },
+    "impact": "Impacto",
+    "impactShort": "Impacto: {{impact}}",
+    "impacts": {
+      "LOW": "Bajo",
+      "MEDIUM": "Medio",
+      "HIGH": "Alto (me impide trabajar)"
+    },
+    "attachments": "Imágenes o archivos",
+    "addImages": "Agregar imágenes",
+    "dropHint": "o arrástralas aquí, o pega una captura con Ctrl+V (PNG, JPG, WEBP, GIF o PDF; hasta 5 MB)",
+    "uploading": "Subiendo…",
+    "removeFile": "Quitar {{name}}",
+    "refs": "Referencias",
+    "refPlaceholder": "Enlace, código de RQ, nombre del talento…",
+    "refN": "Referencia {{n}}",
+    "addRef": "Agregar referencia",
+    "myTitle": "Mis solicitudes",
+    "mySubtitle": "Incidencias, observaciones y mejoras que enviaste al equipo de la plataforma.",
+    "adminTitle": "Soporte",
+    "adminSubtitle": "Solicitudes de los usuarios de todas las empresas.",
+    "search": "Buscar por número, título o empresa",
+    "statusFilter": "Estado",
+    "allStatuses": "Todos los estados",
+    "active": "Pendientes (no cerradas)",
+    "status": {
+      "OPEN": "Abierta",
+      "IN_PROGRESS": "En atención",
+      "ANSWERED": "Respondida",
+      "CLOSED": "Cerrada"
+    },
+    "empty": "Aún no enviaste solicitudes. Usa el botón de ayuda (salvavidas) de la barra superior desde cualquier pantalla.",
+    "emptyAdmin": "No hay solicitudes con estos filtros.",
+    "back": "Solicitudes",
+    "conversation": "Conversación",
+    "team": "Equipo de la plataforma",
+    "statusChanged": "Cambió el estado a",
+    "reply": "Respuesta",
+    "replyStaff": "Responde al usuario…",
+    "replyUser": "Agrega información o responde…",
+    "replyReopen": "Escribe para volver a abrir la solicitud…",
+    "setStatus": "Estado",
+    "statusAuto": "Estado: Respondida (automático)",
+    "sendReply": "Enviar",
+    "replied": "Respuesta enviada.",
+    "originTitle": "Origen",
+    "screen": "Pantalla",
+    "module": "Módulo",
+    "path": "Ruta",
+    "company": "Empresa",
+    "reporter": "Reportó",
+    "device": "Dispositivo",
+    "pwa": "App instalada",
+    "browser": "Navegador",
+    "createdAt": "Enviada",
+    "goScreen": "Ir a la pantalla"
+  },
+  "news": {
+    "title": "Novedades",
+    "subtitle": "Lo nuevo en la plataforma.",
+    "adminSubtitle": "Publica novedades: se notifican a todos los usuarios.",
+    "publish": "Publicar novedad",
+    "publishNow": "Publicar y notificar",
+    "published": "Novedad publicada y notificada a todos.",
+    "publishHint": "Se notificará a todos los usuarios de todas las empresas (en la app y push).",
+    "titleEs": "Título (español)",
+    "bodyEs": "Detalle (español)",
+    "titleEn": "Título (inglés, opcional)",
+    "bodyEn": "Detalle (inglés, opcional)",
+    "module": "Pantalla relacionada",
+    "noModule": "Ninguna",
+    "moduleHint": "Los usuarios podrán abrirla desde la novedad y su guía se volverá a mostrar.",
+    "modules": {
+      "talents": "Talentos",
+      "requirements": "Tablero de requerimientos",
+      "requirement-detail": "Detalle del requerimiento",
+      "favorites": "Favoritos",
+      "interviews": "Entrevistas",
+      "blacklist": "Lista negra",
+      "documents": "Documentos de postulación",
+      "home": "Inicio"
+    },
+    "open": "Abrir",
+    "openGuide": "Ver la guía",
+    "empty": "Aún no hay novedades."
   }
 }

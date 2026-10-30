@@ -60,11 +60,12 @@ test('notificaciones: alta y actualización de talento, ir a la ficha, marcar le
   await expect(page.getByTestId('notif-count')).toHaveCount(0);
 });
 
-test('el Super Admin no tiene campana de tenant', async ({ page }) => {
+test('el Super Admin tiene su propia bandeja (soporte y novedades de la plataforma)', async ({ page }) => {
   await page.goto('/admin/login');
   await page.getByLabel('Correo').fill(process.env.E2E_SA_EMAIL ?? '');
   await page.getByLabel('Contraseña', { exact: true }).fill(process.env.E2E_SA_PASSWORD ?? '');
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await expect(page.getByRole('heading', { name: 'Tenants' })).toBeVisible({ timeout: 30000 });
-  await expect(page.getByTestId('notif-bell')).toHaveCount(0);
+  await expect(page.getByTestId('notif-bell')).toHaveCount(1);
+  await expect(page.getByTestId('report-button')).toHaveCount(0); // el Super Admin atiende, no reporta
 });

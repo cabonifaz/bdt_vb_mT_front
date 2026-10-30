@@ -3,18 +3,23 @@
 import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { TFunction } from 'i18next';
+import i18n from 'i18next';
 import { http } from './api';
 
-export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED';
+export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED' | 'SUPPORT_NEW' | 'SUPPORT_REPLY' | 'RELEASE_NOTE';
 export type AppNotification = {
-  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT'; entityId: string; payload: { name?: string; headline?: string; code?: string; title?: string; client?: string; status?: string };
+  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT' | 'SUPPORT' | 'RELEASE'; entityId: string;
+  /** title: texto, o {es, en} en las novedades; number: número de la solicitud de soporte */
+  payload: { name?: string; headline?: string; code?: string; title?: string | Record<string, string>; client?: string; status?: string; number?: number; tenant?: string };
   count: number; createdAt: string; at: string; readAt?: string; actor?: { id: string; name: string };
 };
 export type Inbox = { unread: number; items: AppNotification[] };
 export type NotificationPref = { type: NotificationType; inApp: boolean; push: boolean };
 export type NotificationPrefs = { types: NotificationPref[]; devices: number };
 
-const API = '/api/v1/tenant/notifications';
+// El Super Admin (sin tenant) tiene su bandeja en /platform: recibe las solicitudes de soporte
+let API = '/api/v1/tenant/notifications';
+export function setNotificationScope(platform: boolean) { API = platform ? '/api/v1/platform/notifications' : '/api/v1/tenant/notifications'; }
 export const INBOX_KEY = ['notifications'];
 const POLL_MS = 60_000;
 
@@ -58,11 +63,22 @@ export const setPref = (p: NotificationPref) => http.put(`${API}/prefs`, p);
 export function notificationText(n: AppNotification, t: TFunction) {
   const who = n.actor?.name || t('notifications.someone');
   const name = n.payload.name || '—';
-  return t(`notifications.text.${n.type}`, { who, name, code: n.payload.code ?? '', title: n.payload.title ?? '', defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
+  const raw = n.payload.title;
+  const title = typeof raw === 'object' && raw ? (raw[i18n.language?.slice(0, 2)] ?? raw.es ?? '') : (raw ?? '');
+  return t(`notifications.text.${n.type}`, { who, name, code: n.payload.code ?? '', title, number: n.payload.number ?? '', status: t(`support.status.${n.payload.status ?? 'OPEN'}`), defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
 }
 
-export const notificationLink = (n: AppNotification, slug: string) =>
-  n.entityType === 'TALENT' ? `/${slug}/talentos/${n.entityId}` : n.entityType === 'REQUIREMENT' ? `/${slug}/requerimientos/${n.entityId}` : `/${slug}`;
+/** Pantalla de la notificación; sin slug = Super Admin (/admin). */
+export function notificationLink(n: AppNotification, slug: string) {
+  const base = slug ? `/${slug}` : '/admin';
+  switch (n.entityType) {
+    case 'TALENT': return `${base}/talentos/${n.entityId}`;
+    case 'REQUIREMENT': return `${base}/requerimientos/${n.entityId}`;
+    case 'SUPPORT': return `${base}/soporte/${n.entityId}`;
+    case 'RELEASE': return `${base}/novedades`;
+    default: return base;
+  }
+}
 
 export function timeAgo(iso: string, lang: string) {
   const s = Math.round((new Date(iso).getTime() - Date.now()) / 1000);
