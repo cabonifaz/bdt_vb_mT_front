@@ -791,8 +791,9 @@ a.btn { text-decoration: none; }
 .tour-spot { position: fixed; border-radius: var(--radius-md); box-shadow: 0 0 0 9999px rgb(15 23 42 / 0.5), 0 0 0 3px var(--brand-primary);
   pointer-events: none; transition: top .2s, left .2s, width .2s, height .2s; }
 .tour-card { position: fixed; width: min(360px, calc(100vw - 32px)); background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg); padding: 16px 16px 12px; outline: none; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-.tour-card.anchored { transform: none; }
+  box-shadow: 0 12px 40px rgb(15 23 42 / 0.35), 0 0 0 1px var(--color-border); padding: 16px 16px 12px; outline: none; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  max-height: calc(100dvh - 32px); overflow-y: auto; z-index: 1; }
+.tour-card.anchored { transform: none; bottom: auto; }
 .tour-card h3 { margin: 4px 24px 6px 0; font-size: 16px; }
 .tour-card p { margin: 0 0 8px; font-size: var(--text-sm); line-height: 1.5; }
 .tour-close { position: absolute; top: 10px; right: 10px; }
@@ -889,7 +890,10 @@ a.btn { text-decoration: none; }
 }
 
 /* ---------- Versión ---------- */
-.sidebar-brand { gap: 8px; }
+/* en la barra lateral la versión va debajo del logo (al lado no cabe con el estado y el ambiente) */
+.sidebar:not(.sidebar-rail) .sidebar-brand { flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; }
+.sidebar:not(.sidebar-rail) .sidebar-brand img { max-height: 22px; }
+.sidebar-brand .version-badge { font-size: 10px; }
 .version-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; white-space: nowrap; }
 .version-num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: var(--weight-semibold); color: var(--color-text-muted); }
 .version-st, .version-env { padding: 2px 6px; border-radius: 999px; font-weight: var(--weight-semibold); }

@@ -25,6 +25,31 @@ export function HelpButton() {
 
 const visible = (el: Element | null): el is HTMLElement => !!el && (el as HTMLElement).getClientRects().length > 0;
 
+const MARGIN = 16;
+const GAP = 14;
+type Box = { top: number; left: number; right: number; bottom: number; width: number; height: number };
+
+/** La parte del elemento que está en pantalla (un tablero alto puede salirse por arriba o por abajo). */
+function visiblePart(r: DOMRect): Box {
+  const top = Math.max(r.top, 0), bottom = Math.min(r.bottom, window.innerHeight);
+  const left = Math.max(r.left, 0), right = Math.min(r.right, window.innerWidth);
+  return { top, left, right, bottom, width: Math.max(0, right - left), height: Math.max(0, bottom - top) };
+}
+
+/** Ubica la tarjeta (w×h) junto al elemento sin taparlo ni salirse de la pantalla. */
+function place(r: Box, w: number, h: number) {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), Math.max(min, max));
+  const x = clamp(r.left, MARGIN, vw - w - MARGIN);
+  const y = clamp(r.top, MARGIN, vh - h - MARGIN);
+  if (r.bottom + GAP + h <= vh - MARGIN) return { top: r.bottom + GAP, left: x };
+  if (r.top - GAP - h >= MARGIN) return { top: r.top - GAP - h, left: x };
+  if (r.right + GAP + w <= vw - MARGIN) return { top: y, left: r.right + GAP };
+  if (r.left - GAP - w >= MARGIN) return { top: y, left: r.left - GAP - w };
+  // el elemento ocupa casi toda la pantalla (p. ej. el tablero): la tarjeta va en la esquina inferior derecha
+  return { top: Math.max(MARGIN, vh - h - MARGIN), left: Math.max(MARGIN, vw - w - MARGIN) };
+}
+
 export function TourHost({ platform }: { platform: boolean }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
@@ -122,21 +147,24 @@ function TourOverlay({ steps, onClose }: { steps: TourStep[]; onClose: () => voi
     return () => document.removeEventListener('keydown', onKey);
   }, [i, last, onClose]);
 
-  // la tarjeta va debajo del elemento si cabe; si no, encima; sin elemento, centrada (en móvil, abajo)
+  // la tarjeta se mide y se ubica junto al elemento donde quepa entera (debajo, encima, derecha, izquierda);
+  // sin elemento, centrada; en móvil, abajo
+  const anchored = !!rect && window.innerWidth > 640;
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  useLayoutEffect(() => {
+    const c = card.current;
+    setPos(anchored && rect && c ? place(visiblePart(rect), c.offsetWidth, c.offsetHeight) : null);
+  }, [anchored, rect, i]);
+
   const pad = 8;
-  const style: React.CSSProperties = {};
-  if (rect && window.innerWidth > 640) {
-    const below = rect.bottom + pad + 220 < window.innerHeight;
-    style.top = below ? rect.bottom + pad + 6 : undefined;
-    style.bottom = below ? undefined : window.innerHeight - rect.top + pad + 6;
-    style.left = Math.min(Math.max(16, rect.left), window.innerWidth - 376);
-  }
+  const spot = rect && visiblePart(rect);
+  const style: React.CSSProperties = anchored ? (pos ? { top: pos.top, left: pos.left } : { visibility: 'hidden' }) : {};
   return (
     <div className="tour-layer" data-testid="tour">
-      {rect
-        ? <div className="tour-spot" style={{ top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 }} />
+      {spot
+        ? <div className="tour-spot" style={{ top: spot.top - pad, left: spot.left - pad, width: spot.width + pad * 2, height: spot.height + pad * 2 }} />
         : <div className="tour-dim" />}
-      <div ref={card} className={`tour-card${rect && window.innerWidth > 640 ? ' anchored' : ''}`} style={style} role="dialog" aria-modal="true"
+      <div ref={card} className={`tour-card${anchored ? ' anchored' : ''}`} style={style} role="dialog" aria-modal="true"
         aria-labelledby="tour-title" aria-describedby="tour-body" tabIndex={-1}>
         <button type="button" className="icon-ghost tour-close" onClick={onClose} aria-label={t('tour.skip')}><X size={16} /></button>
         <div className="tour-progress">{t('tour.step', { n: i + 1, total: steps.length })}</div>
