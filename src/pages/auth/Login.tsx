@@ -6,6 +6,7 @@ import { useTheme } from '../../providers/theme';
 import { Button, Field, LangSwitch, PasswordField, useErrorText } from '../../components/ui';
 import { OfflineBanner } from '../../components/layout/AppShell';
 import { BrandLogo } from '../../components/ui/BrandLogo';
+import { VersionBadge } from '../../components/layout/VersionBadge';
 
 /** Login de un tenant (/:tenant/login) o de plataforma (/admin/login). */
 export function Login({ platform = false }: { platform?: boolean }) {
@@ -50,6 +51,7 @@ export function Login({ platform = false }: { platform?: boolean }) {
           {!platform && branding
             ? <BrandLogo className="logo" logoUrl={branding.logoUrl} name={name} testId="tenant-logo" />
             : <strong style={{ fontSize: 20 }}>{t('app.name')}</strong>}
+          <VersionBadge />
           <span className="spacer" />
           <LangSwitch />
         </div>

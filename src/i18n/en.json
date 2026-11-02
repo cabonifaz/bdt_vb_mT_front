@@ -115,7 +115,8 @@
     "news": "What's new",
     "support": "Support",
     "features": "Features",
-    "manual": "Manual"
+    "manual": "Manual",
+    "versions": "Versions"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -837,7 +838,8 @@
       "SUPPORT_REPLY": "There is a reply on request #{{number}} · {{title}} ({{status}})",
       "RELEASE_NOTE": "What's new: {{title}}",
       "FEATURE_NEW": "New feature to activate: {{title}}",
-      "FEATURE_ENABLED": "You can now use: {{title}}"
+      "FEATURE_ENABLED": "You can now use: {{title}}",
+      "VERSION_PUBLISHED": "Version {{title}} was released. Reload the app to use it."
     },
     "types": {
       "TALENT_CREATED": "New talent",
@@ -848,7 +850,8 @@
       "SUPPORT_REPLY": "Replies on support requests",
       "RELEASE_NOTE": "Platform news",
       "FEATURE_NEW": "New features to activate",
-      "FEATURE_ENABLED": "Features enabled in your company"
+      "FEATURE_ENABLED": "Features enabled in your company",
+      "VERSION_PUBLISHED": "New versions"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1352,5 +1355,32 @@
     "toc": "Contents",
     "for": "Roles",
     "spanishOnly": "The manual is currently available in Spanish only."
+  },
+  "version": {
+    "label": "Version: {{info}}",
+    "title": "Versions",
+    "subtitle": "Versions released in this environment and what each one brought.",
+    "adminSubtitle": "Which version each environment runs and this environment's history. Mark a validated version as stable.",
+    "status": {
+      "TESTING": "Testing",
+      "CANDIDATE": "Candidate",
+      "STABLE": "Stable",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "env": {
+      "local": "Local",
+      "staging": "Staging",
+      "preprod": "Preprod",
+      "production": "Production",
+      "prod": "Production"
+    },
+    "newAvailable": "Version v{{version}} was released.",
+    "reload": "Reload",
+    "current": "Current",
+    "thisEnv": "this environment",
+    "unavailable": "Unavailable",
+    "setStatus": "Status:",
+    "statusSaved": "v{{version}}: {{status}}.",
+    "empty": "No versions registered in this environment yet."
   }
 }

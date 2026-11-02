@@ -30,6 +30,7 @@ const pages = {
   documentRules: () => import('./pages/tenant/DocumentRules'),
   support: () => import('./pages/support/SupportPages'),
   manual: () => import('./pages/help/Manual'),
+  versions: () => import('./pages/help/Versions'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
   usage: () => import('./pages/platform/Usage'),
@@ -54,6 +55,7 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
 const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
+const Versions = lazy(() => pages.versions().then((m) => ({ default: m.Versions })));
 const Manual = lazy(() => pages.manual().then((m) => ({ default: m.Manual })));
 const SupportList = lazy(() => pages.support().then((m) => ({ default: m.SupportList })));
 const SupportDetail = lazy(() => pages.support().then((m) => ({ default: m.SupportDetail })));
@@ -123,6 +125,7 @@ function TenantRoutes() {
           { title: t('nav.help'), items: [
             { to: '/manual', label: t('nav.manual'), icon: 'book' },
             { to: '/novedades', label: t('nav.news'), icon: 'sparkles' },
+            { to: '/versiones', label: t('nav.versions'), icon: 'tag' },
             { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy', feature: 'support' },
           ] },
           { title: t('nav.administration'), items: [
@@ -152,6 +155,7 @@ function TenantRoutes() {
           <Route path="soporte/:id" element={<SupportDetail />} />
           <Route path="novedades" element={<ReleasesPage />} />
           <Route path="manual" element={<Manual />} />
+          <Route path="versiones" element={<Versions />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />
@@ -181,6 +185,7 @@ function PlatformRoutes() {
             { to: '/api-keys', label: t('nav.approvals'), icon: 'check', perm: 'platform.apikeys.approve' },
             { to: '/consumo', label: t('nav.usage'), icon: 'chart', perm: 'platform.usage.read' },
             { to: '/funcionalidades', label: t('nav.features'), icon: 'power', perm: 'platform.features.manage' },
+            { to: '/versiones', label: t('nav.versions'), icon: 'tag' },
             { to: '/manual', label: t('nav.manual'), icon: 'book' },
             { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy', perm: 'platform.support.manage' },
             { to: '/novedades', label: t('nav.news'), icon: 'sparkles', perm: 'platform.releases.manage' },
@@ -191,6 +196,7 @@ function PlatformRoutes() {
           <Route path="consumo" element={<Usage />} />
           <Route path="funcionalidades" element={<Features />} />
           <Route path="manual" element={<Manual platform />} />
+          <Route path="versiones" element={<Versions admin />} />
           <Route path="soporte" element={<SupportList admin />} />
           <Route path="soporte/:id" element={<SupportDetail admin />} />
           <Route path="novedades" element={<ReleasesPage admin />} />
@@ -216,6 +222,7 @@ export default function App() {
                   <Route path="/404" element={<NotFound />} />
                   <Route path="/admin/login" element={<Login platform />} />
                   <Route path="/novedades" element={<GoToOwn to="novedades" />} />
+                  <Route path="/versiones" element={<GoToOwn to="versiones" />} />
                   <Route path="/soporte/:id" element={<GoToOwn to="soporte" />} />
                   <Route path="/admin/*" element={<PlatformRoutes />} />
                   <Route path="/invitacion/:token" element={<AcceptInvitation />} />

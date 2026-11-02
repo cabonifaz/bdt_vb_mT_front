@@ -115,7 +115,8 @@
     "news": "Novedades",
     "support": "Soporte",
     "features": "Funcionalidades",
-    "manual": "Manual"
+    "manual": "Manual",
+    "versions": "Versiones"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -837,7 +838,8 @@
       "SUPPORT_REPLY": "Hay una respuesta en la solicitud #{{number}} · {{title}} ({{status}})",
       "RELEASE_NOTE": "Novedad: {{title}}",
       "FEATURE_NEW": "Funcionalidad nueva por activar: {{title}}",
-      "FEATURE_ENABLED": "Ya puedes usar: {{title}}"
+      "FEATURE_ENABLED": "Ya puedes usar: {{title}}",
+      "VERSION_PUBLISHED": "Se publicó la versión {{title}}. Recarga la app para usarla."
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
@@ -848,7 +850,8 @@
       "SUPPORT_REPLY": "Respuestas en solicitudes de soporte",
       "RELEASE_NOTE": "Novedades de la plataforma",
       "FEATURE_NEW": "Funcionalidades nuevas por activar",
-      "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa"
+      "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa",
+      "VERSION_PUBLISHED": "Versiones nuevas"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1352,5 +1355,32 @@
     "toc": "Contenido",
     "for": "Roles",
     "spanishOnly": "The manual is available in Spanish."
+  },
+  "version": {
+    "label": "Versión: {{info}}",
+    "title": "Versiones",
+    "subtitle": "Versiones publicadas en este ambiente y lo que trajo cada una.",
+    "adminSubtitle": "Qué versión tiene cada ambiente y el historial de este ambiente. Marca como estable una versión validada.",
+    "status": {
+      "TESTING": "En pruebas",
+      "CANDIDATE": "Candidata",
+      "STABLE": "Estable",
+      "WITHDRAWN": "Retirada"
+    },
+    "env": {
+      "local": "Local",
+      "staging": "Staging",
+      "preprod": "Preprod",
+      "production": "Producción",
+      "prod": "Producción"
+    },
+    "newAvailable": "Se publicó la versión v{{version}}.",
+    "reload": "Recargar",
+    "current": "Vigente",
+    "thisEnv": "este ambiente",
+    "unavailable": "No disponible",
+    "setStatus": "Estado:",
+    "statusSaved": "v{{version}}: {{status}}.",
+    "empty": "Aún no hay versiones registradas en este ambiente."
   }
 }

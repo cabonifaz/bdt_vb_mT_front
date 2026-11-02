@@ -887,3 +887,20 @@ a.btn { text-decoration: none; }
   .manual-doc { border: 0; padding: 0; max-width: none; }
   .manual-section { break-inside: avoid; }
 }
+
+/* ---------- Versión ---------- */
+.sidebar-brand { gap: 8px; }
+.version-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1; white-space: nowrap; }
+.version-num { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.version-st, .version-env { padding: 2px 6px; border-radius: 999px; font-weight: var(--weight-semibold); }
+.version-env { background: var(--color-surface-muted); color: var(--color-text-muted); }
+.st-stable .version-st { background: var(--color-success-bg); color: var(--color-success); }
+.st-candidate .version-st { background: var(--color-info-bg); color: var(--brand-primary); }
+.st-testing .version-st { background: var(--color-warning-bg); color: var(--color-warning); }
+.st-withdrawn .version-st { background: var(--color-danger-bg); color: var(--color-danger); }
+.new-version { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 6px 12px; font-size: 13px;
+  background: color-mix(in srgb, var(--brand-primary) 10%, var(--color-surface)); border-bottom: 1px solid var(--color-border); }
+.env-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.env-card { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.env-version { font-size: 24px; font-weight: var(--weight-semibold); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.version-notes { margin: 8px 0; padding-left: 20px; }

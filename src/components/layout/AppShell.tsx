@@ -7,6 +7,7 @@ import { useTheme } from '../../providers/theme';
 import { useSync } from '../../providers/sync';
 import { UserMenu } from './UserMenu';
 import { NotificationBell } from './NotificationBell';
+import { NewVersionBanner, VersionBadge } from './VersionBadge';
 import { HelpButton, TourHost } from '../tour/Tour';
 import { ReportButton } from '../support/ReportButton';
 import { disablePush } from '../../lib/notifications';
@@ -78,6 +79,7 @@ export function AppShell({ base, sections, platform = false }: {
           {compact
             ? <span className="avatar" aria-hidden>{(branding?.name ?? 'B')[0]}</span>
             : platform || !branding ? <strong>{t('app.name')}</strong> : <BrandLogo logoUrl={branding.logoUrl} name={branding.displayName} />}
+          <VersionBadge compact={compact} />
         </div>
         <nav aria-label="principal">
           {sections.map((s, i) => {
@@ -115,6 +117,7 @@ export function AppShell({ base, sections, platform = false }: {
       <div className="main">
         <div className="accent-bar" />
         <OfflineBanner />
+        <NewVersionBanner />
         <header className="topbar">
           <button className="btn btn-ghost btn-sm icon-btn" onClick={toggleMenu} aria-label={t('nav.toggleMenu')} aria-expanded={mode === 'expanded' || peek} data-testid="menu-toggle">
             <Icon name="menu" />
