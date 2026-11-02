@@ -7,6 +7,7 @@
 // el usuario puede indicar que es otra persona y crearla.
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../providers/auth';
 import { FileText, Search, Sparkles, Upload } from 'lucide-react';
 import { http } from '../../lib/api';
 import {
@@ -25,6 +26,7 @@ const DNI = /^\d{8}$/;
 
 export function QuickTalentModal({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
   const { t } = useTranslation();
+  const { has } = useAuth();
   const masters = useMasters();
   const label = useLabel();
   const toast = useToast();
@@ -184,8 +186,8 @@ export function QuickTalentModal({ onClose, onCreated }: { onClose: () => void; 
               <input id="qt-dni" className="input" inputMode="numeric" maxLength={20} value={form.docNumber} aria-invalid={!!errors.docNumber || undefined}
                 onChange={setField('docNumber')} onBlur={dniBlur}
                 onKeyDown={(e) => { if (e.key === 'Enter' && DNI.test(form.docNumber.trim())) { e.preventDefault(); void lookupDni(); } }} />
-              <button type="button" className="btn btn-outline btn-sm" onClick={lookupDni} disabled={!DNI.test(form.docNumber.trim()) || looking} data-testid="quick-dni-lookup"
-                title={t('talents.dniLookupHint')}><Search size={15} />{looking ? t('talents.dniLooking') : t('talents.dniLookup')}</button>
+              {has('dni_lookup') && <button type="button" className="btn btn-outline btn-sm" onClick={lookupDni} disabled={!DNI.test(form.docNumber.trim()) || looking} data-testid="quick-dni-lookup"
+                title={t('talents.dniLookupHint')}><Search size={15} />{looking ? t('talents.dniLooking') : t('talents.dniLookup')}</button>}
             </div>
             {errors.docNumber && <span className="error">{errors.docNumber}</span>}
           </div>

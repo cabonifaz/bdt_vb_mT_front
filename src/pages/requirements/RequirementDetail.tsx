@@ -26,7 +26,7 @@ import { docSummary } from '../../lib/documents';
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
   const label = useLabel();
-  const { can } = useAuth();
+  const { can, has } = useAuth();
   const { tenant = '', id = '' } = useParams();
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -103,7 +103,7 @@ export function RequirementDetail() {
           </div>
         </div>
         <div className="pf-actions">
-          {rq.closed && can('rq.reopen') && <Button variant="secondary" size="sm" onClick={() => setReopening(true)} data-testid="rq-reopen"><RotateCcw size={15} />{t('rq.reopen.action')}</Button>}
+          {rq.closed && can('rq.reopen') && has('rq_reopen') && <Button variant="secondary" size="sm" onClick={() => setReopening(true)} data-testid="rq-reopen"><RotateCcw size={15} />{t('rq.reopen.action')}</Button>}
           {can('rq.delete') && <Button variant="secondary" size="sm" onClick={del} aria-label={t('rq.delete')} title={t('rq.delete')}><Trash2 size={15} /></Button>}
           {can('rq.write') && <Button size="sm" onClick={() => setEditing('data')} data-testid="rq-edit"><Pencil size={15} />{t('rq.edit')}</Button>}
         </div>
@@ -150,7 +150,7 @@ export function RequirementDetail() {
                     onPick={(opt) => (opt === 'remove' ? void remove(c) : opt.startsWith('vac:') ? void move(c, c.stage.id, opt.slice(4)) : void move(c, opt))} />
                 )}
               </div>
-              {(c.docs ?? []).length > 0 && <DocMeter docs={c.docs!} labels={rq.documents ?? []} onOpen={() => setOpenCand(c.id)} />}
+              {has('rq_documents') && (c.docs ?? []).length > 0 && <DocMeter docs={c.docs!} labels={rq.documents ?? []} onOpen={() => setOpenCand(c.id)} />}
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}

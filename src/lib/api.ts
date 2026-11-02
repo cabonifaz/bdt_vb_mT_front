@@ -37,6 +37,8 @@ export interface Me {
   roles: string[];
   permissions: string[];
   isPlatform: boolean;
+  /** funcionalidades habilitadas para su empresa (el Super Admin no depende del catálogo) */
+  features?: string[];
 }
 
 async function parse<T>(res: Response): Promise<T> {

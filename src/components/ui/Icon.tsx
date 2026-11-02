@@ -1,6 +1,6 @@
 import {
   Angry, Archive, ClipboardList, Briefcase, FileUser, ChartColumn, Minus, TrendingDown, TrendingUp, TriangleAlert, User, Building2, CalendarCheck, Check, ChevronLeft, ChevronRight, Clock, Copy, Download, ExternalLink, Eye, EyeOff,
-  FileCheck, FileText, Funnel, LifeBuoy, Sparkles, Github, Heart, Home, IdCard, KeyRound, Laptop, LayoutDashboard, Linkedin, LogOut, Mail, MapPin, Menu, Palette,
+  BookOpen, FileCheck, FileText, Funnel, LifeBuoy, Power, Sparkles, Github, Heart, Home, IdCard, KeyRound, Laptop, LayoutDashboard, Linkedin, LogOut, Mail, MapPin, Menu, Palette,
   Pencil, Phone, PhoneCall, Pin, Plus, Search, Star, Trash2, Upload, UserCog, Users, Video, Wallet, X, type LucideIcon,
 } from 'lucide-react';
 
@@ -16,6 +16,8 @@ const icons: Record<string, LucideIcon> = {
   fileCheck: FileCheck,
   lifeBuoy: LifeBuoy,
   sparkles: Sparkles,
+  power: Power,
+  book: BookOpen,
   brush: Palette,
   users: UserCog,
   key: KeyRound,

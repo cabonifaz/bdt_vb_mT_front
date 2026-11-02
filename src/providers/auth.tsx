@@ -11,6 +11,8 @@ interface AuthCtx {
   login: (tenant: string | null, email: string, password: string, remember?: boolean) => Promise<Me>;
   logout: () => Promise<void>;
   can: (perm: string) => boolean;
+  /** la funcionalidad está habilitada para la empresa del usuario */
+  has: (feature: string) => boolean;
 }
 
 const Ctx = createContext<AuthCtx>(null!);
@@ -57,8 +59,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const can = useCallback((perm: string) => !!user?.permissions.includes(perm), [user]);
+  // sin catálogo (Super Admin o una API anterior) todo está habilitado
+  const has = useCallback((feature: string) => !user || user.isPlatform || !user.features || user.features.includes(feature), [user]);
 
-  return <Ctx.Provider value={{ user, ready, login, logout, can }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, ready, login, logout, can, has }}>{children}</Ctx.Provider>;
 }
 
 export const useAuth = () => useContext(Ctx);

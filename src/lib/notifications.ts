@@ -6,11 +6,11 @@ import type { TFunction } from 'i18next';
 import i18n from 'i18next';
 import { http } from './api';
 
-export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED' | 'SUPPORT_NEW' | 'SUPPORT_REPLY' | 'RELEASE_NOTE';
+export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED' | 'SUPPORT_NEW' | 'SUPPORT_REPLY' | 'RELEASE_NOTE' | 'FEATURE_NEW' | 'FEATURE_ENABLED';
 export type AppNotification = {
-  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT' | 'SUPPORT' | 'RELEASE'; entityId: string;
+  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT' | 'SUPPORT' | 'RELEASE' | 'FEATURE'; entityId: string;
   /** title: texto, o {es, en} en las novedades; number: número de la solicitud de soporte */
-  payload: { name?: string; headline?: string; code?: string; title?: string | Record<string, string>; client?: string; status?: string; number?: number; tenant?: string };
+  payload: { name?: string; headline?: string; code?: string; title?: string | Record<string, string>; client?: string; status?: string; number?: number; tenant?: string; module?: string };
   count: number; createdAt: string; at: string; readAt?: string; actor?: { id: string; name: string };
 };
 export type Inbox = { unread: number; items: AppNotification[] };
@@ -68,6 +68,9 @@ export function notificationText(n: AppNotification, t: TFunction) {
   return t(`notifications.text.${n.type}`, { who, name, code: n.payload.code ?? '', title, number: n.payload.number ?? '', status: t(`support.status.${n.payload.status ?? 'OPEN'}`), defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
 }
 
+const FEATURE_PATHS: Record<string, string> = { talents: 'talentos', favorites: 'favoritos', interviews: 'entrevistas', blacklist: 'lista-negra',
+  requirements: 'requerimientos', support: 'soporte', notifications: '', administration: '' };
+
 /** Pantalla de la notificación; sin slug = Super Admin (/admin). */
 export function notificationLink(n: AppNotification, slug: string) {
   const base = slug ? `/${slug}` : '/admin';
@@ -76,6 +79,8 @@ export function notificationLink(n: AppNotification, slug: string) {
     case 'REQUIREMENT': return `${base}/requerimientos/${n.entityId}`;
     case 'SUPPORT': return `${base}/soporte/${n.entityId}`;
     case 'RELEASE': return `${base}/novedades`;
+    // funcionalidad nueva: al Super Admin a su catálogo; activada: al módulo correspondiente
+    case 'FEATURE': return slug ? `${base}/${FEATURE_PATHS[n.payload.module ?? ''] ?? ''}` : '/admin/funcionalidades';
     default: return base;
   }
 }

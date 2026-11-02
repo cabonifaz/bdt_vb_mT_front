@@ -29,9 +29,11 @@ const pages = {
   clients: () => import('./pages/clients/Clients'),
   documentRules: () => import('./pages/tenant/DocumentRules'),
   support: () => import('./pages/support/SupportPages'),
+  manual: () => import('./pages/help/Manual'),
   tenants: () => import('./pages/platform/Tenants'),
   apiKeyApprovals: () => import('./pages/platform/ApiKeyApprovals'),
   usage: () => import('./pages/platform/Usage'),
+  features: () => import('./pages/platform/Features'),
 };
 const prefetchPages = () => {
   const run = () => Object.values(pages).forEach((load) => { load().catch(() => { /* se reintenta al navegar */ }); });
@@ -52,6 +54,7 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
 const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
+const Manual = lazy(() => pages.manual().then((m) => ({ default: m.Manual })));
 const SupportList = lazy(() => pages.support().then((m) => ({ default: m.SupportList })));
 const SupportDetail = lazy(() => pages.support().then((m) => ({ default: m.SupportDetail })));
 const ReleasesPage = lazy(() => pages.support().then((m) => ({ default: m.ReleasesPage })));
@@ -59,6 +62,7 @@ const DocumentRules = lazy(() => pages.documentRules().then((m) => ({ default: m
 const Tenants = lazy(() => pages.tenants().then((m) => ({ default: m.Tenants })));
 const ApiKeyApprovals = lazy(() => pages.apiKeyApprovals().then((m) => ({ default: m.ApiKeyApprovals })));
 const Usage = lazy(() => pages.usage().then((m) => ({ default: m.Usage })));
+const Features = lazy(() => pages.features().then((m) => ({ default: m.Features })));
 
 const DEFAULT_TENANT = (import.meta.env.VITE_DEFAULT_TENANT as string | undefined) ?? 'fractal';
 
@@ -115,17 +119,18 @@ function TenantRoutes() {
     <TenantArea>
       <Routes>
         <Route element={<AppShell base={`/${tenant}`} sections={[
-          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/requerimientos', label: t('nav.requirements'), icon: 'requirements', perm: 'rq.read' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read' }] },
+          { items: [{ to: '', label: t('nav.home'), icon: 'home', end: true }, { to: '/talentos', label: t('nav.talents'), icon: 'talents', perm: 'talent.read' }, { to: '/requerimientos', label: t('nav.requirements'), icon: 'requirements', perm: 'rq.read', feature: 'requirements' }, { to: '/favoritos', label: t('nav.favorites'), icon: 'heart', perm: 'talent.read', feature: 'favorites' }, { to: '/entrevistas', label: t('nav.interviews'), icon: 'interviews', perm: 'interview.read', feature: 'interviews' }, { to: '/lista-negra', label: t('nav.blacklist'), icon: 'ban', perm: 'talent.read', feature: 'blacklist' }] },
           { title: t('nav.help'), items: [
+            { to: '/manual', label: t('nav.manual'), icon: 'book' },
             { to: '/novedades', label: t('nav.news'), icon: 'sparkles' },
-            { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy' },
+            { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy', feature: 'support' },
           ] },
           { title: t('nav.administration'), items: [
             { to: '/clientes', label: t('nav.clients'), icon: 'building', perm: 'tenant.masters.manage' },
-            { to: '/documentos', label: t('nav.documents'), icon: 'fileCheck', perm: 'tenant.masters.manage' },
+            { to: '/documentos', label: t('nav.documents'), icon: 'fileCheck', perm: 'tenant.masters.manage', feature: 'rq_documents' },
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
             { to: '/usuarios', label: t('nav.users'), icon: 'users', perm: 'tenant.users.manage' },
-            { to: '/api', label: t('nav.apiKeys'), icon: 'key', perm: 'tenant.apikeys.request' },
+            { to: '/api', label: t('nav.apiKeys'), icon: 'key', perm: 'tenant.apikeys.request', feature: 'api_keys' },
           ] },
         ]} />}>
           <Route index element={<Home />} />
@@ -146,6 +151,7 @@ function TenantRoutes() {
           <Route path="soporte" element={<SupportList />} />
           <Route path="soporte/:id" element={<SupportDetail />} />
           <Route path="novedades" element={<ReleasesPage />} />
+          <Route path="manual" element={<Manual />} />
           <Route path="marca" element={<Branding />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="api" element={<ApiKeys />} />
@@ -174,6 +180,8 @@ function PlatformRoutes() {
             { to: '', label: t('nav.tenants'), icon: 'building', end: true },
             { to: '/api-keys', label: t('nav.approvals'), icon: 'check', perm: 'platform.apikeys.approve' },
             { to: '/consumo', label: t('nav.usage'), icon: 'chart', perm: 'platform.usage.read' },
+            { to: '/funcionalidades', label: t('nav.features'), icon: 'power', perm: 'platform.features.manage' },
+            { to: '/manual', label: t('nav.manual'), icon: 'book' },
             { to: '/soporte', label: t('nav.support'), icon: 'lifeBuoy', perm: 'platform.support.manage' },
             { to: '/novedades', label: t('nav.news'), icon: 'sparkles', perm: 'platform.releases.manage' },
           ] },
@@ -181,6 +189,8 @@ function PlatformRoutes() {
           <Route index element={<Tenants />} />
           <Route path="api-keys" element={<ApiKeyApprovals />} />
           <Route path="consumo" element={<Usage />} />
+          <Route path="funcionalidades" element={<Features />} />
+          <Route path="manual" element={<Manual platform />} />
           <Route path="soporte" element={<SupportList admin />} />
           <Route path="soporte/:id" element={<SupportDetail admin />} />
           <Route path="novedades" element={<ReleasesPage admin />} />

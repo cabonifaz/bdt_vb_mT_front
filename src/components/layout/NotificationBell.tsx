@@ -16,7 +16,7 @@ import { useToast } from '../ui/Toast';
 
 export function NotificationBell({ platform = false }: { platform?: boolean }) {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
+  const { user, has } = useAuth();
   const nav = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
@@ -109,7 +109,7 @@ export function NotificationBell({ platform = false }: { platform?: boolean }) {
             <button type="button" role="tab" aria-selected={!onlyUnread} onClick={() => setOnlyUnread(false)}>{t('notifications.all')}</button>
             <button type="button" role="tab" aria-selected={onlyUnread} onClick={() => setOnlyUnread(true)}>{t('notifications.unread')}{unread > 0 && ` (${unread})`}</button>
           </div>
-          {push === 'off' && (
+          {push === 'off' && has('push') && (
             <div className="notif-push" data-testid="notif-push-offer">
               <BellRing size={16} aria-hidden /><span className="grow">{t('notifications.push.offer')}</span>
               <Button size="sm" onClick={() => togglePush(true)} data-testid="notif-push-enable">{t('notifications.push.enable')}</Button>
@@ -121,7 +121,7 @@ export function NotificationBell({ platform = false }: { platform?: boolean }) {
             {inbox.data && items.length === 0 && <p className="muted notif-empty">{onlyUnread ? t('notifications.noneUnread') : t('notifications.none')}</p>}
             {items.map((n) => (
               <button type="button" key={n.id} className={`notif-item${n.readAt ? '' : ' unread'}`} onClick={() => go(n)} data-testid="notif-item">
-                <span className={`notif-ico ${n.type.endsWith('_CREATED') || n.type === 'SUPPORT_NEW' || n.type === 'RELEASE_NOTE' ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : n.type === 'RQ_CREATED' ? <ClipboardList size={15} /> : n.type === 'SUPPORT_NEW' ? <LifeBuoy size={15} /> : n.type === 'SUPPORT_REPLY' ? <MessageSquareReply size={15} /> : n.type === 'RELEASE_NOTE' ? <Sparkles size={15} /> : <Pencil size={14} />}</span>
+                <span className={`notif-ico ${n.type.endsWith('_CREATED') || n.type === 'SUPPORT_NEW' || n.type === 'RELEASE_NOTE' || n.type.startsWith('FEATURE_') ? 'new' : 'upd'}`}>{n.type === 'TALENT_CREATED' ? <UserPlus size={15} /> : n.type === 'RQ_CREATED' ? <ClipboardList size={15} /> : n.type === 'SUPPORT_NEW' ? <LifeBuoy size={15} /> : n.type === 'SUPPORT_REPLY' ? <MessageSquareReply size={15} /> : n.type === 'RELEASE_NOTE' || n.type === 'FEATURE_NEW' || n.type === 'FEATURE_ENABLED' ? <Sparkles size={15} /> : <Pencil size={14} />}</span>
                 <span className="notif-body">
                   <span className="notif-text">{notificationText(n, t)}</span>
                   {(n.payload.headline || n.payload.client) && <span className="notif-sub">{n.payload.headline || n.payload.client}</span>}

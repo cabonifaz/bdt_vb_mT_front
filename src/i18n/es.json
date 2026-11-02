@@ -113,7 +113,9 @@
     "documents": "Documentos",
     "help": "Ayuda",
     "news": "Novedades",
-    "support": "Soporte"
+    "support": "Soporte",
+    "features": "Funcionalidades",
+    "manual": "Manual"
   },
   "home": {
     "welcome": "Hola, {{name}}",
@@ -345,7 +347,9 @@
     "RQ_REOPEN_REQUIRED": "Un requerimiento cerrado solo lo puede reabrir el jefe de selección, indicando el motivo.",
     "RQ_NOT_CLOSED": "El requerimiento no está cerrado.",
     "CANDIDATE_RESIGNED": "El candidato renunció: queda en el historial del requerimiento y ya no se puede mover ni quitar.",
-    "RESIGNED_CANDIDATE_INVALID": "Indica quién renunció: debe ser un candidato confirmado de este requerimiento."
+    "RESIGNED_CANDIDATE_INVALID": "Indica quién renunció: debe ser un candidato confirmado de este requerimiento.",
+    "FEATURE_DISABLED": "Esta funcionalidad no está habilitada para tu empresa.",
+    "FEATURE_CORE": "Es una funcionalidad del núcleo: no se puede suspender."
   },
   "talents": {
     "title": "Talentos",
@@ -831,7 +835,9 @@
       "RQ_UPDATED": "{{who}} actualizó el requerimiento {{code}} · {{title}}",
       "SUPPORT_NEW": "{{who}} envió la solicitud #{{number}} · {{title}}",
       "SUPPORT_REPLY": "Hay una respuesta en la solicitud #{{number}} · {{title}} ({{status}})",
-      "RELEASE_NOTE": "Novedad: {{title}}"
+      "RELEASE_NOTE": "Novedad: {{title}}",
+      "FEATURE_NEW": "Funcionalidad nueva por activar: {{title}}",
+      "FEATURE_ENABLED": "Ya puedes usar: {{title}}"
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
@@ -840,7 +846,9 @@
       "RQ_UPDATED": "Requerimiento actualizado",
       "SUPPORT_NEW": "Nuevas solicitudes de soporte",
       "SUPPORT_REPLY": "Respuestas en solicitudes de soporte",
-      "RELEASE_NOTE": "Novedades de la plataforma"
+      "RELEASE_NOTE": "Novedades de la plataforma",
+      "FEATURE_NEW": "Funcionalidades nuevas por activar",
+      "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1292,5 +1300,57 @@
     "open": "Abrir",
     "openGuide": "Ver la guía",
     "empty": "Aún no hay novedades."
+  },
+  "features": {
+    "title": "Funcionalidades",
+    "subtitle": "Todas las funcionalidades de la plataforma. Suspéndelas para todos o actívalas por empresa; al activarlas se avisa a los usuarios impactados.",
+    "feature": "Funcionalidad",
+    "module": "Módulo",
+    "roles": "Roles impactados",
+    "companies": "Empresas",
+    "core": "Núcleo",
+    "status": {
+      "ACTIVE": "Activa",
+      "SUSPENDED": "Suspendida"
+    },
+    "suspend": "Suspender",
+    "reactivate": "Reactivar",
+    "activate": "Activar",
+    "byCompany": "Por empresa",
+    "byCompanyTitle": "{{name}} por empresa",
+    "byCompanyHint": "Al activarla en una empresa se notificará a sus usuarios con estos roles: {{roles}}.",
+    "globallySuspended": "Está suspendida para toda la plataforma: aunque una empresa la tenga activa, no podrá usarla hasta reactivarla.",
+    "byDefault": "por defecto",
+    "on": "Activa",
+    "off": "Suspendida",
+    "confirmSuspend": "¿Suspender «{{name}}» para todas las empresas? Nadie podrá usarla hasta reactivarla.",
+    "suspended": "«{{name}}» suspendida para todas las empresas.",
+    "reactivated": "«{{name}}» reactivada.",
+    "enabledFor": "«{{name}}» activada para {{company}}. Se avisó a sus usuarios.",
+    "suspendedFor": "«{{name}}» suspendida para {{company}}.",
+    "modules": {
+      "talents": "Talentos",
+      "favorites": "Favoritos",
+      "interviews": "Entrevistas",
+      "blacklist": "Lista negra",
+      "requirements": "Requerimientos",
+      "notifications": "Notificaciones",
+      "support": "Soporte",
+      "administration": "Administración"
+    }
+  },
+  "manual": {
+    "title": "Manual de usuario",
+    "subtitle": "Paso a paso de cada funcionalidad: el manual general o el de cada rol.",
+    "print": "Imprimir o guardar PDF",
+    "which": "Manual",
+    "general": "General",
+    "yours": "el tuyo",
+    "generalTitle": "Manual general del Banco de Talentos",
+    "generalIntro": "Todas las funcionalidades de la plataforma, con los pasos para usarlas y los roles que pueden hacerlo.",
+    "roleTitle": "Manual del rol {{role}}",
+    "toc": "Contenido",
+    "for": "Roles",
+    "spanishOnly": "The manual is available in Spanish."
   }
 }

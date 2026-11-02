@@ -27,7 +27,7 @@ type Tab = (typeof TABS)[number];
 
 export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; onClose: () => void; onSaved: (id: string, offline: boolean) => void }) {
   const { t } = useTranslation();
-  const { can } = useAuth();
+  const { can, has } = useAuth();
   const label = useLabel();
   const errText = useErrorText();
   const editing = !!talent;
@@ -183,13 +183,13 @@ export function TalentEditor({ talent, onClose, onSaved }: { talent?: Talent; on
           </div>
         </div>
       )}
-      <div className="cv-read-bar">
+      {has('cv_ai') && <div className="cv-read-bar">
         <Sparkles size={16} aria-hidden />
         <span className="grow">{editing ? t('talents.cvRead.hintEdit') : t('talents.cvRead.hint')}</span>
         <input ref={cvInput} type="file" accept=".pdf,application/pdf" hidden data-testid="cv-read-input"
           onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void readFromCv(f); }} />
         <Button size="sm" variant="secondary" onClick={() => cvInput.current?.click()} disabled={reading || busy} data-testid="cv-read">{editing ? t('talents.cvRead.buttonEdit') : t('talents.cvRead.button')}</Button>
-      </div>
+      </div>}
       {errors.length > 0 && <div className="alert alert-error" role="alert"><ul style={{ margin: 0, paddingLeft: 18 }}>{errors.map((e, i) => <li key={i}>{e}</li>)}</ul></div>}
       {tab === 'data' && <DataTab d={d} set={set} canRates={canRates} onIdentity={checkDup} />}
       {tab === 'skills' && <SkillsTab d={d} set={set} />}
@@ -206,6 +206,7 @@ type TabProps = { d: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K]) => v
 
 function DataTab({ d, set, canRates, onIdentity }: TabProps & { canRates: boolean; onIdentity: (m: Main) => void }) {
   const { t } = useTranslation();
+  const hasDni = useAuth().has('dni_lookup');
   const label = useLabel();
   const masters = useMasters();
   const m = d.main;
@@ -257,7 +258,7 @@ function DataTab({ d, set, canRates, onIdentity }: TabProps & { canRates: boolea
           <div className="input-action">
             <input id="ed-docnum" className="input" maxLength={30} value={m.docNumber} onChange={f('docNumber')}
               inputMode={isDni ? 'numeric' : undefined} onKeyDown={(e) => { if (e.key === 'Enter' && canLookup) { e.preventDefault(); lookup(); } }} />
-            {isDni && (
+            {isDni && hasDni && (
               <button type="button" className="btn btn-outline btn-sm" onClick={lookup} disabled={!canLookup || looking} data-testid="dni-lookup"
                 title={t('talents.dniLookupHint')}><Search size={15} />{looking ? t('talents.dniLooking') : t('talents.dniLookup')}</button>
             )}

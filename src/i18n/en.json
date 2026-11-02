@@ -113,7 +113,9 @@
     "documents": "Documents",
     "help": "Help",
     "news": "What's new",
-    "support": "Support"
+    "support": "Support",
+    "features": "Features",
+    "manual": "Manual"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -345,7 +347,9 @@
     "RQ_REOPEN_REQUIRED": "Only the selection lead can reopen a closed requirement, stating the reason.",
     "RQ_NOT_CLOSED": "The requirement is not closed.",
     "CANDIDATE_RESIGNED": "The candidate resigned: they stay in the requirement history and can no longer be moved or removed.",
-    "RESIGNED_CANDIDATE_INVALID": "Select who resigned: it must be a confirmed candidate of this requirement."
+    "RESIGNED_CANDIDATE_INVALID": "Select who resigned: it must be a confirmed candidate of this requirement.",
+    "FEATURE_DISABLED": "This feature is not enabled for your company.",
+    "FEATURE_CORE": "It is a core feature: it cannot be suspended."
   },
   "talents": {
     "title": "Talents",
@@ -831,7 +835,9 @@
       "RQ_UPDATED": "{{who}} updated the requirement {{code}} · {{title}}",
       "SUPPORT_NEW": "{{who}} sent request #{{number}} · {{title}}",
       "SUPPORT_REPLY": "There is a reply on request #{{number}} · {{title}} ({{status}})",
-      "RELEASE_NOTE": "What's new: {{title}}"
+      "RELEASE_NOTE": "What's new: {{title}}",
+      "FEATURE_NEW": "New feature to activate: {{title}}",
+      "FEATURE_ENABLED": "You can now use: {{title}}"
     },
     "types": {
       "TALENT_CREATED": "New talent",
@@ -840,7 +846,9 @@
       "RQ_UPDATED": "Requirement updated",
       "SUPPORT_NEW": "New support requests",
       "SUPPORT_REPLY": "Replies on support requests",
-      "RELEASE_NOTE": "Platform news"
+      "RELEASE_NOTE": "Platform news",
+      "FEATURE_NEW": "New features to activate",
+      "FEATURE_ENABLED": "Features enabled in your company"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1292,5 +1300,57 @@
     "open": "Open",
     "openGuide": "See the guide",
     "empty": "No announcements yet."
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Every feature of the platform. Suspend them for everyone or enable them per company; impacted users are notified when enabled.",
+    "feature": "Feature",
+    "module": "Module",
+    "roles": "Impacted roles",
+    "companies": "Companies",
+    "core": "Core",
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    },
+    "suspend": "Suspend",
+    "reactivate": "Reactivate",
+    "activate": "Enable",
+    "byCompany": "Per company",
+    "byCompanyTitle": "{{name}} per company",
+    "byCompanyHint": "When enabled for a company, its users with these roles are notified: {{roles}}.",
+    "globallySuspended": "It is suspended for the whole platform: even if a company has it enabled, it cannot be used until reactivated.",
+    "byDefault": "default",
+    "on": "Enabled",
+    "off": "Suspended",
+    "confirmSuspend": "Suspend \"{{name}}\" for every company? No one can use it until reactivated.",
+    "suspended": "\"{{name}}\" suspended for every company.",
+    "reactivated": "\"{{name}}\" reactivated.",
+    "enabledFor": "\"{{name}}\" enabled for {{company}}. Its users were notified.",
+    "suspendedFor": "\"{{name}}\" suspended for {{company}}.",
+    "modules": {
+      "talents": "Talents",
+      "favorites": "Favorites",
+      "interviews": "Interviews",
+      "blacklist": "Blacklist",
+      "requirements": "Requirements",
+      "notifications": "Notifications",
+      "support": "Support",
+      "administration": "Administration"
+    }
+  },
+  "manual": {
+    "title": "User manual",
+    "subtitle": "Step by step for every feature: the general manual or the one for each role.",
+    "print": "Print or save as PDF",
+    "which": "Manual",
+    "general": "General",
+    "yours": "yours",
+    "generalTitle": "Talent Bank general manual",
+    "generalIntro": "Every feature of the platform, with the steps to use it and the roles that can.",
+    "roleTitle": "{{role}} manual",
+    "toc": "Contents",
+    "for": "Roles",
+    "spanishOnly": "The manual is currently available in Spanish only."
   }
 }

@@ -28,7 +28,7 @@ const PAGE_SIZE = 25;
 export function TalentsWorkspace() {
   const { tenant = '', id: selectedId } = useParams();
   const { t } = useTranslation();
-  const { can } = useAuth();
+  const { can, has } = useAuth();
   const label = useLabel();
   const errText = useErrorText();
   const toast = useToast();
@@ -93,7 +93,7 @@ export function TalentsWorkspace() {
           <h1>{t('talents.title')}</h1>
           {list.data && <span className="muted" data-testid="talent-count">{list.data.total}</span>}
           <span className="spacer" />
-          {can('talent.write') && (
+          {can('talent.write') && has('cv_ai') && (
             <button className="btn btn-secondary btn-sm icon-btn" onClick={() => setQuick(true)} aria-label={t('talents.quick.title')} title={t('talents.quick.title')} data-testid="quick-talent">
               <Sparkles size={17} />
             </button>

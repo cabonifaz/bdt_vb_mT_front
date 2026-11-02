@@ -13,7 +13,7 @@ import { disablePush } from '../../lib/notifications';
 import { Icon } from '../ui/Icon';
 import { BrandLogo } from '../ui/BrandLogo';
 
-interface NavItem { to: string; label: string; icon: string; perm?: string; end?: boolean }
+interface NavItem { to: string; label: string; icon: string; perm?: string; feature?: string; end?: boolean }
 
 /** expanded = menú completo · rail = minimizado (solo íconos) · hidden = oculto (se abre por un momento con ☰) */
 export type SidebarMode = 'expanded' | 'rail' | 'hidden';
@@ -42,7 +42,7 @@ export function OfflineBanner() {
 export function AppShell({ base, sections, platform = false }: {
   base: string; platform?: boolean; sections: { title?: string; items: NavItem[] }[];
 }) {
-  const { user, logout, can } = useAuth();
+  const { user, logout, can, has } = useAuth();
   const { branding } = useTheme();
   const { t } = useTranslation();
   const nav = useNavigate();
@@ -81,7 +81,7 @@ export function AppShell({ base, sections, platform = false }: {
         </div>
         <nav aria-label="principal">
           {sections.map((s, i) => {
-            const visible = s.items.filter((it) => !it.perm || can(it.perm));
+            const visible = s.items.filter((it) => (!it.perm || can(it.perm)) && (!it.feature || has(it.feature)));
             if (!visible.length) return null;
             return (
               <div key={i}>
@@ -121,7 +121,7 @@ export function AppShell({ base, sections, platform = false }: {
           </button>
           <span className="spacer" />
           <HelpButton />
-          {!platform && <ReportButton />}
+          {!platform && has('support') && <ReportButton />}
           <NotificationBell platform={platform} />
           <UserMenu onLogout={async () => {
             const slug = user?.tenantSlug ?? '';

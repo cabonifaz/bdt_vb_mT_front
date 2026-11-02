@@ -340,11 +340,11 @@ test('documentos de postulación: maestro, pedido por RQ, carga, validación man
   await expect(cert.getByTestId('doc-status')).toHaveText('Verificado');
   await expect(cert).toContainText('Verificado por Prueba E2E');
 
-  // CUL: Fractal no tiene RUC, así que queda por revisar con el motivo (no se consulta al MTPE)
+  // CUL sin QR (no es un CUL real): queda por revisar con el motivo, sin consultar al MTPE
   const cul = dlg.getByTestId('cand-doc-CUL');
   await cul.getByTestId('doc-file').setInputFiles({ name: 'cul.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n% no es un CUL\n%%EOF\n') });
   await expect(cul.getByTestId('doc-status')).toHaveText('Por revisar');
-  await expect(cul.getByTestId('doc-reason')).toContainText('no tiene RUC');
+  await expect(cul.getByTestId('doc-reason')).toContainText(/no tiene RUC|No se encontró el código del CUL/);
 
   // proceso: línea de tiempo
   await dlg.getByTestId('cand-tab-process').click();
