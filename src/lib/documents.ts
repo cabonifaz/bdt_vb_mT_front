@@ -64,6 +64,16 @@ export function daysSince(iso?: string | null) {
   return Math.max(0, Math.round((b - a) / 86_400_000));
 }
 
+/** Días hábiles (lunes a viernes) desde una fecha del servidor hasta hoy, en la hora local. */
+export function businessDaysSince(iso?: string | null) {
+  if (!iso) return 0;
+  const d = new Date(utcISO(iso));
+  if (Number.isNaN(d.getTime())) return 0;
+  // hábiles acumulados desde un domingo fijo: hábiles en (a, b] = g(b) - g(a)
+  const g = (x: Date) => { const n = Math.round((Date.UTC(x.getFullYear(), x.getMonth(), x.getDate()) - Date.UTC(2000, 11, 31)) / 86_400_000); return 5 * Math.floor(n / 7) + Math.min(n % 7, 5); };
+  return Math.max(0, g(new Date()) - g(d));
+}
+
 export const dayLabel = (d: string, locale: string) =>
   new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-US' : 'es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
 

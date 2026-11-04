@@ -22,7 +22,7 @@ import { ResignationBadge } from './ResignationBadge';
 import { CandidateModal } from './CandidateModal';
 import { DocMeter } from './DocMeter';
 import { CandidateIdle, StaleBanner } from './StaleAlerts';
-import { daysSince, docSummary } from '../../lib/documents';
+import { businessDaysSince, docSummary } from '../../lib/documents';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -59,7 +59,7 @@ export function RequirementDetail() {
   const cands = rq.candidates.filter((c) => !vacancy || c.vacancyId === vacancy);
   // alertas sin movimiento: solo RQ abiertos, con la funcionalidad activa y postulantes en proceso
   const alerts = has('rq_stale_alerts') && !rq.closed ? rq.alerts : undefined;
-  const idle = (c: RQCandidate) => (c.resignation || c.stage.code === 'CONFIRMED' ? 0 : daysSince(c.stageAt));
+  const idle = (c: RQCandidate) => (c.resignation || c.stage.code === 'CONFIRMED' ? 0 : businessDaysSince(c.stageAt));
 
   const refresh = () => { void qc.invalidateQueries({ queryKey: ['rq', id] }); void qc.invalidateQueries({ queryKey: ['rq-board'] }); };
   // mover de etapa: optimista; si el servidor lo rechaza (sin cupo, aún observado) se revierte con el motivo
@@ -121,7 +121,7 @@ export function RequirementDetail() {
       </div>
 
       {tab === 'pipeline' && <>
-        {alerts && alerts.inProcess > 0 && <StaleBanner days={daysSince(alerts.lastMoveAt)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
+        {alerts && alerts.inProcess > 0 && <StaleBanner days={businessDaysSince(alerts.lastMoveAt)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
         <div className="rq-filters">
           <div className="chips" role="group" aria-label={t('rq.vacancyFilter')}>
             <button type="button" className={`chip chip-toggle${vacancy === '' ? ' on' : ''}`} onClick={() => setVacancy('')}>{t('rq.allVacancies')}</button>
