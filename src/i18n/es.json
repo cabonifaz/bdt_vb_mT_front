@@ -839,7 +839,10 @@
       "RELEASE_NOTE": "Novedad: {{title}}",
       "FEATURE_NEW": "Funcionalidad nueva por activar: {{title}}",
       "FEATURE_ENABLED": "Ya puedes usar: {{title}}",
-      "VERSION_PUBLISHED": "Se publicó la versión {{title}}. Recarga la app para usarla."
+      "VERSION_PUBLISHED": "Se publicó la versión {{title}}. Recarga la app para usarla.",
+      "RQ_STALE": "{{code}} · {{title}} lleva {{days}} días sin cambios de etapa en sus postulantes",
+      "RQ_STALE_SUMMARY_one": "{{count}} requerimiento lleva días sin cambios de etapa en sus postulantes",
+      "RQ_STALE_SUMMARY_other": "{{count}} requerimientos llevan días sin cambios de etapa en sus postulantes"
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
@@ -851,7 +854,8 @@
       "RELEASE_NOTE": "Novedades de la plataforma",
       "FEATURE_NEW": "Funcionalidades nuevas por activar",
       "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa",
-      "VERSION_PUBLISHED": "Versiones nuevas"
+      "VERSION_PUBLISHED": "Versiones nuevas",
+      "RQ_STALE": "RQ sin movimiento"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1020,7 +1024,8 @@
       "OVERDUE": "Vencidos",
       "NEW": "Nuevos",
       "CLOSED": "Cerrados",
-      "ALL": "Todos"
+      "ALL": "Todos",
+      "STALE": "Sin movimiento"
     },
     "scopeHint": {
       "ACTIVE": "Abiertos y en proceso, sin vencer",
@@ -1028,7 +1033,8 @@
       "OVERDUE": "Abiertos con la fecha de vencimiento pasada",
       "NEW": "Abiertos registrados en los últimos 7 días",
       "CLOSED": "Atendidos, terminados, perdidos y cancelados",
-      "ALL": "Todos los requerimientos"
+      "ALL": "Todos los requerimientos",
+      "STALE": "Abiertos donde ningún postulante cambió de etapa en los días configurados"
     },
     "allContacts": "Todos los contactos",
     "searchContact": "Buscar contacto",
@@ -1079,6 +1085,30 @@
       "requestFor": "Se pide {{name}}",
       "notRequested": "No se pide",
       "summary": "Documentos completos: {{done}} de {{total}}"
+    },
+    "statsStale_one": "{{count}} sin movimiento",
+    "statsStale_other": "{{count}} sin movimiento",
+    "stale": {
+      "badge": "Sin movimiento · {{days}} d",
+      "tip": "Ningún postulante cambió de etapa hace {{days}} días",
+      "tipCandidates_one": "{{count}} postulante detenido",
+      "tipCandidates_other": "{{count}} postulantes detenidos",
+      "warning": "Sin movimiento:",
+      "critical": "Alerta crítica:",
+      "banner_one": "ningún postulante cambió de etapa hace {{count}} día.",
+      "banner_other": "ningún postulante cambió de etapa hace {{count}} días.",
+      "candDays_one": "{{count}} d en etapa",
+      "candDays_other": "{{count}} d en etapa",
+      "candTip_one": "Lleva {{count}} día en esta etapa",
+      "candTip_other": "Lleva {{count}} días en esta etapa",
+      "settings": "Alertas",
+      "settingsTitle": "Alertas de RQ sin movimiento",
+      "settingsHint": "Un RQ abierto queda «sin movimiento» cuando ningún postulante cambia de etapa (ni se agrega uno) durante estos días. Se marca en el tablero y se avisa a los responsables del RQ y a los jefes de selección.",
+      "warnDays": "Atención a partir de (días)",
+      "criticalDays": "Crítico a partir de (días)",
+      "notify": "Enviar notificaciones a los responsables y jefes de selección",
+      "invalid": "Debe ser mayor que los días de atención (máximo 180).",
+      "saved": "Alertas guardadas."
     }
   },
   "docs": {

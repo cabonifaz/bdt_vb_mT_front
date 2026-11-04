@@ -53,6 +53,17 @@ export const useCandidateDetail = (id?: string) => useQuery({
 /** Marca de tiempo del servidor (UTC, "AAAA-MM-DD HH:MM:SS") en ISO con zona. */
 export const utcISO = (s: string) => (/[zZ]|[+-]\d\d:\d\d$/.test(s) ? s : s.replace(' ', 'T') + 'Z');
 /** Fecha sin hora (vencimiento, emisión): se muestra tal cual, sin correrla por la zona horaria. */
+/** Días calendario (en la hora local) desde una fecha del servidor hasta hoy. */
+export function daysSince(iso?: string | null) {
+  if (!iso) return 0;
+  const d = new Date(utcISO(iso));
+  if (Number.isNaN(d.getTime())) return 0;
+  const now = new Date();
+  const a = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((b - a) / 86_400_000));
+}
+
 export const dayLabel = (d: string, locale: string) =>
   new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString(locale === 'en' ? 'en-US' : 'es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
 

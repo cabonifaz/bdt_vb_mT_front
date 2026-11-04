@@ -908,3 +908,12 @@ a.btn { text-decoration: none; }
 .env-card { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .env-version { font-size: 24px; font-weight: var(--weight-semibold); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .version-notes { margin: 8px 0; padding-left: 20px; }
+
+/* ---------- RQ sin movimiento ---------- */
+.rq-stale { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin-top: 2px; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: var(--weight-semibold); background: var(--color-warning-bg); color: var(--color-warning); }
+.rq-stale.lvl-2 { background: var(--color-danger-bg); color: var(--color-danger); }
+.rq-stat-stale { color: var(--color-warning); font-weight: var(--weight-semibold); }
+.rq-scope-stale .rq-scope-count { color: var(--color-warning); }
+.rq-stale-banner { display: flex; gap: 8px; align-items: center; margin-bottom: var(--space-3); }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-3); }

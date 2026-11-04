@@ -21,7 +21,8 @@ import { ReopenModal } from './ReopenModal';
 import { ResignationBadge } from './ResignationBadge';
 import { CandidateModal } from './CandidateModal';
 import { DocMeter } from './DocMeter';
-import { docSummary } from '../../lib/documents';
+import { CandidateIdle, StaleBanner } from './StaleAlerts';
+import { daysSince, docSummary } from '../../lib/documents';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -56,6 +57,9 @@ export function RequirementDetail() {
   const total = rq.vacancies.reduce((a, v) => a + v.quantity, 0);
   const vacLabel = (vid: string) => label(rq.vacancies.find((v) => v.id === vid)?.profile);
   const cands = rq.candidates.filter((c) => !vacancy || c.vacancyId === vacancy);
+  // alertas sin movimiento: solo RQ abiertos, con la funcionalidad activa y postulantes en proceso
+  const alerts = has('rq_stale_alerts') && !rq.closed ? rq.alerts : undefined;
+  const idle = (c: RQCandidate) => (c.resignation || c.stage.code === 'CONFIRMED' ? 0 : daysSince(c.stageAt));
 
   const refresh = () => { void qc.invalidateQueries({ queryKey: ['rq', id] }); void qc.invalidateQueries({ queryKey: ['rq-board'] }); };
   // mover de etapa: optimista; si el servidor lo rechaza (sin cupo, aún observado) se revierte con el motivo
@@ -63,7 +67,7 @@ export function RequirementDetail() {
     const st = stages.find((s) => s.id === stageId);
     if (!st) return;
     const prev = qc.getQueryData<RQDetail>(['rq', id]);
-    qc.setQueryData<RQDetail>(['rq', id], (cur) => cur && { ...cur, candidates: cur.candidates.map((x) => (x.id === c.id ? { ...x, stage: { id: st.id, code: st.code, label: st.label }, vacancyId: vacancyId ?? x.vacancyId } : x)) });
+    qc.setQueryData<RQDetail>(['rq', id], (cur) => cur && { ...cur, candidates: cur.candidates.map((x) => (x.id === c.id ? { ...x, stage: { id: st.id, code: st.code, label: st.label }, stageAt: st.id === x.stage.id ? x.stageAt : new Date().toISOString(), vacancyId: vacancyId ?? x.vacancyId } : x)) });
     try {
       await http.patch(`${RQ_API}/candidates/${c.id}`, { stageId, vacancyId: vacancyId ?? null });
       toast.success(t('rq.cand.moved', { name: fullTalentName(c.talent), stage: label(st.label) }));
@@ -117,6 +121,7 @@ export function RequirementDetail() {
       </div>
 
       {tab === 'pipeline' && <>
+        {alerts && alerts.inProcess > 0 && <StaleBanner days={daysSince(alerts.lastMoveAt)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
         <div className="rq-filters">
           <div className="chips" role="group" aria-label={t('rq.vacancyFilter')}>
             <button type="button" className={`chip chip-toggle${vacancy === '' ? ' on' : ''}`} onClick={() => setVacancy('')}>{t('rq.allVacancies')}</button>
@@ -154,6 +159,7 @@ export function RequirementDetail() {
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}
+                {alerts && <CandidateIdle days={idle(c)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
                 {c.talent.blacklisted && <span className="badge badge-danger" title={t('blacklist.inBlacklist')}><TriangleAlert size={12} />{t('rq.cand.blacklisted')}</span>}
               </div>
             </article>

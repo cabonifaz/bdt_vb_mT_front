@@ -6,11 +6,12 @@ import type { TFunction } from 'i18next';
 import i18n from 'i18next';
 import { http } from './api';
 
-export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED' | 'SUPPORT_NEW' | 'SUPPORT_REPLY' | 'RELEASE_NOTE' | 'FEATURE_NEW' | 'FEATURE_ENABLED' | 'VERSION_PUBLISHED';
+export type NotificationType = 'TALENT_CREATED' | 'TALENT_UPDATED' | 'RQ_CREATED' | 'RQ_UPDATED' | 'SUPPORT_NEW' | 'SUPPORT_REPLY' | 'RELEASE_NOTE' | 'FEATURE_NEW' | 'FEATURE_ENABLED' | 'VERSION_PUBLISHED' | 'RQ_STALE';
 export type AppNotification = {
-  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT' | 'SUPPORT' | 'RELEASE' | 'FEATURE' | 'VERSION'; entityId: string;
+  id: string; type: NotificationType; entityType: 'TALENT' | 'REQUIREMENT' | 'SUPPORT' | 'RELEASE' | 'FEATURE' | 'VERSION' | 'REQUIREMENT_STALE'; entityId: string;
   /** title: texto, o {es, en} en las novedades; number: número de la solicitud de soporte */
-  payload: { name?: string; headline?: string; code?: string; title?: string | Record<string, string>; client?: string; status?: string; number?: number; tenant?: string; module?: string };
+  payload: { name?: string; headline?: string; code?: string; title?: string | Record<string, string>; client?: string; status?: string; number?: number; tenant?: string; module?: string;
+    /** RQ sin movimiento: días y nivel; en el resumen, cuántos RQ */ days?: number; level?: number; count?: number };
   count: number; createdAt: string; at: string; readAt?: string; actor?: { id: string; name: string };
 };
 export type Inbox = { unread: number; items: AppNotification[] };
@@ -65,7 +66,8 @@ export function notificationText(n: AppNotification, t: TFunction) {
   const name = n.payload.name || '—';
   const raw = n.payload.title;
   const title = typeof raw === 'object' && raw ? (raw[i18n.language?.slice(0, 2)] ?? raw.es ?? '') : (raw ?? '');
-  return t(`notifications.text.${n.type}`, { who, name, code: n.payload.code ?? '', title, number: n.payload.number ?? '', status: t(`support.status.${n.payload.status ?? 'OPEN'}`), defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
+  if (n.entityType === 'REQUIREMENT_STALE') return t('notifications.text.RQ_STALE_SUMMARY', { count: n.payload.count ?? 0 });
+  return t(`notifications.text.${n.type}`, { days: n.payload.days ?? 0, who, name, code: n.payload.code ?? '', title, number: n.payload.number ?? '', status: t(`support.status.${n.payload.status ?? 'OPEN'}`), defaultValue: n.type }) + (n.count > 1 ? ` ${t('notifications.changes', { count: n.count })}` : '');
 }
 
 const FEATURE_PATHS: Record<string, string> = { talents: 'talentos', favorites: 'favoritos', interviews: 'entrevistas', blacklist: 'lista-negra',
@@ -80,6 +82,7 @@ export function notificationLink(n: AppNotification, slug: string) {
     case 'SUPPORT': return `${base}/soporte/${n.entityId}`;
     case 'RELEASE': return `${base}/novedades`;
     case 'VERSION': return `${base}/versiones`;
+    case 'REQUIREMENT_STALE': return `${base}/requerimientos?vista=sin-movimiento`;
     // funcionalidad nueva: al Super Admin a su catálogo; activada: al módulo correspondiente
     case 'FEATURE': return slug ? `${base}/${FEATURE_PATHS[n.payload.module ?? ''] ?? ''}` : '/admin/funcionalidades';
     default: return base;

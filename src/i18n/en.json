@@ -839,7 +839,10 @@
       "RELEASE_NOTE": "What's new: {{title}}",
       "FEATURE_NEW": "New feature to activate: {{title}}",
       "FEATURE_ENABLED": "You can now use: {{title}}",
-      "VERSION_PUBLISHED": "Version {{title}} was released. Reload the app to use it."
+      "VERSION_PUBLISHED": "Version {{title}} was released. Reload the app to use it.",
+      "RQ_STALE": "{{code}} · {{title}} has gone {{days}} days without candidate stage changes",
+      "RQ_STALE_SUMMARY_one": "{{count}} requirement has gone days without candidate stage changes",
+      "RQ_STALE_SUMMARY_other": "{{count}} requirements have gone days without candidate stage changes"
     },
     "types": {
       "TALENT_CREATED": "New talent",
@@ -851,7 +854,8 @@
       "RELEASE_NOTE": "Platform news",
       "FEATURE_NEW": "New features to activate",
       "FEATURE_ENABLED": "Features enabled in your company",
-      "VERSION_PUBLISHED": "New versions"
+      "VERSION_PUBLISHED": "New versions",
+      "RQ_STALE": "Stalled requirements"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1020,7 +1024,8 @@
       "OVERDUE": "Overdue",
       "NEW": "New",
       "CLOSED": "Closed",
-      "ALL": "All"
+      "ALL": "All",
+      "STALE": "Stalled"
     },
     "scopeHint": {
       "ACTIVE": "Open and in progress, not overdue",
@@ -1028,7 +1033,8 @@
       "OVERDUE": "Open with a past due date",
       "NEW": "Open, registered in the last 7 days",
       "CLOSED": "Fulfilled, finished, lost and cancelled",
-      "ALL": "All requirements"
+      "ALL": "All requirements",
+      "STALE": "Open requirements where no candidate changed stage within the configured days"
     },
     "allContacts": "All contacts",
     "searchContact": "Search contact",
@@ -1079,6 +1085,30 @@
       "requestFor": "Request {{name}}",
       "notRequested": "Not requested",
       "summary": "Documents complete: {{done}} of {{total}}"
+    },
+    "statsStale_one": "{{count}} stalled",
+    "statsStale_other": "{{count}} stalled",
+    "stale": {
+      "badge": "Stalled · {{days}} d",
+      "tip": "No candidate has changed stage for {{days}} days",
+      "tipCandidates_one": "{{count}} candidate stuck",
+      "tipCandidates_other": "{{count}} candidates stuck",
+      "warning": "Stalled:",
+      "critical": "Critical alert:",
+      "banner_one": "no candidate has changed stage for {{count}} day.",
+      "banner_other": "no candidate has changed stage for {{count}} days.",
+      "candDays_one": "{{count}} d in stage",
+      "candDays_other": "{{count}} d in stage",
+      "candTip_one": "{{count}} day in this stage",
+      "candTip_other": "{{count}} days in this stage",
+      "settings": "Alerts",
+      "settingsTitle": "Stalled requirement alerts",
+      "settingsHint": "An open requirement is \"stalled\" when no candidate changes stage (or is added) for these days. It is flagged on the board and the requirement owners and selection leads are notified.",
+      "warnDays": "Warning from (days)",
+      "criticalDays": "Critical from (days)",
+      "notify": "Send notifications to owners and selection leads",
+      "invalid": "Must be greater than the warning days (max 180).",
+      "saved": "Alerts saved."
     }
   },
   "docs": {

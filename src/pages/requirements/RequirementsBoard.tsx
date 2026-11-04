@@ -1,13 +1,14 @@
 // Tablero de requerimientos (Kanban por estado): Registrado → Asignado → En selección → En producción → Cerrados.
 // Arrastrar una tarjeta cambia el estado del RQ (rq.write); al soltar en "Cerrados" se elige el motivo de cierre.
-// Vistas: por defecto solo lo abierto y sin vencer; las pestañas llevan a por vencer, vencidos, nuevos, cerrados o todo.
+// Vistas: por defecto solo lo abierto y sin vencer; las pestañas llevan a por vencer, vencidos, nuevos, sin movimiento,
+// cerrados o todo. "Sin movimiento" (y su etiqueta en la tarjeta) depende de la funcionalidad rq_stale_alerts.
 // En la vista Cerrados hay una columna por motivo de cierre.
 // Filtros en memoria (nunca en la URL): texto, cliente, contacto del cliente, perfil y "solo míos".
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { CalendarClock, Plus, Users, X } from 'lucide-react';
+import { BellRing, CalendarClock, Plus, Users, X } from 'lucide-react';
 import { http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { useLabel } from '../../lib/talents';
@@ -22,16 +23,18 @@ import { useToast } from '../../components/ui/Toast';
 import { Loader } from '../../components/ui/Loader';
 import { RequirementEditor } from './RequirementEditor';
 import { ReopenModal } from './ReopenModal';
+import { StaleBadge, StaleSettingsModal } from './StaleAlerts';
 
 const CLOSED = 'CLOSED';
 type Item = { id: string; table: string; code: string; label: Record<string, string>; sortOrder: number; str1?: string };
 const initials = (name: string) => name.split(' ').filter(Boolean).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-const countKey: Record<BoardScope, keyof BoardCounts> = { ACTIVE: 'active', SOON: 'soon', OVERDUE: 'overdue', NEW: 'new', CLOSED: 'closed', ALL: 'all' };
+const countKey: Record<BoardScope, keyof BoardCounts> = { ACTIVE: 'active', SOON: 'soon', OVERDUE: 'overdue', NEW: 'new', STALE: 'stale', CLOSED: 'closed', ALL: 'all' };
 
 export function RequirementsBoard() {
   const { t, i18n } = useTranslation();
   const label = useLabel();
-  const { can } = useAuth();
+  const { can, has } = useAuth();
+  const staleOn = has('rq_stale_alerts');
   const { tenant = '' } = useParams();
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -39,7 +42,11 @@ export function RequirementsBoard() {
   const errText = useErrorText();
   const cat = useRqCatalogs();
   const [text, setText] = useState('');
-  const [filters, setFilters] = useState<BoardFilters>(EMPTY_BOARD_FILTERS);
+  // ?vista=sin-movimiento (enlace de la notificación) abre esa vista; el parámetro se quita enseguida
+  const [params, setParams] = useSearchParams();
+  const [filters, setFilters] = useState<BoardFilters>(() => (params.get('vista') === 'sin-movimiento' ? { ...EMPTY_BOARD_FILTERS, scope: 'STALE' } : EMPTY_BOARD_FILTERS));
+  useEffect(() => { if (params.has('vista')) setParams({}, { replace: true }); }, [params, setParams]);
+  const [alertsOpen, setAlertsOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [closing, setClosing] = useState<RQCard | null>(null);
   const [reopening, setReopening] = useState<{ card: RQCard; statusId: string } | null>(null);
@@ -114,13 +121,18 @@ export function RequirementsBoard() {
               {t('rq.statsOpen', { count: counts.active + counts.overdue })}
               {counts.overdue > 0 && <> · <button type="button" className="link-button rq-stat-overdue" onClick={() => set({ scope: 'OVERDUE' })}>
                 {t('rq.statsOverdue', { count: counts.overdue })}</button></>}
+              {staleOn && counts.stale > 0 && <> · <button type="button" className="link-button rq-stat-stale" onClick={() => set({ scope: 'STALE' })} data-testid="rq-stat-stale">
+                {t('rq.statsStale', { count: counts.stale })}</button></>}
             </p>
           )}
         </div>
-        {canWrite && <Button onClick={() => setCreating(true)} data-testid="rq-new"><Plus size={16} />{t('rq.new')}</Button>}
+        <div className="row" style={{ gap: 8 }}>
+          {staleOn && can('rq.alerts.manage') && <Button variant="secondary" onClick={() => setAlertsOpen(true)} data-testid="rq-alerts"><BellRing size={16} />{t('rq.stale.settings')}</Button>}
+          {canWrite && <Button onClick={() => setCreating(true)} data-testid="rq-new"><Plus size={16} />{t('rq.new')}</Button>}
+        </div>
       </div>
       <div className="rq-scopes" role="group" aria-label={t('rq.scopeLabel')} data-testid="rq-scopes">
-        {BOARD_SCOPES.map((s) => (
+        {BOARD_SCOPES.filter((s) => s !== 'STALE' || staleOn).map((s) => (
           <button key={s} type="button" className={`rq-scope rq-scope-${s.toLowerCase()}${filters.scope === s ? ' active' : ''}`}
             aria-pressed={filters.scope === s} title={t(`rq.scopeHint.${s}`)} onClick={() => set({ scope: s })} data-testid={`rq-scope-${s}`}>
             {t(`rq.scope.${s}`)}
@@ -169,6 +181,7 @@ export function RequirementsBoard() {
                 </div>
                 <Link to={`/${tenant}/requerimientos/${c.id}`} className="rq-title" draggable={false}>{c.title}</Link>
                 <div className="rq-client">{label(c.client.label)}</div>
+                {staleOn && c.stale && <StaleBadge stale={c.stale} />}
                 {(c.profiles ?? []).length > 0 && (
                   <ul className="rq-profiles">{c.profiles!.map((p, i) => <li key={i}><span>{label(p.label)}</span><span className="muted">{p.covered}/{p.total}</span></li>)}</ul>
                 )}
@@ -192,6 +205,7 @@ export function RequirementsBoard() {
             );
           }} />
       )}
+      {alertsOpen && <StaleSettingsModal onClose={() => setAlertsOpen(false)} />}
       {creating && <RequirementEditor onClose={() => setCreating(false)} onSaved={(id) => {
         setCreating(false);
         void qc.invalidateQueries({ queryKey: ['rq-board'] });

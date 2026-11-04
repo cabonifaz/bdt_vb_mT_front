@@ -17,6 +17,8 @@ export type RQCard = {
   client: { id: string; label: I18nLabel }; status: RQStatus; modality?: { code: string; label: I18nLabel } | null;
   owners: RQOwner[]; vacancies: number; covered: number; candidates: number;
   profiles: { label: I18nLabel; total: number; covered: number }[] | null;
+  /** sin movimiento: ningún postulante cambió de etapa en los días de atención (1) o críticos (2) */
+  stale?: { level: 1 | 2; days: number; candidates: number } | null;
 };
 export type RQVacancy = {
   id: string; profileId: string; profile: I18nLabel; quantity: number; rateInitial?: number | null; rateFinal?: number | null; covered: number;
@@ -34,6 +36,8 @@ export type RQContact = { id: string; firstName: string; lastName: string; secon
 export type RQResignation = { at: string; offboard: 'PENDING' | 'EFFECTIVE'; offboardAt?: string | null };
 export type RQCandidate = {
   id: string; vacancyId: string; boardOrder: number; notes?: string | null; updatedAt: string;
+  /** desde cuándo está en su etapa actual */
+  stageAt?: string;
   stage: { id: string; code: string; label: I18nLabel };
   resignation?: RQResignation | null;
   /** estado de cada documento que pide el RQ */
@@ -43,6 +47,8 @@ export type RQCandidate = {
 export type RQDetail = {
   id: string; code: string; title: string; description?: string | null; version: number; requestDate: string; dueDate: string;
   closed: boolean; canSeeRates: boolean; createdAt: string; updatedAt?: string | null;
+  /** umbrales de las alertas sin movimiento, último movimiento del RQ y postulantes en proceso */
+  alerts?: { warnDays: number; criticalDays: number; lastMoveAt?: string | null; inProcess: number };
   client: { id: string; label: I18nLabel; ruc?: string | null; address?: string | null }; status: RQStatus;
   durationValue?: number | null; durationUnitId?: string | null; contractValue?: number | null; contractUnitId?: string | null;
   workModalityId?: string | null; needsEmo: boolean; needsSctr: boolean; needsLaptop: boolean; owners: RQOwner[];
@@ -56,11 +62,14 @@ export type RQApplication = {
   resignation?: RQResignation | null;
 };
 /** Vistas del tablero: ACTIVE (por defecto) = abiertos sin vencer; el resto se elige con las pestañas. */
-export const BOARD_SCOPES = ['ACTIVE', 'SOON', 'OVERDUE', 'NEW', 'CLOSED', 'ALL'] as const;
+export const BOARD_SCOPES = ['ACTIVE', 'SOON', 'OVERDUE', 'NEW', 'STALE', 'CLOSED', 'ALL'] as const;
 export type BoardScope = (typeof BOARD_SCOPES)[number];
 export type BoardFilters = { scope: BoardScope; search: string; clientId: string; contactId: string; profileId: string; mine: boolean };
 export const EMPTY_BOARD_FILTERS: BoardFilters = { scope: 'ACTIVE', search: '', clientId: '', contactId: '', profileId: '', mine: false };
-export type BoardCounts = { active: number; soon: number; overdue: number; new: number; closed: number; all: number };
+export type BoardCounts = { active: number; soon: number; overdue: number; new: number; closed: number; all: number; stale: number };
+/** Alertas de RQ sin movimiento del tenant. */
+export type RQAlertSettings = { warnDays: number; criticalDays: number; notify: boolean };
+export const useRqAlertSettings = () => useQuery({ queryKey: ['rq-alert-settings'], queryFn: () => http.get<RQAlertSettings>(`${RQ_API}/alert-settings`) });
 export type BoardData = { cards: RQCard[]; counts: BoardCounts };
 
 /** Catálogos del módulo (estados, perfiles, unidades, modalidades, etapas, monedas, skills, grados, clientes). */
