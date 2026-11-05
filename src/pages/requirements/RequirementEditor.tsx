@@ -10,6 +10,7 @@ import { useAuth } from '../../providers/auth';
 import { useLabel } from '../../lib/talents';
 import { todayISO } from '../../lib/modules';
 import { RQ_API, useClientContacts, useRqCatalogs, type RQDetail, type RQOwner } from '../../lib/requirements';
+import { suggestedTariff, type SuggestedTariff } from '../../lib/igdt';
 import { byOrder, useDocRules, type DocMode, type DocRule, type RQDocument } from '../../lib/documents';
 import { Button, Field, Modal, useErrorText } from '../../components/ui';
 import { SearchSelect, type SearchOption } from '../../components/ui/SearchSelect';
@@ -259,7 +260,7 @@ function VacanciesTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
                 <Button size="sm" variant="ghost" type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : v.id)}>{isOpen ? t('common.close') : t('talents.edit').split(' ')[0]}</Button>
                 <Button size="sm" variant="ghost" type="button" onClick={() => set('vacancies', d.vacancies.filter((x) => x.id !== v.id))} aria-label={t('rq.removeVacancy')}><Trash2 size={15} /></Button>
               </div>
-              {isOpen && <VacancyForm v={v} upd={(p) => upd(v.id, p)} canRates={canRates} />}
+              {isOpen && <VacancyForm v={v} upd={(p) => upd(v.id, p)} canRates={canRates} clientId={d.clientId} />}
             </div>
           );
         })}
@@ -268,10 +269,23 @@ function VacanciesTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
   );
 }
 
-function VacancyForm({ v, upd, canRates }: { v: Vac; upd: (p: Partial<Vac>) => void; canRates: boolean }) {
+function VacancyForm({ v, upd, canRates, clientId }: { v: Vac; upd: (p: Partial<Vac>) => void; canRates: boolean; clientId: string }) {
   const { t } = useTranslation();
   const label = useLabel();
   const cat = useRqCatalogs();
+  const { has } = useAuth();
+  // con la integración IGDT, al elegir el perfil se propone la tarifa del tarifario (la del cliente o la general)
+  const [tariff, setTariff] = useState<SuggestedTariff | null>(null);
+  const pickProfile = async (profileId: string) => {
+    upd({ profileId });
+    setTariff(null);
+    if (!profileId || !canRates || !has('igdt_catalogs')) return;
+    try {
+      const s = await suggestedTariff(profileId, clientId, todayISO());
+      setTariff(s);
+      if (s && !v.rateInitial) upd({ profileId, rateInitial: String(s.rate) });
+    } catch { /* sin tarifa sugerida */ }
+  };
   const [skill, setSkill] = useState('');
   const [years, setYears] = useState('');
   const skills = cat.byTable('TECH_SKILL');
@@ -285,12 +299,13 @@ function VacancyForm({ v, upd, canRates }: { v: Vac; upd: (p: Partial<Vac>) => v
     <div className="sub-form">
       <div className="form-grid">
         <div className="field"><label htmlFor={`vp-${v.id}`}>{t('rq.profile')}</label>
-          <select id={`vp-${v.id}`} className="select" value={v.profileId} onChange={(e) => upd({ profileId: e.target.value })} data-testid="rq-vacancy-profile">
+          <select id={`vp-${v.id}`} className="select" value={v.profileId} onChange={(e) => void pickProfile(e.target.value)} data-testid="rq-vacancy-profile">
             <option value="">—</option>{cat.byTable('RQ_PROFILE').map((p) => <option key={p.id} value={p.id}>{label(p.label)}</option>)}</select></div>
         <Field label={t('rq.quantity')} type="number" min={1} max={500} value={v.quantity} onChange={(e) => upd({ quantity: e.target.value })} />
         {canRates && <Field label={t('rq.rateInitial')} type="number" min={0} step="0.01" value={v.rateInitial} onChange={(e) => upd({ rateInitial: e.target.value })} />}
         {canRates && <Field label={t('rq.rateFinal')} type="number" min={0} step="0.01" value={v.rateFinal} onChange={(e) => upd({ rateFinal: e.target.value })} />}
       </div>
+      {tariff && <p className="muted igdt-tariff" data-testid="rq-suggested-rate">{t(tariff.scope === 'CLIENT' ? 'igdt.tariffClient' : 'igdt.tariffGeneral', { rate: tariff.rate.toLocaleString(), currency: tariff.currency, type: label(tariff.rateType.label) })}</p>}
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field" style={{ flex: 1, minWidth: 180 }}>
           <label htmlFor={`vs-${v.id}`}>{t('rq.skills')}</label>
@@ -332,7 +347,8 @@ function VacancyForm({ v, upd, canRates }: { v: Vac; upd: (p: Partial<Vac>) => v
 
 function ContactsTab({ d, set }: TabProps) {
   const { t } = useTranslation();
-  const { can } = useAuth();
+  const { can, has } = useAuth();
+  const igdt = has('igdt_catalogs'); // los contactos se administran en IGDT
   const toast = useToast();
   const errText = useErrorText();
   const contacts = useClientContacts(d.clientId);
@@ -362,7 +378,8 @@ function ContactsTab({ d, set }: TabProps) {
           </label>
         ))}
       </div>
-      {can('rq.write') && (form ? (
+      {igdt && <p className="muted" data-testid="contacts-igdt">{t('igdt.contactsHint')}</p>}
+      {can('rq.write') && !igdt && (form ? (
         <div className="sub-form">
           <div className="form-grid">
             <Field label={t('talents.firstName')} required maxLength={100} value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />

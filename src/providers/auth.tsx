@@ -13,6 +13,8 @@ interface AuthCtx {
   can: (perm: string) => boolean;
   /** la funcionalidad está habilitada para la empresa del usuario */
   has: (feature: string) => boolean;
+  /** vuelve a leer el usuario (permisos y funcionalidades), p. ej. tras conectar la integración con IGDT */
+  reload: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx>(null!);
@@ -58,11 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const reload = useCallback(async () => {
+    const me = await http.get<Me>('/api/v1/auth/me');
+    setUser(me);
+  }, []);
+
   const can = useCallback((perm: string) => !!user?.permissions.includes(perm), [user]);
   // sin catálogo (Super Admin o una API anterior) todo está habilitado
   const has = useCallback((feature: string) => !user || user.isPlatform || !user.features || user.features.includes(feature), [user]);
 
-  return <Ctx.Provider value={{ user, ready, login, logout, can, has }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, ready, login, logout, can, has, reload }}>{children}</Ctx.Provider>;
 }
 
 export const useAuth = () => useContext(Ctx);

@@ -117,7 +117,8 @@
     "features": "Features",
     "manual": "Manual",
     "versions": "Versions",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "igdt": "IGDT integration"
   },
   "home": {
     "welcome": "Hi, {{name}}",
@@ -351,7 +352,15 @@
     "CANDIDATE_RESIGNED": "The candidate resigned: they stay in the requirement history and can no longer be moved or removed.",
     "RESIGNED_CANDIDATE_INVALID": "Select who resigned: it must be a confirmed candidate of this requirement.",
     "FEATURE_DISABLED": "This feature is not enabled for your company.",
-    "FEATURE_CORE": "It is a core feature: it cannot be suspended."
+    "FEATURE_CORE": "It is a core feature: it cannot be suspended.",
+    "MANAGED_BY_IGDT": "This catalog is managed in IGDT. Make the change there and BDT will receive it on the next sync.",
+    "IGDT_KEY_INVALID": "The IGDT token is invalid or disabled.",
+    "IGDT_SCOPE_MISSING": "The IGDT token lacks the catalog permissions (read and initial load).",
+    "IGDT_TENANT_MISMATCH": "The token belongs to another company in IGDT.",
+    "IGDT_UNAVAILABLE": "IGDT did not respond. Try again in a few minutes.",
+    "IGDT_NOT_CONFIGURED": "The IGDT integration is not enabled in this environment.",
+    "IGDT_NOT_CONNECTED": "The company is not connected to IGDT.",
+    "APPLY_FAILED": "the received changes could not be applied"
   },
   "talents": {
     "title": "Talents",
@@ -1563,5 +1572,41 @@
       "reason": "Reason",
       "candAvg": "Avg. candidates"
     }
+  },
+  "igdt": {
+    "title": "IGDT integration",
+    "subtitle": "IGDT (Talent Hiring and Management) is the single master of client, contract, profile and rate catalogs.",
+    "unavailable": "The IGDT integration is not enabled in this environment.",
+    "stateOn": "Connected to IGDT",
+    "stateOnHint": "Shared catalogs are managed in IGDT and are read-only here.",
+    "stateOff": "Not connected",
+    "stateOffHint": "Until you connect the company, you manage all lists here in BDT.",
+    "remoteTenant": "Company in IGDT",
+    "importedAt": "Initial load",
+    "lastSync": "Last sync",
+    "copy": "Copy in BDT",
+    "copyCounts": "{{clients}} clients · {{contacts}} contacts · {{tariffs}} rates",
+    "lastError": "The last sync failed: {{error}}.",
+    "syncNow": "Sync now",
+    "disconnect": "Disconnect",
+    "connect": "Connect to IGDT",
+    "token": "IGDT integration token",
+    "tokenHint": "Request it in IGDT (Administration › Integration API) with catalog permissions; it starts with igdt_. It is not shown again.",
+    "whatTitle": "What IGDT governs",
+    "whatHint": "With the integration active, these catalogs are created and edited only in IGDT:",
+    "contactsAndTariffs": "Client contacts and rates",
+    "howTitle": "How it works",
+    "step1": "When connecting, the clients, contacts and profiles you already have in BDT are sent to IGDT (kept; requirements do not change).",
+    "step2": "From then on they are edited in IGDT and are read-only here.",
+    "step3": "BDT pulls IGDT changes every 5 minutes, or when you press \"Sync now\".",
+    "step4": "If you disconnect, you manage them in BDT again (the copy is kept).",
+    "connected": "Company connected to IGDT. Catalogs synced.",
+    "synced": "Catalogs synced.",
+    "disconnected": "Integration disconnected: catalogs are managed in BDT again.",
+    "confirmDisconnect": "Disconnect from IGDT? Catalogs will be managed in BDT again and will stop syncing.",
+    "managedBanner": "This catalog is managed in IGDT (single master). Changes reach BDT automatically.",
+    "contactsHint": "Client contacts are managed in IGDT. If one is missing, create it there and it will appear here after the sync.",
+    "tariffClient": "Client rate in IGDT: {{currency}} {{rate}} ({{type}})",
+    "tariffGeneral": "General profile rate in IGDT: {{currency}} {{rate}} ({{type}})"
   }
 }

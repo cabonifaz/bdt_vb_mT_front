@@ -28,6 +28,7 @@ const pages = {
   dashboard: () => import('./pages/dashboard/SelectionDashboard'),
   rqDetail: () => import('./pages/requirements/RequirementDetail'),
   clients: () => import('./pages/clients/Clients'),
+  igdt: () => import('./pages/tenant/IgdtIntegration'),
   documentRules: () => import('./pages/tenant/DocumentRules'),
   support: () => import('./pages/support/SupportPages'),
   manual: () => import('./pages/help/Manual'),
@@ -56,6 +57,7 @@ const Interviews = lazy(() => pages.interviews().then((m) => ({ default: m.Inter
 const SelectionDashboard = lazy(() => pages.dashboard().then((m) => ({ default: m.SelectionDashboard })));
 const RequirementsBoard = lazy(() => pages.rqBoard().then((m) => ({ default: m.RequirementsBoard })));
 const RequirementDetail = lazy(() => pages.rqDetail().then((m) => ({ default: m.RequirementDetail })));
+const IgdtIntegration = lazy(() => pages.igdt().then((m) => ({ default: m.IgdtIntegration })));
 const Clients = lazy(() => pages.clients().then((m) => ({ default: m.Clients })));
 const Versions = lazy(() => pages.versions().then((m) => ({ default: m.Versions })));
 const Manual = lazy(() => pages.manual().then((m) => ({ default: m.Manual })));
@@ -136,6 +138,7 @@ function TenantRoutes() {
             { to: '/marca', label: t('nav.branding'), icon: 'brush', perm: 'tenant.branding.manage' },
             { to: '/usuarios', label: t('nav.users'), icon: 'users', perm: 'tenant.users.manage' },
             { to: '/api', label: t('nav.apiKeys'), icon: 'key', perm: 'tenant.apikeys.request', feature: 'api_keys' },
+            { to: '/integracion-igdt', label: t('nav.igdt'), icon: 'link', perm: 'tenant.integrations.manage' },
           ] },
         ]} />}>
           <Route index element={<Home />} />
@@ -153,6 +156,7 @@ function TenantRoutes() {
           <Route path="lista-negra" element={<Blacklist />} />
           <Route path="lista-negra/:id" element={<Blacklist />} />
           <Route path="clientes" element={<Clients />} />
+          <Route path="integracion-igdt" element={<IgdtIntegration />} />
           <Route path="documentos" element={<DocumentRules />} />
           <Route path="soporte" element={<SupportList />} />
           <Route path="soporte/:id" element={<SupportDetail />} />

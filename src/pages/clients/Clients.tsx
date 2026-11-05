@@ -9,12 +9,16 @@ import { useToast } from '../../components/ui/Toast';
 import { Icon } from '../../components/ui/Icon';
 import { fold } from '../../components/ui/SearchSelect';
 import { Loader } from '../../components/ui/Loader';
+import { useAuth } from '../../providers/auth';
+import { ManagedByIgdt } from '../tenant/IgdtIntegration';
 
-/** Catálogo de clientes del tenant (se usa en lista negra y entrevistas). */
+/** Catálogo de clientes del tenant (lista negra, entrevistas y RQ). Con la integración IGDT activa se administra en IGDT. */
 export function Clients() {
   const { t } = useTranslation();
   const label = useLabel();
   const qc = useQueryClient();
+  const { has } = useAuth();
+  const locked = has('igdt_catalogs');
   const [editing, setEditing] = useState<ClientItem | null | 'new'>(null);
   const [text, setText] = useState('');
   const list = useQuery({ queryKey: ['clients-admin'], queryFn: () => cachedGet<ClientItem[]>('/api/v1/masters/items?tables=CLIENT&includeInactive=true') });
@@ -24,8 +28,9 @@ export function Clients() {
     <div className="page">
       <div className="page-header">
         <div><h1>{t('clients.title')}</h1><p className="muted">{t('clients.subtitle')}</p></div>
-        <Button onClick={() => setEditing('new')} data-testid="new-client"><Icon name="plus" size={16} />{t('clients.new')}</Button>
+        {!locked && <Button onClick={() => setEditing('new')} data-testid="new-client"><Icon name="plus" size={16} />{t('clients.new')}</Button>}
       </div>
+      {locked && <ManagedByIgdt />}
       <Card>
         <div className="list-toolbar">
           <input className="input list-search" type="search" placeholder={t('clients.search')} aria-label={t('clients.search')} value={text} onChange={(e) => setText(e.target.value)} data-testid="client-search" />
@@ -39,7 +44,7 @@ export function Clients() {
                 <tr key={c.id} data-testid="client-row">
                   <td><strong>{label(c.label)}</strong></td><td>{c.str1 || '—'}</td><td>{c.str2 || '—'}</td>
                   <td><StatusBadge status={c.isActive ? 'ACTIVE' : 'DISABLED'} /></td>
-                  <td><button className="icon-ghost" onClick={() => setEditing(c)} aria-label={t('talents.edit')}><Icon name="edit" size={15} /></button></td>
+                  <td>{!locked && <button className="icon-ghost" onClick={() => setEditing(c)} aria-label={t('talents.edit')}><Icon name="edit" size={15} /></button>}</td>
                 </tr>
               ))}
             </tbody>
