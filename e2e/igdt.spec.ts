@@ -20,7 +20,7 @@ async function igdtToken() {
   const pwd = `E2e-${Date.now()}-Seguro!`;
   await ctx.post(`/api/v1/invitations/${inv.link.split('/invitacion/')[1]}/accept`, { data: { fullName: 'Admin E2E', password: pwd, locale: 'es' } });
   const admin = await login('fractal', email, pwd);
-  const key = await (await ctx.post('/api/v1/tenant/api-keys', { headers: auth(admin), data: { name: 'BDT e2e', scopes: ['masters.read', 'catalog.import', 'requirements.write', 'hires.write'] } })).json();
+  const key = await (await ctx.post('/api/v1/tenant/api-keys', { headers: auth(admin), data: { name: 'BDT e2e', scopes: ['masters.read', 'catalog.import', 'requirements.write', 'hires.write', 'hires.read'] } })).json();
   await ctx.patch(`/api/v1/platform/api-keys/${key.id}/status`, { headers: auth(sa), data: { status: 'ENABLED' } });
   return key.secret as string;
 }

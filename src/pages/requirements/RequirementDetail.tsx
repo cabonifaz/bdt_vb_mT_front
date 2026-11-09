@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CalendarClock, Pencil, Plus, RotateCcw, Trash2, TriangleAlert, UserPlus } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, CalendarClock, Pencil, Plus, RotateCcw, Trash2, TriangleAlert, UserPlus } from 'lucide-react';
 import { ApiError, http } from '../../lib/api';
 import { useAuth } from '../../providers/auth';
 import { TALENT_API, useLabel, type TalentSummary } from '../../lib/talents';
@@ -138,7 +138,7 @@ export function RequirementDetail() {
           })()}
           {canMove && <Button size="sm" onClick={() => setAdding(true)} data-testid="rq-add-candidate"><UserPlus size={15} />{t('rq.cand.add')}</Button>}
         </div>
-        <Kanban<RQCandidate> ariaLabel={t('rq.tab.pipeline')} testId="rq-pipeline" items={cands} columnOf={(c) => c.stage.id} canDrag={(c) => canMove && !c.resignation}
+        <Kanban<RQCandidate> ariaLabel={t('rq.tab.pipeline')} testId="rq-pipeline" items={cands} columnOf={(c) => c.stage.id} canDrag={(c) => canMove && !c.resignation && !c.hire}
           columns={stages.map((s) => ({ id: s.id, title: label(s.label), tone: s.code.toLowerCase() }))} empty={t('rq.cand.emptyColumn')}
           onMove={(c, to) => void move(c, to)}
           renderCard={(c) => (
@@ -149,7 +149,7 @@ export function RequirementDetail() {
                   <button type="button" className="cand-name link-button" onClick={() => setOpenCand(c.id)} data-testid="cand-open">{fullTalentName(c.talent)}</button>
                   {c.talent.headline && <div className="cand-sub">{c.talent.headline}</div>}
                 </div>
-                {canMove && !c.resignation && (
+                {canMove && !c.resignation && !c.hire && (
                   <MoveMenu label={t('rq.moveTo')} current={c.stage.id} testId="cand-move"
                     options={[...stageOptions, ...rq.vacancies.filter((v) => v.id !== c.vacancyId).map((v) => ({ id: `vac:${v.id}`, label: t('rq.cand.toVacancy', { profile: label(v.profile) }) })), { id: 'remove', label: t('rq.cand.remove') }]}
                     onPick={(opt) => (opt === 'remove' ? void remove(c) : opt.startsWith('vac:') ? void move(c, c.stage.id, opt.slice(4)) : void move(c, opt))} />
@@ -159,6 +159,7 @@ export function RequirementDetail() {
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}
+                {c.hire && !c.resignation && <span className="badge badge-success" data-testid="cand-hired" title={c.hire.startDate ? t('rq.cand.hiredFrom', { date: c.hire.startDate }) : undefined}><BadgeCheck size={12} />{t('rq.cand.hired')}</span>}
                 {alerts && <CandidateIdle days={idle(c)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
                 {c.talent.blacklisted && <span className="badge badge-danger" title={t('blacklist.inBlacklist')}><TriangleAlert size={12} />{t('rq.cand.blacklisted')}</span>}
               </div>

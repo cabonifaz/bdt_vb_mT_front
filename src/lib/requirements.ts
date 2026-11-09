@@ -40,6 +40,8 @@ export type RQCandidate = {
   stageAt?: string;
   stage: { id: string; code: string; label: I18nLabel };
   resignation?: RQResignation | null;
+  /** ingreso registrado en IGDT (fecha de inicio del contrato) */
+  hire?: { at: string; startDate?: string | null } | null;
   /** estado de cada documento que pide el RQ */
   docs?: CandidateDocState[];
   talent: { id: string; firstName: string; lastName: string; secondLastName?: string | null; headline?: string | null; photoId?: string | null; status: string; blacklisted: boolean };

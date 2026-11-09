@@ -360,7 +360,8 @@
     "IGDT_UNAVAILABLE": "IGDT did not respond. Try again in a few minutes.",
     "IGDT_NOT_CONFIGURED": "The IGDT integration is not enabled in this environment.",
     "IGDT_NOT_CONNECTED": "The company is not connected to IGDT.",
-    "APPLY_FAILED": "the received changes could not be applied"
+    "APPLY_FAILED": "the received changes could not be applied",
+    "CANDIDATE_HIRED": "The candidate is already hired (registered in IGDT): they cannot be moved or removed."
   },
   "talents": {
     "title": "Talents",
@@ -1022,7 +1023,9 @@
       "confirmRemove": "Remove {{name}} from the requirement?",
       "remove": "Remove from RQ",
       "toVacancy": "Move to vacancy {{profile}}",
-      "emptyColumn": "No candidates"
+      "emptyColumn": "No candidates",
+      "hired": "Hired",
+      "hiredFrom": "Hire registered in IGDT · starts {{date}}"
     },
     "applications": "Applications",
     "noApplications": "This talent has not applied to any requirement yet.",
@@ -1591,7 +1594,7 @@
     "disconnect": "Disconnect",
     "connect": "Connect to IGDT",
     "token": "IGDT integration token",
-    "tokenHint": "Request it in IGDT (Administration › Integration API) with the scopes masters.read, catalog.import, requirements.write and hires.write; it starts with igdt_. It is not shown again.",
+    "tokenHint": "Request it in IGDT (Administration › Integration API) with the scopes masters.read, catalog.import, requirements.write, hires.write and hires.read; it starts with igdt_. It is not shown again.",
     "whatTitle": "What IGDT governs",
     "whatHint": "With the integration active, these catalogs are created and edited only in IGDT:",
     "contactsAndTariffs": "Client contacts and rates",

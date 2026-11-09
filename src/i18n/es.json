@@ -360,7 +360,8 @@
     "IGDT_UNAVAILABLE": "IGDT no respondió. Inténtalo en unos minutos.",
     "IGDT_NOT_CONFIGURED": "La integración con IGDT no está habilitada en este ambiente.",
     "IGDT_NOT_CONNECTED": "La empresa no está conectada con IGDT.",
-    "APPLY_FAILED": "no se pudieron aplicar los cambios recibidos"
+    "APPLY_FAILED": "no se pudieron aplicar los cambios recibidos",
+    "CANDIDATE_HIRED": "El candidato ya ingresó (registrado en IGDT): no se puede mover ni retirar del requerimiento."
   },
   "talents": {
     "title": "Talentos",
@@ -1022,7 +1023,9 @@
       "confirmRemove": "¿Quitar a {{name}} del requerimiento?",
       "remove": "Quitar del RQ",
       "toVacancy": "Pasar a vacante {{profile}}",
-      "emptyColumn": "Sin candidatos"
+      "emptyColumn": "Sin candidatos",
+      "hired": "Ingresó",
+      "hiredFrom": "Ingreso registrado en IGDT · inicia el {{date}}"
     },
     "applications": "Postulaciones",
     "noApplications": "Este talento aún no postula a requerimientos.",
@@ -1591,7 +1594,7 @@
     "disconnect": "Desconectar",
     "connect": "Conectar con IGDT",
     "token": "Token de integración de IGDT",
-    "tokenHint": "Pídelo en IGDT (Administración › API de integración) con los alcances masters.read, catalog.import, requirements.write y hires.write; empieza con igdt_. No se vuelve a mostrar.",
+    "tokenHint": "Pídelo en IGDT (Administración › API de integración) con los alcances masters.read, catalog.import, requirements.write, hires.write y hires.read; empieza con igdt_. No se vuelve a mostrar.",
     "whatTitle": "Qué gobierna IGDT",
     "whatHint": "Con la integración activa, estos catálogos se crean y editan solo en IGDT:",
     "contactsAndTariffs": "Contactos de clientes y tarifario",
