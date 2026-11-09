@@ -8,6 +8,8 @@ export type IgdtStatus = {
   connected: boolean; status: 'NONE' | 'ACTIVE' | 'DISABLED'; available: boolean; remoteTenant?: string | null;
   importedAt?: string | null; lastSyncAt?: string | null; lastError?: string | null; cursor: number;
   tables: { code: string; label: I18nLabel }[] | null; counts: { clients: number; contacts: number; tariffs: number };
+  /** bandeja de selección: envíos a IGDT de RQ y candidatos confirmados */
+  selection?: { pending: number; failing: number; lastError?: string | null; lastSentAt?: string | null } | null;
 };
 export type SuggestedTariff = {
   id: string; rate: number; currency: string; rateType: { code: string; label: I18nLabel }; scope: 'GENERAL' | 'CLIENT';

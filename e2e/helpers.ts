@@ -62,3 +62,16 @@ export async function pickOption(scope: Page | Locator, fieldLabel: string, text
   await scope.getByLabel(fieldLabel, { exact: true }).fill(typed);
   await scope.getByRole('option', { name: text }).first().click();
 }
+
+/** Cliente para las pruebas: se crea uno nuevo en BDT; si la empresa está conectada a IGDT (los clientes se
+ *  administran allá y aquí son de solo lectura) se usa uno existente del catálogo sincronizado. */
+export async function testClient(ctx: APIRequestContext, H: Record<string, string>) {
+  const id = crypto.randomUUID();
+  const name = `Cliente E2E ${Date.now()}`;
+  const r = await ctx.put('/api/v1/tenant/masters/items', { headers: H, data: { table: 'CLIENT', id, code: `E2E${Date.now()}`, label: { es: name } } });
+  if (r.ok()) return { id, name, created: true };
+  const list = await (await ctx.get('/api/v1/masters/items?tables=CLIENT', { headers: H })).json() as { id: string; label: { es: string }; isActive?: boolean }[];
+  const c = list.filter((x) => x.isActive !== false && !/E2E|prueba/i.test(x.label.es)).sort((a, b) => a.label.es.localeCompare(b.label.es))[0];
+  expect(c, 'sin clientes para la prueba').toBeTruthy();
+  return { id: c.id, name: c.label.es, created: false };
+}

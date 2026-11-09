@@ -81,7 +81,11 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
   // el borrador se arma cuando llegan los catálogos (estado y unidad por defecto)
   const draft = useMemo(() => d ?? (cat.data ? fromDetail(rq, { statusId: cat.byCode('RQ_STATUS', 'REGISTERED')?.id ?? '', contractUnitId: cat.byCode('TIME_UNIT', 'MONTHS')?.id ?? '' }, label) : null),
     [d, cat.data]); // eslint-disable-line react-hooks/exhaustive-deps
-  const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((cur) => ({ ...(cur ?? draft!), [k]: v }));
+  // v puede ser una función del valor actual: evita pisar cambios hechos mientras se esperaba una respuesta (p. ej. la tarifa sugerida)
+  const set = <K extends keyof Draft>(k: K, v: Draft[K] | ((prev: Draft[K]) => Draft[K])) => setD((cur) => {
+    const base = cur ?? draft!;
+    return { ...base, [k]: typeof v === 'function' ? (v as (prev: Draft[K]) => Draft[K])(base[k]) : v };
+  });
 
   const problems = (x: Draft) => {
     const p: string[] = [];
@@ -159,7 +163,7 @@ export function RequirementEditor({ rq, onClose, onSaved, initialTab = 'data' }:
   );
 }
 
-type TabProps = { d: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K]) => void };
+type TabProps = { d: Draft; set: <K extends keyof Draft>(k: K, v: Draft[K] | ((prev: Draft[K]) => Draft[K])) => void };
 
 function DataTab({ d, set, editing }: TabProps & { editing: boolean }) {
   const { t } = useTranslation();
@@ -243,7 +247,7 @@ function VacanciesTab({ d, set, canRates }: TabProps & { canRates: boolean }) {
     set('vacancies', [...d.vacancies, v]);
     setOpen(v.id);
   };
-  const upd = (id: string, patch: Partial<Vac>) => set('vacancies', d.vacancies.map((v) => (v.id === id ? { ...v, ...patch } : v)));
+  const upd = (id: string, patch: Partial<Vac>) => set('vacancies', (vs) => vs.map((v) => (v.id === id ? { ...v, ...patch } : v)));
   const profileLabel = (id: string) => label(cat.byTable('RQ_PROFILE').find((p) => p.id === id)?.label) || t('rq.noProfile');
   return (
     <div className="stack">
@@ -283,7 +287,7 @@ function VacancyForm({ v, upd, canRates, clientId }: { v: Vac; upd: (p: Partial<
     try {
       const s = await suggestedTariff(profileId, clientId, todayISO());
       setTariff(s);
-      if (s && !v.rateInitial) upd({ profileId, rateInitial: String(s.rate) });
+      if (s && !v.rateInitial) upd({ rateInitial: String(s.rate) });
     } catch { /* sin tarifa sugerida */ }
   };
   const [skill, setSkill] = useState('');

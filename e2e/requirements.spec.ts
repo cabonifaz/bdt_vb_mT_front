@@ -1,5 +1,5 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { apiLogin, createFractalAdmin, pickOption, uiLoginOk as uiLogin } from './helpers';
+import { apiLogin, createFractalAdmin, pickOption, testClient, uiLoginOk as uiLogin } from './helpers';
 
 // flujos largos contra la BD remota de staging: más margen que el límite por defecto
 test.describe.configure({ timeout: 180_000 });
@@ -26,9 +26,8 @@ async function setup() {
   const H = { Authorization: `Bearer ${tok}` };
   const m = await (await admin.ctx.get('/api/v1/masters/items?tables=RQ_STATUS,RQ_PROFILE,CANDIDATE_STAGE', { headers: H })).json() as Masters;
   const id = (table: string, code: string) => m.find((x) => x.table === table && x.code === code)!.id;
-  const client = crypto.randomUUID();
-  const clientName = `Cliente E2E ${Date.now()}`;
-  expect((await admin.ctx.put('/api/v1/tenant/masters/items', { headers: H, data: { table: 'CLIENT', id: client, code: `E2E${Date.now()}`, label: { es: clientName } } })).ok()).toBeTruthy();
+  const tc = await testClient(admin.ctx, H);
+  const client = tc.id, clientName = tc.name;
   return { admin, H, id, client, clientName };
 }
 

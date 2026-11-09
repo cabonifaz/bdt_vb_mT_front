@@ -20,7 +20,7 @@ async function igdtToken() {
   const pwd = `E2e-${Date.now()}-Seguro!`;
   await ctx.post(`/api/v1/invitations/${inv.link.split('/invitacion/')[1]}/accept`, { data: { fullName: 'Admin E2E', password: pwd, locale: 'es' } });
   const admin = await login('fractal', email, pwd);
-  const key = await (await ctx.post('/api/v1/tenant/api-keys', { headers: auth(admin), data: { name: 'BDT e2e', scopes: ['masters.read', 'catalog.import'] } })).json();
+  const key = await (await ctx.post('/api/v1/tenant/api-keys', { headers: auth(admin), data: { name: 'BDT e2e', scopes: ['masters.read', 'catalog.import', 'requirements.write', 'hires.write'] } })).json();
   await ctx.patch(`/api/v1/platform/api-keys/${key.id}/status`, { headers: auth(sa), data: { status: 'ENABLED' } });
   return key.secret as string;
 }
@@ -31,6 +31,9 @@ test('conectar con IGDT: clientes y contactos de solo lectura y desconexión', a
   await page.setViewportSize({ width: 1440, height: 900 });
   await uiLoginOk(page, 'fractal', admin.email, admin.password);
   await page.getByRole('link', { name: 'Integración IGDT' }).click();
+  // si la empresa ya está conectada (ambiente en uso), la prueba no la desconecta
+  await expect(page.getByTestId('igdt-state')).toBeVisible();
+  test.skip((await page.getByTestId('igdt-state').textContent())!.includes('Conectada'), 'Fractal ya está conectada a IGDT: no se desconecta un ambiente en uso');
   await expect(page.getByTestId('igdt-state')).toContainText('Sin conectar');
   await page.getByTestId('igdt-token').fill(token);
   await page.getByTestId('igdt-connect').click();

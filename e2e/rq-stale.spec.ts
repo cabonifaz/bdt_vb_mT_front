@@ -25,7 +25,7 @@ test('RQ sin movimiento: vista, etiqueta, aviso en la ficha y configuración de 
     await expect(card.getByTestId('rq-stale')).toContainText(/Sin movimiento · \d+ d/);
     await card.locator('a.rq-title').click();
     await expect(page.getByTestId('rq-stale-banner')).toContainText(/ningún postulante cambió de etapa hace \d+ días?/);
-    await expect(page.getByTestId('cand-idle').first()).toContainText(/d en etapa/);
+    await expect(page.getByTestId('cand-idle').first()).toContainText(/d háb. en etapa/);
 
     // configuración: con umbrales altos ya no hay RQ sin movimiento
     await page.goto('/fractal/requerimientos');

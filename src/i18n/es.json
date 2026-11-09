@@ -1591,7 +1591,7 @@
     "disconnect": "Desconectar",
     "connect": "Conectar con IGDT",
     "token": "Token de integración de IGDT",
-    "tokenHint": "Pídelo en IGDT (Administración › API de integración) con los permisos de catálogos; empieza con igdt_. No se vuelve a mostrar.",
+    "tokenHint": "Pídelo en IGDT (Administración › API de integración) con los alcances masters.read, catalog.import, requirements.write y hires.write; empieza con igdt_. No se vuelve a mostrar.",
     "whatTitle": "Qué gobierna IGDT",
     "whatHint": "Con la integración activa, estos catálogos se crean y editan solo en IGDT:",
     "contactsAndTariffs": "Contactos de clientes y tarifario",
@@ -1607,6 +1607,13 @@
     "managedBanner": "Este catálogo se administra en IGDT (maestro único). Los cambios llegan a BDT automáticamente.",
     "contactsHint": "Los contactos del cliente se administran en IGDT. Si falta uno, créalo allí y aparecerá aquí tras la sincronización.",
     "tariffClient": "Tarifa del cliente en IGDT: {{currency}} {{rate}} ({{type}})",
-    "tariffGeneral": "Tarifa general del perfil en IGDT: {{currency}} {{rate}} ({{type}})"
+    "tariffGeneral": "Tarifa general del perfil en IGDT: {{currency}} {{rate}} ({{type}})",
+    "selection": "Bandeja de selección",
+    "selectionOk": "Al día · último envío {{date}}",
+    "selectionPending_one": "{{count}} envío pendiente",
+    "selectionPending_other": "{{count}} envíos pendientes",
+    "selectionError_one": "{{count}} envío a IGDT se está reintentando: {{error}}. Si dice que falta un alcance, pide en IGDT un token con requirements.write y hires.write.",
+    "selectionError_other": "{{count}} envíos a IGDT se están reintentando: {{error}}. Si dice que falta un alcance, pide en IGDT un token con requirements.write y hires.write.",
+    "step5": "Los requerimientos y sus postulantes se publican en IGDT al momento; cada candidato que confirmas crea allá una solicitud de ingreso (y se cancela si retiras la confirmación)."
   }
 }

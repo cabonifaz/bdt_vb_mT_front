@@ -1,5 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
-import { apiLogin, createFractalAdmin, pickOption, uiLoginOk as uiLogin } from './helpers';
+import { apiLogin, createFractalAdmin, pickOption, testClient, uiLoginOk as uiLogin } from './helpers';
 
 const stamp = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
@@ -7,10 +7,9 @@ async function setup() {
   const admin = await createFractalAdmin();
   const tok = await apiLogin(admin.ctx, admin.email, admin.password, 'fractal');
   const auth = { Authorization: `Bearer ${tok}` };
-  const clientName = `Cliente E2E ${stamp().slice(-6)}`;
-  const clientId = crypto.randomUUID();
-  expect((await admin.ctx.put('/api/v1/tenant/masters/items', { headers: auth,
-    data: { table: 'CLIENT', id: clientId, code: `E2E${stamp()}`, label: { es: clientName, en: clientName }, str2: 'Av. Larco 345, Miraflores', str3: 'https://maps.app.goo.gl/e2e' } })).status()).toBe(200);
+  // cliente propio de la prueba; con la empresa conectada a IGDT (clientes de solo lectura) se usa uno existente
+  const tc = await testClient(admin.ctx, auth);
+  const clientId = tc.id, clientName = tc.name;
   const talentId = crypto.randomUUID();
   const last = `Lista${stamp()}`;
   expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: auth, data: { id: talentId, firstName: 'Carmen', lastName: last, headline: 'QA Analyst' } })).status()).toBe(201);
@@ -110,6 +109,8 @@ test('clientes: el admin registra un cliente desde Administración', async ({ pa
   const admin = await createFractalAdmin();
   await uiLogin(page, 'fractal', admin.email, admin.password);
   await page.getByTestId('sidebar').getByRole('link', { name: 'Clientes' }).click();
+  await expect(page.getByTestId('clients-page').or(page.getByTestId('new-client')).or(page.getByTestId('managed-by-igdt')).first()).toBeVisible();
+  test.skip(await page.getByTestId('managed-by-igdt').isVisible(), 'la empresa está conectada a IGDT: los clientes se registran allá');
   await page.getByTestId('new-client').click();
   const name = `Minera ${stamp().slice(-5)}`;
   await page.getByRole('dialog').getByLabel('Razón social').fill(name);

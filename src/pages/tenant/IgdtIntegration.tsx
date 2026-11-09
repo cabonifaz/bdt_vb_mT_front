@@ -64,7 +64,9 @@ export function IgdtIntegration() {
                 <dt>{t('igdt.importedAt')}</dt><dd>{when(s.importedAt)}</dd>
                 <dt>{t('igdt.lastSync')}</dt><dd data-testid="igdt-last-sync">{when(s.lastSyncAt)}</dd>
                 <dt>{t('igdt.copy')}</dt><dd>{t('igdt.copyCounts', s.counts)}</dd>
+                <dt>{t('igdt.selection')}</dt><dd data-testid="igdt-selection">{s.selection ? (s.selection.pending ? t('igdt.selectionPending', { count: s.selection.pending }) : t('igdt.selectionOk', { date: when(s.selection.lastSentAt) })) : '—'}</dd>
               </dl>
+              {s.selection?.failing ? <div className="alert alert-warning" role="status">{t('igdt.selectionError', { count: s.selection.failing, error: t(`errors.${s.selection.lastError}`, s.selection.lastError ?? '') })}</div> : null}
               {s.lastError && <div className="alert alert-error" role="alert">{t('igdt.lastError', { error: t(`errors.${s.lastError}`, s.lastError) })}</div>}
               <div className="row" style={{ gap: 8 }}>
                 <Button onClick={() => run('sync')} loading={busy === 'sync'} disabled={!!busy} data-testid="igdt-sync"><RefreshCw size={16} />{t('igdt.syncNow')}</Button>
@@ -87,7 +89,7 @@ export function IgdtIntegration() {
           <ul className="igdt-tables">{(s.tables ?? []).map((x) => <li key={x.code}>{label(x.label)}</li>)}<li>{t('igdt.contactsAndTariffs')}</li></ul>
           <h2 className="igdt-h2">{t('igdt.howTitle')}</h2>
           <ol className="igdt-steps">
-            <li>{t('igdt.step1')}</li><li>{t('igdt.step2')}</li><li>{t('igdt.step3')}</li><li>{t('igdt.step4')}</li>
+            <li>{t('igdt.step1')}</li><li>{t('igdt.step2')}</li><li>{t('igdt.step3')}</li><li>{t('igdt.step4')}</li><li>{t('igdt.step5')}</li>
           </ol>
         </Card>
       </div>
