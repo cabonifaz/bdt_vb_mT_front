@@ -25,7 +25,7 @@ export type PresentedDoc = {
   /** cargado en otra postulación (reutilizable) */
   fromOtherRq: boolean;
 };
-export type CandidateEvent = { type: 'ADDED' | 'STAGE' | 'DOC_UPLOADED' | 'DOC_VERIFIED' | 'DOC_REJECTED' | 'DOC_CHECK_FAILED' | 'RESIGNED'; data?: Record<string, unknown> | null; at: string; byName?: string };
+export type CandidateEvent = { type: 'ADDED' | 'STAGE' | 'DOC_UPLOADED' | 'DOC_VERIFIED' | 'DOC_REJECTED' | 'DOC_CHECK_FAILED' | 'RESIGNED' | 'HIRED' | 'HIRE_START_CHANGED' | 'HIRE_REVOKED'; data?: Record<string, unknown> | null; at: string; byName?: string };
 export type CandidateDetail = {
   id: string; addedAt: string; updatedAt: string;
   requirement: { id: string; code: string; title: string; closed: boolean };

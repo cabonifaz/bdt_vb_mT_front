@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, CircleDashed, Clock, ExternalLink, FileText, RefreshCw, ShieldCheck, Upload, UserPlus, UserX, XCircle, ArrowRightLeft } from 'lucide-react';
+import { CheckCircle2, CircleDashed, Clock, ExternalLink, FileText, RefreshCw, ShieldCheck, Upload, UserPlus, UserX, XCircle, ArrowRightLeft, BadgeCheck, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../providers/auth';
 import { fetchFileBlob, useLabel } from '../../lib/talents';
 import { fullTalentName } from '../../lib/requirements';
@@ -194,6 +194,7 @@ function DocRow({ c, d, canAct }: { c: CandidateDetail; d: CandidateDetail['docu
 
 const EVENT_ICON: Record<CandidateEvent['type'], typeof CheckCircle2> = {
   ADDED: UserPlus, STAGE: ArrowRightLeft, DOC_UPLOADED: Upload, DOC_VERIFIED: CheckCircle2, DOC_REJECTED: XCircle, DOC_CHECK_FAILED: Clock, RESIGNED: UserX,
+  HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX,
 };
 
 function Timeline({ c }: { c: CandidateDetail }) {
@@ -205,12 +206,18 @@ function Timeline({ c }: { c: CandidateDetail }) {
     return d ? label(d.label) : String(code ?? '');
   };
   const stageName = (code?: unknown) => stages.get(String(code)) ?? t(`cand.stages.${String(code)}`, String(code ?? ''));
+  const day = (d?: unknown) => (typeof d === 'string' && d ? dayLabel(d, i18n.language) : '');
+  const why = (r?: unknown) => (typeof r === 'string' && r.trim() ? `. ${r.trim()}` : '');
   const text = (e: CandidateEvent) => {
     const x = e.data ?? {};
     switch (e.type) {
       case 'ADDED': return t('cand.ev.ADDED');
       case 'STAGE': return x.from === x.to ? t('cand.ev.VACANCY') : t('cand.ev.STAGE', { from: stageName(x.from), to: stageName(x.to) });
       case 'RESIGNED': return t('cand.ev.RESIGNED');
+      // eventos de ingreso que llegan de IGDT
+      case 'HIRED': return x.startDate ? t('cand.ev.HIRED_START', { date: day(x.startDate) }) : t('cand.ev.HIRED');
+      case 'HIRE_START_CHANGED': return t('cand.ev.HIRE_START_CHANGED', { from: day(x.from) || '—', to: day(x.to) }) + why(x.reason);
+      case 'HIRE_REVOKED': return t('cand.ev.HIRE_REVOKED') + why(x.reason);
       default: return t(`cand.ev.${e.type}`, { doc: docName(x.type), reason: x.reason ? t(`docs.reason.${String(x.reason)}`, String(x.reason)) : '' });
     }
   };

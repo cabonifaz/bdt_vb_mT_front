@@ -853,7 +853,8 @@
       "VERSION_PUBLISHED": "Version {{title}} was released. Reload the app to use it.",
       "RQ_STALE": "{{code}} · {{title}} has gone {{days}} business days without candidate stage changes",
       "RQ_STALE_SUMMARY_one": "{{count}} requirement has gone days without candidate stage changes",
-      "RQ_STALE_SUMMARY_other": "{{count}} requirements have gone days without candidate stage changes"
+      "RQ_STALE_SUMMARY_other": "{{count}} requirements have gone days without candidate stage changes",
+      "HIRE_REVOKED": "Hire revoked in IGDT: {{name}} · {{code}}. The opening is no longer filled; reopen the requirement if needed."
     },
     "types": {
       "TALENT_CREATED": "New talent",
@@ -866,7 +867,8 @@
       "FEATURE_NEW": "New features to activate",
       "FEATURE_ENABLED": "Features enabled in your company",
       "VERSION_PUBLISHED": "New versions",
-      "RQ_STALE": "Stalled requirements"
+      "RQ_STALE": "Stalled requirements",
+      "HIRE_REVOKED": "Hires revoked in IGDT"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1221,7 +1223,11 @@
       "DOC_UPLOADED": "Uploaded {{doc}}",
       "DOC_VERIFIED": "{{doc}} verified",
       "DOC_REJECTED": "{{doc}} rejected. {{reason}}",
-      "DOC_CHECK_FAILED": "{{doc}}: could not be checked. {{reason}}"
+      "DOC_CHECK_FAILED": "{{doc}}: could not be checked. {{reason}}",
+      "HIRED": "Hired (registered in IGDT)",
+      "HIRED_START": "Hired (registered in IGDT). Start: {{date}}",
+      "HIRE_START_CHANGED": "IGDT changed the start date from {{from}} to {{to}}",
+      "HIRE_REVOKED": "The client revoked the hire in IGDT"
     }
   },
   "tour": {

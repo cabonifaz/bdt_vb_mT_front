@@ -853,7 +853,8 @@
       "VERSION_PUBLISHED": "Se publicó la versión {{title}}. Recarga la app para usarla.",
       "RQ_STALE": "{{code}} · {{title}} lleva {{days}} días hábiles sin cambios de etapa en sus postulantes",
       "RQ_STALE_SUMMARY_one": "{{count}} requerimiento lleva días sin cambios de etapa en sus postulantes",
-      "RQ_STALE_SUMMARY_other": "{{count}} requerimientos llevan días sin cambios de etapa en sus postulantes"
+      "RQ_STALE_SUMMARY_other": "{{count}} requerimientos llevan días sin cambios de etapa en sus postulantes",
+      "HIRE_REVOKED": "Ingreso revocado en IGDT: {{name}} · {{code}}. La vacante queda sin cubrir; reabre el RQ si corresponde."
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
@@ -866,7 +867,8 @@
       "FEATURE_NEW": "Funcionalidades nuevas por activar",
       "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa",
       "VERSION_PUBLISHED": "Versiones nuevas",
-      "RQ_STALE": "RQ sin movimiento"
+      "RQ_STALE": "RQ sin movimiento",
+      "HIRE_REVOKED": "Ingresos revocados en IGDT"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1221,7 +1223,11 @@
       "DOC_UPLOADED": "Cargó {{doc}}",
       "DOC_VERIFIED": "{{doc}} verificado",
       "DOC_REJECTED": "{{doc}} rechazado. {{reason}}",
-      "DOC_CHECK_FAILED": "{{doc}}: no se pudo verificar. {{reason}}"
+      "DOC_CHECK_FAILED": "{{doc}}: no se pudo verificar. {{reason}}",
+      "HIRED": "Ingresó (registrado en IGDT)",
+      "HIRED_START": "Ingresó (registrado en IGDT). Inicio: {{date}}",
+      "HIRE_START_CHANGED": "IGDT cambió la fecha de inicio de {{from}} a {{to}}",
+      "HIRE_REVOKED": "El cliente revocó el ingreso en IGDT"
     }
   },
   "tour": {
