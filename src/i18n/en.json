@@ -246,7 +246,13 @@
     "docs": "View documentation",
     "approve": "Enable",
     "disable": "Disable",
-    "tenant": "Tenant"
+    "tenant": "Tenant",
+    "scopeDesc": {
+      "masters_read": "Read the catalogs",
+      "talent_read": "View the profile, CVs and documents of candidates",
+      "talent_search": "Search the whole talent bank (read-only)",
+      "talent_write": "Create and update talents"
+    }
   },
   "tenants": {
     "title": "Tenants",

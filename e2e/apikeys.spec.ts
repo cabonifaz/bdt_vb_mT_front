@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { API, SA_EMAIL, SA_PASSWORD, apiCtx, createFractalAdmin, uiLogin } from './helpers';
+import { API, SA_EMAIL, SA_PASSWORD, apiCtx, apiLogin, createFractalAdmin, uiLogin } from './helpers';
 
 test('API key: el tenant la solicita, el Super Admin la habilita y el sistema externo la usa', async ({ page, browser }) => {
   const admin = await createFractalAdmin();
@@ -7,6 +7,10 @@ test('API key: el tenant la solicita, el Super Admin la habilita y el sistema ex
   await page.getByRole('link', { name: 'API de integración' }).click();
   await page.getByRole('button', { name: 'Solicitar API key' }).click();
   await page.getByRole('dialog').getByLabel('Nombre del sistema').fill('ERP prueba e2e');
+  // alcance de búsqueda en todo el banco (v1.9), con su descripción; no se marca por defecto
+  const search = page.getByRole('dialog').getByRole('checkbox', { name: /talent\.search.*Buscar en todo el banco de talentos \(solo lectura\)/ });
+  await expect(search).toBeVisible();
+  await expect(search).not.toBeChecked();
   await page.getByRole('dialog').getByRole('button', { name: 'Crear' }).click();
   const secret = (await page.getByTestId('api-key-secret').textContent())!.trim();
   expect(secret).toMatch(/^bdt_[a-z0-9]{12}_/);
@@ -40,4 +44,10 @@ test('API key: el tenant la solicita, el Super Admin la habilita y el sistema ex
   await page.getByLabel('API key').fill(secret);
   await page.getByRole('button', { name: 'Ver documentación' }).click();
   await expect(page.getByText('Banco de Talentos - API de integración')).toBeVisible();
+
+  // la key de prueba no queda vigente: se revoca al terminar
+  const auth = { Authorization: `Bearer ${await apiLogin(api, admin.email, admin.password, 'fractal')}` };
+  const keys: { id: string; prefix: string }[] = await (await api.get('/api/v1/tenant/api-keys', { headers: auth })).json();
+  const key = keys.find((k) => k.prefix === prefix)!;
+  expect((await api.post(`/api/v1/tenant/api-keys/${key.id}/revoke`, { headers: auth })).status()).toBe(200);
 });

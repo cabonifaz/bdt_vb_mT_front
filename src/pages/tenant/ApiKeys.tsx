@@ -11,7 +11,7 @@ export interface ApiKey {
   status: string; enabledAt?: string; lastUsedAt?: string; createdAt: string; secret?: string;
 }
 
-const SCOPES = ['masters.read', 'talent.read', 'talent.write'];
+const SCOPES = ['masters.read', 'talent.read', 'talent.search', 'talent.write'];
 
 export function ApiKeys() {
   const { t, i18n } = useTranslation();
@@ -78,7 +78,7 @@ export function ApiKeys() {
               <label key={s} className="row" style={{ gap: 8 }}>
                 <input type="checkbox" checked={scopes.includes(s)}
                   onChange={(e) => setScopes(e.target.checked ? [...scopes, s] : scopes.filter((x) => x !== s))} />
-                <code>{s}</code>
+                <span><code>{s}</code> <span className="muted" style={{ fontSize: 13 }}>{t(`apiKeys.scopeDesc.${s.replace(".", "_")}`)}</span></span>
               </label>
             ))}
           </fieldset>

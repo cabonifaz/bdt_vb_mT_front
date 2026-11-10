@@ -246,7 +246,13 @@
     "docs": "Ver documentación",
     "approve": "Habilitar",
     "disable": "Deshabilitar",
-    "tenant": "Tenant"
+    "tenant": "Tenant",
+    "scopeDesc": {
+      "masters_read": "Consultar los catálogos",
+      "talent_read": "Ver la ficha, los CV y los documentos de los candidatos",
+      "talent_search": "Buscar en todo el banco de talentos (solo lectura)",
+      "talent_write": "Crear y actualizar talentos"
+    }
   },
   "tenants": {
     "title": "Tenants",
