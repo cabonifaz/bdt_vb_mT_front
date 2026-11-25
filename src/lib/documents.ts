@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { http } from './api';
 import type { I18nLabel } from './talents';
-import { RQ_API } from './requirements';
+import { RQ_API, type IGDTOrigin } from './requirements';
 import { todayISO } from './modules';
 
 export type DocMode = 'REQUIRED' | 'OPTIONAL';
@@ -25,9 +25,11 @@ export type PresentedDoc = {
   /** cargado en otra postulación (reutilizable) */
   fromOtherRq: boolean;
 };
-export type CandidateEvent = { type: 'ADDED' | 'STAGE' | 'DOC_UPLOADED' | 'DOC_VERIFIED' | 'DOC_REJECTED' | 'DOC_CHECK_FAILED' | 'RESIGNED' | 'HIRED' | 'HIRE_START_CHANGED' | 'HIRE_REVOKED' | 'START_DATE' | 'MANAGER'; data?: Record<string, unknown> | null; at: string; byName?: string };
+export type CandidateEvent = { type: 'ADDED' | 'STAGE' | 'DOC_UPLOADED' | 'DOC_VERIFIED' | 'DOC_REJECTED' | 'DOC_CHECK_FAILED' | 'RESIGNED' | 'HIRED' | 'HIRE_START_CHANGED' | 'HIRE_REVOKED' | 'START_DATE' | 'MANAGER' | 'IGDT_RQ_CHANGE' | 'IGDT_RQ_MOVED' | 'HIRE_RENEWED' | 'HIRE_TRANSFERRED' | 'HIRE_TERMINATED'; data?: Record<string, unknown> | null; at: string; byName?: string };
 export type CandidateDetail = {
   id: string; addedAt: string; updatedAt: string;
+  /** traído desde IGDT por cambio de RQ */
+  origin?: IGDTOrigin | null;
   requirement: { id: string; code: string; title: string; closed: boolean };
   stage: { id: string; code: string; label: I18nLabel }; vacancy: { id: string; profile: I18nLabel };
   resignation?: { at: string; offboard: 'PENDING' | 'EFFECTIVE'; offboardAt?: string | null } | null;

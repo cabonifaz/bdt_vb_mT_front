@@ -19,6 +19,7 @@ import { Loader } from '../../components/ui/Loader';
 import { RequirementEditor } from './RequirementEditor';
 import { ReopenModal } from './ReopenModal';
 import { ResignationBadge } from './ResignationBadge';
+import { EndedBadge, OriginBadge } from './OriginBadge';
 import { CandidateModal } from './CandidateModal';
 import { DocMeter } from './DocMeter';
 import { CandidateIdle, StaleBanner } from './StaleAlerts';
@@ -181,6 +182,7 @@ export function RequirementDetail() {
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}
+                {c.origin && <OriginBadge origin={c.origin} />}
                 {c.stage.code === 'CONFIRMED' && !c.hire && !c.resignation && (() => {
                   const text = c.tentativeStartDate ? t('rq.cand.startShort', { date: dayLabel(c.tentativeStartDate, i18n.language) }) : t('rq.cand.noStart');
                   const cls = `badge ${c.tentativeStartDate ? 'badge-neutral' : 'badge-warning'}`;
@@ -188,7 +190,8 @@ export function RequirementDetail() {
                     ? <button type="button" className={cls} style={{ border: 0, cursor: 'pointer' }} onClick={() => setEditingStart(c)} title={c.igdtManagerId ? `${t('rq.cand.managerDirected')} · ${t('rq.cand.editStart')}` : t('rq.cand.editStart')} data-testid="cand-start"><CalendarClock size={12} />{text}</button>
                     : <span className={cls} data-testid="cand-start"><CalendarClock size={12} />{text}</span>;
                 })()}
-                {c.hire && !c.resignation && <span className="badge badge-success" data-testid="cand-hired" title={c.hire.startDate ? t('rq.cand.hiredFrom', { date: c.hire.startDate }) : undefined}><BadgeCheck size={12} />{t('rq.cand.hired')}</span>}
+                {c.hire?.endedAt && !c.resignation && <EndedBadge date={c.hire.endedAt} />}
+                {c.hire && !c.hire.endedAt && !c.resignation && <span className="badge badge-success" data-testid="cand-hired" title={c.hire.startDate ? t('rq.cand.hiredFrom', { date: c.hire.startDate }) : undefined}><BadgeCheck size={12} />{t('rq.cand.hired')}</span>}
                 {alerts && <CandidateIdle days={idle(c)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
                 {c.talent.blacklisted && <span className="badge badge-danger" title={t('blacklist.inBlacklist')}><TriangleAlert size={12} />{t('rq.cand.blacklisted')}</span>}
               </div>

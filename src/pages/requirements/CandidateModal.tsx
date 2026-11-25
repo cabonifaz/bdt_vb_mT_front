@@ -20,6 +20,7 @@ import { useToast } from '../../components/ui/Toast';
 import { Loader } from '../../components/ui/Loader';
 import { TalentPhoto } from '../../components/talents/bits';
 import { ResignationBadge } from './ResignationBadge';
+import { OriginBadge } from './OriginBadge';
 
 type Tab = 'documents' | 'process';
 
@@ -48,6 +49,7 @@ export function CandidateModal({ candidateId, onClose }: { candidateId: string; 
             <div className="row" style={{ gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
               <span className="badge badge-neutral" data-testid="cand-stage">{label(c.stage.label)}</span>
               {c.resignation && <ResignationBadge r={c.resignation} />}
+              {c.origin && <OriginBadge origin={c.origin} />}
             </div>
           </div>
           <Link to={`/${tenant}/talentos/${c.talent.id}`} className="btn btn-secondary btn-sm"><ExternalLink size={14} />{t('cand.openTalent')}</Link>
@@ -195,6 +197,7 @@ function DocRow({ c, d, canAct }: { c: CandidateDetail; d: CandidateDetail['docu
 const EVENT_ICON: Record<CandidateEvent['type'], typeof CheckCircle2> = {
   ADDED: UserPlus, STAGE: ArrowRightLeft, DOC_UPLOADED: Upload, DOC_VERIFIED: CheckCircle2, DOC_REJECTED: XCircle, DOC_CHECK_FAILED: Clock, RESIGNED: UserX,
   HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX, START_DATE: CalendarClock, MANAGER: UserCheck,
+  IGDT_RQ_CHANGE: ArrowRightLeft, IGDT_RQ_MOVED: ArrowRightLeft, HIRE_RENEWED: CalendarClock, HIRE_TRANSFERRED: ArrowRightLeft, HIRE_TERMINATED: UserX,
 };
 
 function Timeline({ c }: { c: CandidateDetail }) {
@@ -208,6 +211,14 @@ function Timeline({ c }: { c: CandidateDetail }) {
   const stageName = (code?: unknown) => stages.get(String(code)) ?? t(`cand.stages.${String(code)}`, String(code ?? ''));
   const day = (d?: unknown) => (typeof d === 'string' && d ? dayLabel(d, i18n.language) : '');
   const why = (r?: unknown) => (typeof r === 'string' && r.trim() ? `. ${r.trim()}` : '');
+  // motivo de cese: {id, code, label} (o texto); cambio de área: los campos de área que traiga el evento
+  const reasonLabel = (r?: unknown) => (r && typeof r === 'object' ? String((r as { label?: unknown }).label ?? (r as { code?: unknown }).code ?? '') : r);
+  const areaText = (x: Record<string, unknown>) => {
+    const pick = (...ks: string[]) => ks.map((k) => x[k]).find((v) => v != null && v !== '');
+    const name = (v: unknown) => (v && typeof v === 'object' ? String((v as { label?: unknown; name?: unknown }).label ?? (v as { name?: unknown }).name ?? '') : String(v ?? ''));
+    const from = pick('fromArea', 'previousArea'), to = pick('toArea', 'area', 'newArea');
+    return to ? (from ? `${name(from)} → ${name(to)}` : name(to)) : '';
+  };
   const text = (e: CandidateEvent) => {
     const x = e.data ?? {};
     switch (e.type) {
@@ -218,6 +229,13 @@ function Timeline({ c }: { c: CandidateDetail }) {
       // fecha tentativa de inicio de labores (Selección)
       case 'START_DATE': return t('cand.ev.START_DATE', { from: day(x.from) || '—', to: day(x.to) || '—' });
       case 'MANAGER': return t('cand.ev.MANAGER');
+      // cambio de RQ y fin de contrato que llegan de IGDT
+      case 'IGDT_RQ_CHANGE': return (x.fromCode ? t('cand.ev.IGDT_RQ_CHANGE', { from: String(x.fromCode) }) : t('cand.ev.IGDT_RQ_CHANGE_NOFROM')) + (x.added === false ? ` (${t('cand.ev.alreadyIn')})` : '');
+      case 'IGDT_RQ_MOVED': return t('cand.ev.IGDT_RQ_MOVED', { to: Array.isArray(x.to) ? x.to.join(', ') : '' });
+      case 'HIRE_RENEWED': return t('cand.ev.HIRE_RENEWED', { to: day(x.endDate) || '—', from: day(x.previousEndDate) || '—' }) + why(x.reason);
+      case 'HIRE_TRANSFERRED': return t('cand.ev.HIRE_TRANSFERRED', { date: day(x.date) || '—' }) + why(areaText(x));
+      case 'HIRE_TERMINATED': return t('cand.ev.HIRE_TERMINATED', { date: day(x.terminationDate) || '—' }) + why(reasonLabel(x.reason))
+        + (x.recoverEquipment ? `. ${t('cand.ev.recoverEquipment', { date: day(x.equipmentReturnDate) || '—' })}` : '');
       case 'RESIGNED': return t('cand.ev.RESIGNED');
       // eventos de ingreso que llegan de IGDT
       case 'HIRED': return x.startDate ? t('cand.ev.HIRED_START', { date: day(x.startDate) }) : t('cand.ev.HIRED');

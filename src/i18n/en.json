@@ -860,7 +860,8 @@
       "RQ_STALE": "{{code}} · {{title}} has gone {{days}} business days without candidate stage changes",
       "RQ_STALE_SUMMARY_one": "{{count}} requirement has gone days without candidate stage changes",
       "RQ_STALE_SUMMARY_other": "{{count}} requirements have gone days without candidate stage changes",
-      "HIRE_REVOKED": "Hire revoked in IGDT: {{name}} · {{code}}. The opening is no longer filled; reopen the requirement if needed."
+      "HIRE_REVOKED": "Hire revoked in IGDT: {{name}} · {{code}}. The opening is no longer filled; reopen the requirement if needed.",
+      "IGDT_RQ_CHANGE": "IGDT brought {{name}} to {{code}} · {{title}} by a requirement change from {{from}}"
     },
     "types": {
       "TALENT_CREATED": "New talent",
@@ -874,7 +875,8 @@
       "FEATURE_ENABLED": "Features enabled in your company",
       "VERSION_PUBLISHED": "New versions",
       "RQ_STALE": "Stalled requirements",
-      "HIRE_REVOKED": "Hires revoked in IGDT"
+      "HIRE_REVOKED": "Hires revoked in IGDT",
+      "IGDT_RQ_CHANGE": "Candidates brought from IGDT"
     },
     "push": {
       "offer": "Turn on system notifications to stay informed even when the app is closed.",
@@ -1056,7 +1058,10 @@
       "managerUnknown": "Previously chosen manager (not in the list)",
       "managerDirected": "Directed to a manager",
       "clientManagers": "Client's managers: {{names}}",
-      "clientManagersNone": "The client has no managers assigned in IGDT."
+      "clientManagersNone": "The client has no managers assigned in IGDT.",
+      "fromIgdt": "Brought from IGDT (requirement change from {{code}})",
+      "fromIgdtNoCode": "Brought from IGDT (requirement change)",
+      "ended": "Left on {{date}}"
     },
     "applications": "Applications",
     "noApplications": "This talent has not applied to any requirement yet.",
@@ -1259,7 +1264,15 @@
       "HIRE_REVOKED": "The client revoked the hire in IGDT",
       "START_DATE": "Tentative start date: {{from}} → {{to}}",
       "STAGE_START": "Moved from {{from}} to {{to}} · tentative start {{date}}",
-      "MANAGER": "Changed the directed IGDT manager"
+      "MANAGER": "Changed the directed IGDT manager",
+      "IGDT_RQ_CHANGE": "Brought from IGDT by a requirement change from {{from}}",
+      "IGDT_RQ_CHANGE_NOFROM": "Brought from IGDT by a requirement change",
+      "alreadyIn": "was already in this requirement",
+      "IGDT_RQ_MOVED": "IGDT asked to move them to another requirement: {{to}}",
+      "HIRE_RENEWED": "Contract renewed in IGDT until {{to}} (before: {{from}})",
+      "HIRE_TRANSFERRED": "Area change in IGDT from {{date}}",
+      "HIRE_TERMINATED": "End of contract registered in IGDT: left on {{date}}",
+      "recoverEquipment": "Recover equipment by {{date}}"
     }
   },
   "tour": {

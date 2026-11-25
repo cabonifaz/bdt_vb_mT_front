@@ -860,7 +860,8 @@
       "RQ_STALE": "{{code}} · {{title}} lleva {{days}} días hábiles sin cambios de etapa en sus postulantes",
       "RQ_STALE_SUMMARY_one": "{{count}} requerimiento lleva días sin cambios de etapa en sus postulantes",
       "RQ_STALE_SUMMARY_other": "{{count}} requerimientos llevan días sin cambios de etapa en sus postulantes",
-      "HIRE_REVOKED": "Ingreso revocado en IGDT: {{name}} · {{code}}. La vacante queda sin cubrir; reabre el RQ si corresponde."
+      "HIRE_REVOKED": "Ingreso revocado en IGDT: {{name}} · {{code}}. La vacante queda sin cubrir; reabre el RQ si corresponde.",
+      "IGDT_RQ_CHANGE": "IGDT trajo a {{name}} a {{code}} · {{title}} por cambio de RQ desde {{from}}"
     },
     "types": {
       "TALENT_CREATED": "Nuevo talento",
@@ -874,7 +875,8 @@
       "FEATURE_ENABLED": "Funcionalidades activadas en tu empresa",
       "VERSION_PUBLISHED": "Versiones nuevas",
       "RQ_STALE": "RQ sin movimiento",
-      "HIRE_REVOKED": "Ingresos revocados en IGDT"
+      "HIRE_REVOKED": "Ingresos revocados en IGDT",
+      "IGDT_RQ_CHANGE": "Candidatos traídos desde IGDT"
     },
     "push": {
       "offer": "Activa las notificaciones del sistema para enterarte aunque la app esté cerrada.",
@@ -1056,7 +1058,10 @@
       "managerUnknown": "Gestor elegido antes (no figura en la lista)",
       "managerDirected": "Dirigido a gestor",
       "clientManagers": "Gestores del cliente: {{names}}",
-      "clientManagersNone": "El cliente no tiene gestores asignados en IGDT."
+      "clientManagersNone": "El cliente no tiene gestores asignados en IGDT.",
+      "fromIgdt": "Traído desde IGDT (cambio de RQ desde {{code}})",
+      "fromIgdtNoCode": "Traído desde IGDT (cambio de RQ)",
+      "ended": "Cesó el {{date}}"
     },
     "applications": "Postulaciones",
     "noApplications": "Este talento aún no postula a requerimientos.",
@@ -1259,7 +1264,15 @@
       "HIRE_REVOKED": "El cliente revocó el ingreso en IGDT",
       "START_DATE": "Fecha tentativa de inicio: {{from}} → {{to}}",
       "STAGE_START": "Pasó de {{from}} a {{to}} · inicio tentativo {{date}}",
-      "MANAGER": "Cambió el gestor dirigido en IGDT"
+      "MANAGER": "Cambió el gestor dirigido en IGDT",
+      "IGDT_RQ_CHANGE": "Traído desde IGDT por cambio de RQ desde {{from}}",
+      "IGDT_RQ_CHANGE_NOFROM": "Traído desde IGDT por cambio de RQ",
+      "alreadyIn": "ya estaba en este RQ",
+      "IGDT_RQ_MOVED": "IGDT pidió llevarlo a otro RQ: {{to}}",
+      "HIRE_RENEWED": "Contrato renovado en IGDT hasta {{to}} (antes: {{from}})",
+      "HIRE_TRANSFERRED": "Cambio de área en IGDT desde el {{date}}",
+      "HIRE_TERMINATED": "Fin de contrato registrado en IGDT: cese el {{date}}",
+      "recoverEquipment": "Recuperar equipo hasta el {{date}}"
     }
   },
   "tour": {

@@ -34,6 +34,8 @@ export type RQBilling = {
 export type RQContact = { id: string; firstName: string; lastName: string; secondLastName?: string | null; position?: string | null; email?: string | null; phone?: string | null; phone2?: string | null; email2?: string | null };
 /** Renuncia de un confirmado (al reabrir el RQ): deja de cubrir la vacante; la baja la confirma el FMI. */
 export type RQResignation = { at: string; offboard: 'PENDING' | 'EFFECTIVE'; offboardAt?: string | null };
+/** Origen del candidato traído desde IGDT (cambio de RQ). */
+export type IGDTOrigin = { source: 'IGDT_RQ_CHANGE'; operationId?: string | null; fromRequirementId?: string | null; fromCode?: string | null; date?: string | null };
 export type RQCandidate = {
   id: string; vacancyId: string; boardOrder: number; notes?: string | null; updatedAt: string;
   /** desde cuándo está en su etapa actual */
@@ -44,8 +46,10 @@ export type RQCandidate = {
   tentativeStartDate?: string | null;
   /** gestor de IGDT al que se dirigió la solicitud de ingreso (null = gestores del cliente) */
   igdtManagerId?: string | null;
-  /** ingreso registrado en IGDT (fecha de inicio del contrato) */
-  hire?: { at: string; startDate?: string | null } | null;
+  /** traído desde IGDT por cambio de RQ (null = agregado en BDT) */
+  origin?: IGDTOrigin | null;
+  /** ingreso registrado en IGDT (fecha de inicio del contrato; endedAt: cese registrado en IGDT) */
+  hire?: { at: string; startDate?: string | null; endedAt?: string | null } | null;
   /** estado de cada documento que pide el RQ */
   docs?: CandidateDocState[];
   talent: { id: string; firstName: string; lastName: string; secondLastName?: string | null; headline?: string | null; photoId?: string | null; status: string; blacklisted: boolean };
