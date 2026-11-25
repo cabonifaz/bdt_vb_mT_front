@@ -197,7 +197,7 @@ function DocRow({ c, d, canAct }: { c: CandidateDetail; d: CandidateDetail['docu
 const EVENT_ICON: Record<CandidateEvent['type'], typeof CheckCircle2> = {
   ADDED: UserPlus, STAGE: ArrowRightLeft, DOC_UPLOADED: Upload, DOC_VERIFIED: CheckCircle2, DOC_REJECTED: XCircle, DOC_CHECK_FAILED: Clock, RESIGNED: UserX,
   HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX, START_DATE: CalendarClock, MANAGER: UserCheck,
-  IGDT_RQ_CHANGE: ArrowRightLeft, IGDT_RQ_MOVED: ArrowRightLeft, HIRE_RENEWED: CalendarClock, HIRE_TRANSFERRED: ArrowRightLeft, HIRE_TERMINATED: UserX,
+  IGDT_RQ_CHANGE: ArrowRightLeft, IGDT_RQ_MOVED: ArrowRightLeft, HIRE_RENEWED: CalendarClock, HIRE_TRANSFERRED: ArrowRightLeft, HIRE_MOVED: ArrowRightLeft, HIRE_TERMINATED: UserX,
 };
 
 function Timeline({ c }: { c: CandidateDetail }) {
@@ -234,6 +234,7 @@ function Timeline({ c }: { c: CandidateDetail }) {
       case 'IGDT_RQ_MOVED': return t('cand.ev.IGDT_RQ_MOVED', { to: Array.isArray(x.to) ? x.to.join(', ') : '' });
       case 'HIRE_RENEWED': return t('cand.ev.HIRE_RENEWED', { to: day(x.endDate) || '—', from: day(x.previousEndDate) || '—' }) + why(x.reason);
       case 'HIRE_TRANSFERRED': return t('cand.ev.HIRE_TRANSFERRED', { date: day(x.date) || '—' }) + why(areaText(x));
+      case 'HIRE_MOVED': return t('cand.ev.HIRE_MOVED', { date: day(x.date) || '—' }) + why(areaText(x));
       case 'HIRE_TERMINATED': return t('cand.ev.HIRE_TERMINATED', { date: day(x.terminationDate) || '—' }) + why(reasonLabel(x.reason))
         + (x.recoverEquipment ? `. ${t('cand.ev.recoverEquipment', { date: day(x.equipmentReturnDate) || '—' })}` : '');
       case 'RESIGNED': return t('cand.ev.RESIGNED');

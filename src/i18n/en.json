@@ -1271,6 +1271,7 @@
       "IGDT_RQ_MOVED": "IGDT asked to move them to another requirement: {{to}}",
       "HIRE_RENEWED": "Contract renewed in IGDT until {{to}} (before: {{from}})",
       "HIRE_TRANSFERRED": "Area change in IGDT from {{date}}",
+      "HIRE_MOVED": "Change in IGDT from {{date}}",
       "HIRE_TERMINATED": "End of contract registered in IGDT: left on {{date}}",
       "recoverEquipment": "Recover equipment by {{date}}"
     }
