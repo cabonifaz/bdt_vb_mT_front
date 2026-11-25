@@ -1033,7 +1033,18 @@
       "toVacancy": "Pasar a vacante {{profile}}",
       "emptyColumn": "Sin candidatos",
       "hired": "Ingresó",
-      "hiredFrom": "Ingreso registrado en IGDT · inicia el {{date}}"
+      "hiredFrom": "Ingreso registrado en IGDT · inicia el {{date}}",
+      "startDate": "Fecha tentativa de inicio",
+      "startDateHint": "Fecha tentativa de inicio de labores. Se envía a IGDT con la solicitud de ingreso. Debe estar entre {{min}} y {{max}}.",
+      "confirmTitle": "Confirmar a {{name}}",
+      "confirmIntro": "Al confirmar, la solicitud de ingreso se envía a IGDT con las condiciones del requerimiento y esta fecha.",
+      "confirmAction": "Confirmar",
+      "editStartTitle": "Fecha tentativa de inicio · {{name}}",
+      "startShort": "Inicio tentativo: {{date}}",
+      "noStart": "Sin fecha tentativa",
+      "editStart": "Cambiar la fecha tentativa de inicio",
+      "startSaved": "Fecha tentativa de inicio guardada.",
+      "startInvalid": "Elige una fecha entre {{min}} y {{max}}."
     },
     "applications": "Postulaciones",
     "noApplications": "Este talento aún no postula a requerimientos.",
@@ -1233,7 +1244,9 @@
       "HIRED": "Ingresó (registrado en IGDT)",
       "HIRED_START": "Ingresó (registrado en IGDT). Inicio: {{date}}",
       "HIRE_START_CHANGED": "IGDT cambió la fecha de inicio de {{from}} a {{to}}",
-      "HIRE_REVOKED": "El cliente revocó el ingreso en IGDT"
+      "HIRE_REVOKED": "El cliente revocó el ingreso en IGDT",
+      "START_DATE": "Fecha tentativa de inicio: {{from}} → {{to}}",
+      "STAGE_START": "Pasó de {{from}} a {{to}} · inicio tentativo {{date}}"
     }
   },
   "tour": {

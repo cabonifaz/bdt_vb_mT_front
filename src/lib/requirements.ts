@@ -40,6 +40,8 @@ export type RQCandidate = {
   stageAt?: string;
   stage: { id: string; code: string; label: I18nLabel };
   resignation?: RQResignation | null;
+  /** fecha tentativa de inicio de labores (AAAA-MM-DD) que registra Selección al confirmar; null en confirmados antiguos */
+  tentativeStartDate?: string | null;
   /** ingreso registrado en IGDT (fecha de inicio del contrato) */
   hire?: { at: string; startDate?: string | null } | null;
   /** estado de cada documento que pide el RQ */

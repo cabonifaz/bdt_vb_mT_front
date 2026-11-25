@@ -22,7 +22,8 @@ import { ResignationBadge } from './ResignationBadge';
 import { CandidateModal } from './CandidateModal';
 import { DocMeter } from './DocMeter';
 import { CandidateIdle, StaleBanner } from './StaleAlerts';
-import { businessDaysSince, docSummary } from '../../lib/documents';
+import { businessDaysSince, dayLabel, docSummary } from '../../lib/documents';
+import { StartDateModal } from './StartDateModal';
 
 export function RequirementDetail() {
   const { t, i18n } = useTranslation();
@@ -45,6 +46,9 @@ export function RequirementDetail() {
   const [adding, setAdding] = useState(false);
   const [openCand, setOpenCand] = useState<string | null>(null);
   const [reopening, setReopening] = useState(false);
+  const [confirming, setConfirming] = useState<{ c: RQCandidate; stageId: string; vacancyId?: string } | null>(null);
+  const [editingStart, setEditingStart] = useState<RQCandidate | null>(null);
+  const [savingStart, setSavingStart] = useState(false);
 
   if (q.isLoading) return <Loader />;
   if (q.isError || !q.data) return <div className="page"><div className="alert alert-error" role="alert">{errText(q.error)}</div></div>;
@@ -63,18 +67,33 @@ export function RequirementDetail() {
 
   const refresh = () => { void qc.invalidateQueries({ queryKey: ['rq', id] }); void qc.invalidateQueries({ queryKey: ['rq-board'] }); };
   // mover de etapa: optimista; si el servidor lo rechaza (sin cupo, aún observado) se revierte con el motivo
-  const move = async (c: RQCandidate, stageId: string, vacancyId?: string) => {
+  const move = async (c: RQCandidate, stageId: string, vacancyId?: string, startDate?: string) => {
     const st = stages.find((s) => s.id === stageId);
     if (!st) return;
+    // confirmar exige la fecha tentativa de inicio: se pide en un diálogo. Si el servidor igual lo rechazará (aún
+    // observado o vacante sin cupo) se envía directo para mostrar ese motivo.
+    if (st.code === 'CONFIRMED' && c.stage.code !== 'CONFIRMED' && !startDate && c.stage.code !== 'OBSERVED') {
+      const vac = rq.vacancies.find((v) => v.id === (vacancyId ?? c.vacancyId));
+      if (!vac || vac.covered < vac.quantity) { setConfirming({ c, stageId, vacancyId }); return; }
+    }
     const prev = qc.getQueryData<RQDetail>(['rq', id]);
-    qc.setQueryData<RQDetail>(['rq', id], (cur) => cur && { ...cur, candidates: cur.candidates.map((x) => (x.id === c.id ? { ...x, stage: { id: st.id, code: st.code, label: st.label }, stageAt: st.id === x.stage.id ? x.stageAt : new Date().toISOString(), vacancyId: vacancyId ?? x.vacancyId } : x)) });
+    qc.setQueryData<RQDetail>(['rq', id], (cur) => cur && { ...cur, candidates: cur.candidates.map((x) => (x.id === c.id ? { ...x, stage: { id: st.id, code: st.code, label: st.label }, stageAt: st.id === x.stage.id ? x.stageAt : new Date().toISOString(), vacancyId: vacancyId ?? x.vacancyId, tentativeStartDate: st.code === 'CONFIRMED' ? (startDate ?? x.tentativeStartDate) : null } : x)) });
     try {
-      await http.patch(`${RQ_API}/candidates/${c.id}`, { stageId, vacancyId: vacancyId ?? null });
+      await http.patch(`${RQ_API}/candidates/${c.id}`, { stageId, vacancyId: vacancyId ?? null, ...(startDate ? { startDate } : {}) });
       toast.success(t('rq.cand.moved', { name: fullTalentName(c.talent), stage: label(st.label) }));
     } catch (e) {
       qc.setQueryData(['rq', id], prev);
       toast.error(errText(e));
     } finally { refresh(); }
+  };
+  // corregir la fecha tentativa de un confirmado (mientras IGDT no registre el ingreso)
+  const saveStart = async (c: RQCandidate, startDate: string) => {
+    setSavingStart(true);
+    try {
+      await http.put(`${RQ_API}/candidates/${c.id}/start-date`, { startDate });
+      toast.success(t('rq.cand.startSaved'));
+      setEditingStart(null);
+    } catch (e) { toast.error(errText(e)); } finally { setSavingStart(false); refresh(); }
   };
   const remove = async (c: RQCandidate) => {
     if (!window.confirm(t('rq.cand.confirmRemove', { name: fullTalentName(c.talent) }))) return;
@@ -159,6 +178,13 @@ export function RequirementDetail() {
               <div className="cand-foot">
                 <span className="badge badge-neutral">{vacLabel(c.vacancyId)}</span>
                 {c.resignation && <ResignationBadge r={c.resignation} />}
+                {c.stage.code === 'CONFIRMED' && !c.hire && !c.resignation && (() => {
+                  const text = c.tentativeStartDate ? t('rq.cand.startShort', { date: dayLabel(c.tentativeStartDate, i18n.language) }) : t('rq.cand.noStart');
+                  const cls = `badge ${c.tentativeStartDate ? 'badge-neutral' : 'badge-warning'}`;
+                  return can('rq.candidates')
+                    ? <button type="button" className={cls} style={{ border: 0, cursor: 'pointer' }} onClick={() => setEditingStart(c)} title={t('rq.cand.editStart')} data-testid="cand-start"><CalendarClock size={12} />{text}</button>
+                    : <span className={cls} data-testid="cand-start"><CalendarClock size={12} />{text}</span>;
+                })()}
                 {c.hire && !c.resignation && <span className="badge badge-success" data-testid="cand-hired" title={c.hire.startDate ? t('rq.cand.hiredFrom', { date: c.hire.startDate }) : undefined}><BadgeCheck size={12} />{t('rq.cand.hired')}</span>}
                 {alerts && <CandidateIdle days={idle(c)} warn={alerts.warnDays} crit={alerts.criticalDays} />}
                 {c.talent.blacklisted && <span className="badge badge-danger" title={t('blacklist.inBlacklist')}><TriangleAlert size={12} />{t('rq.cand.blacklisted')}</span>}
@@ -171,6 +197,10 @@ export function RequirementDetail() {
 
       {editing && <RequirementEditor rq={rq} initialTab={editing} onClose={() => setEditing(false)} onSaved={() => { setEditing(false); refresh(); }} />}
       {reopening && <ReopenModal rq={rq} onClose={() => setReopening(false)} onDone={(reason) => { if (reason === 'MORE_VACANCIES') void q.refetch().then(() => setEditing('vacancies')); }} />}
+      {confirming && <StartDateModal mode="confirm" name={fullTalentName(confirming.c.talent)} onClose={() => setConfirming(null)}
+        onSubmit={(d) => { const x = confirming; setConfirming(null); void move(x.c, x.stageId, x.vacancyId, d); }} />}
+      {editingStart && <StartDateModal mode="edit" name={fullTalentName(editingStart.talent)} initial={editingStart.tentativeStartDate} busy={savingStart}
+        onClose={() => setEditingStart(null)} onSubmit={(d) => void saveStart(editingStart, d)} />}
       {openCand && <CandidateModal candidateId={openCand} onClose={() => setOpenCand(null)} />}
       {adding && <AddCandidate rq={rq} onClose={() => setAdding(false)} onAdded={() => { setAdding(false); refresh(); }} />}
     </div>

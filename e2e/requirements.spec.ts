@@ -170,9 +170,15 @@ test('reapertura por renuncia: se indica quién renunció y queda marcado en el 
   expect((await admin.ctx.post('/api/v1/tenant/talents', { headers: H, data: { id: talent, firstName: 'Rosa', lastName: last } })).status()).toBe(201);
   const cand = crypto.randomUUID();
   expect((await admin.ctx.post(`/api/v1/tenant/requirements/${rq}/candidates`, { headers: H, data: { id: cand, talentId: talent, vacancyId: vac } })).status()).toBe(201);
-  for (const st of ['DATA_COMPLETE', 'CONFIRMED']) {
-    expect((await admin.ctx.patch(`/api/v1/tenant/requirements/candidates/${cand}`, { headers: H, data: { stageId: id('CANDIDATE_STAGE', st) } })).ok()).toBeTruthy();
+  const candUrl = `/api/v1/tenant/requirements/candidates/${cand}`;
+  expect((await admin.ctx.patch(candUrl, { headers: H, data: { stageId: id('CANDIDATE_STAGE', 'DATA_COMPLETE') } })).ok()).toBeTruthy();
+  // confirmar exige la fecha tentativa de inicio de labores (válida y en rango)
+  for (const bad of [{}, { startDate: '2001-01-01' }, { startDate: 'mañana' }]) {
+    const r = await admin.ctx.patch(candUrl, { headers: H, data: { stageId: id('CANDIDATE_STAGE', 'CONFIRMED'), ...bad } });
+    expect(r.status()).toBe(422);
+    expect((await r.json()).error.code).toBe('VALIDATION');
   }
+  expect((await admin.ctx.patch(candUrl, { headers: H, data: { stageId: id('CANDIDATE_STAGE', 'CONFIRMED'), startDate: today } })).ok()).toBeTruthy();
   expect((await admin.ctx.patch(`/api/v1/tenant/requirements/${rq}/status`, { headers: H, data: { statusId: id('RQ_STATUS', 'ATTENDED') } })).ok()).toBeTruthy();
 
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -246,8 +252,23 @@ test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirm
   await drag(page, uno, column(page, 'rq-pipeline', 'Datos completos'));
   await expect(column(page, 'rq-pipeline', 'Datos completos').filter({ hasText: names[0] })).toHaveCount(1);
   await drag(page, uno, column(page, 'rq-pipeline', 'Confirmado'));
+  // al confirmar se pide la fecha tentativa de inicio de labores (obligatoria)
+  const conf = page.getByRole('dialog', { name: `Confirmar a ${names[0]}` });
+  await expect(conf.getByTestId('cand-start-save')).toBeDisabled();
+  const start = new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10);
+  await conf.getByTestId('cand-start-date').fill(start);
+  await conf.getByTestId('cand-start-save').click();
   await expect(page.getByText(`${names[0]} pasó a Confirmado.`).last()).toBeVisible();
   await expect(page.getByTestId('rq-coverage')).toHaveText('1 de 1 cubiertas');
+  await expect(uno.getByTestId('cand-start')).toContainText('Inicio tentativo');
+  // la fecha se puede corregir mientras IGDT no registre el ingreso
+  const later = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
+  await uno.getByTestId('cand-start').click();
+  const edit = page.getByRole('dialog', { name: /Fecha tentativa de inicio/ });
+  await expect(edit.getByTestId('cand-start-date')).toHaveValue(start);
+  await edit.getByTestId('cand-start-date').fill(later);
+  await edit.getByTestId('cand-start-save').click();
+  await expect(page.getByText('Fecha tentativa de inicio guardada.').last()).toBeVisible();
 
   // la vacante tiene 1 puesto: el segundo no se confirma (menú "Mover a…")
   await dos.getByTestId('cand-move').click();

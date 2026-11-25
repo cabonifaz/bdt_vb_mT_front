@@ -1033,7 +1033,18 @@
       "toVacancy": "Move to vacancy {{profile}}",
       "emptyColumn": "No candidates",
       "hired": "Hired",
-      "hiredFrom": "Hire registered in IGDT · starts {{date}}"
+      "hiredFrom": "Hire registered in IGDT · starts {{date}}",
+      "startDate": "Tentative start date",
+      "startDateHint": "Tentative start date of work. It is sent to IGDT with the hire request. Must be between {{min}} and {{max}}.",
+      "confirmTitle": "Confirm {{name}}",
+      "confirmIntro": "On confirmation, the hire request is sent to IGDT with the requirement conditions and this date.",
+      "confirmAction": "Confirm",
+      "editStartTitle": "Tentative start date · {{name}}",
+      "startShort": "Tentative start: {{date}}",
+      "noStart": "No tentative date",
+      "editStart": "Change the tentative start date",
+      "startSaved": "Tentative start date saved.",
+      "startInvalid": "Choose a date between {{min}} and {{max}}."
     },
     "applications": "Applications",
     "noApplications": "This talent has not applied to any requirement yet.",
@@ -1233,7 +1244,9 @@
       "HIRED": "Hired (registered in IGDT)",
       "HIRED_START": "Hired (registered in IGDT). Start: {{date}}",
       "HIRE_START_CHANGED": "IGDT changed the start date from {{from}} to {{to}}",
-      "HIRE_REVOKED": "The client revoked the hire in IGDT"
+      "HIRE_REVOKED": "The client revoked the hire in IGDT",
+      "START_DATE": "Tentative start date: {{from}} → {{to}}",
+      "STAGE_START": "Moved from {{from}} to {{to}} · tentative start {{date}}"
     }
   },
   "tour": {

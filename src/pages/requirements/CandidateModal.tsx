@@ -194,7 +194,7 @@ function DocRow({ c, d, canAct }: { c: CandidateDetail; d: CandidateDetail['docu
 
 const EVENT_ICON: Record<CandidateEvent['type'], typeof CheckCircle2> = {
   ADDED: UserPlus, STAGE: ArrowRightLeft, DOC_UPLOADED: Upload, DOC_VERIFIED: CheckCircle2, DOC_REJECTED: XCircle, DOC_CHECK_FAILED: Clock, RESIGNED: UserX,
-  HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX,
+  HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX, START_DATE: CalendarClock,
 };
 
 function Timeline({ c }: { c: CandidateDetail }) {
@@ -212,7 +212,11 @@ function Timeline({ c }: { c: CandidateDetail }) {
     const x = e.data ?? {};
     switch (e.type) {
       case 'ADDED': return t('cand.ev.ADDED');
-      case 'STAGE': return x.from === x.to ? t('cand.ev.VACANCY') : t('cand.ev.STAGE', { from: stageName(x.from), to: stageName(x.to) });
+      case 'STAGE': return x.from === x.to ? t('cand.ev.VACANCY')
+        : x.startDate ? t('cand.ev.STAGE_START', { from: stageName(x.from), to: stageName(x.to), date: day(x.startDate) })
+        : t('cand.ev.STAGE', { from: stageName(x.from), to: stageName(x.to) });
+      // fecha tentativa de inicio de labores (Selección)
+      case 'START_DATE': return t('cand.ev.START_DATE', { from: day(x.from) || '—', to: day(x.to) || '—' });
       case 'RESIGNED': return t('cand.ev.RESIGNED');
       // eventos de ingreso que llegan de IGDT
       case 'HIRED': return x.startDate ? t('cand.ev.HIRED_START', { date: day(x.startDate) }) : t('cand.ev.HIRED');
