@@ -1039,12 +1039,24 @@
       "confirmTitle": "Confirm {{name}}",
       "confirmIntro": "On confirmation, the hire request is sent to IGDT with the requirement conditions and this date.",
       "confirmAction": "Confirm",
-      "editStartTitle": "Tentative start date · {{name}}",
+      "editStartTitle": "Hire conditions · {{name}}",
       "startShort": "Tentative start: {{date}}",
       "noStart": "No tentative date",
-      "editStart": "Change the tentative start date",
-      "startSaved": "Tentative start date saved.",
-      "startInvalid": "Choose a date between {{min}} and {{max}}."
+      "editStart": "Change the tentative start date or the directed manager",
+      "startSaved": "Hire conditions saved.",
+      "startInvalid": "Choose a date between {{min}} and {{max}}.",
+      "manager": "Direct to manager (IGDT)",
+      "managerDefault": "Client's managers",
+      "managerHint": "Optional. By default the hire request goes to the client's managers; you can direct it to another IGDT manager.",
+      "managerUnavailable": "The IGDT manager list is not available: the request will go to the client's managers.",
+      "managerClientGroup": "Client's managers",
+      "managerAllGroup": "All managers",
+      "managerPrimary": "primary",
+      "managerSecondary": "secondary",
+      "managerUnknown": "Previously chosen manager (not in the list)",
+      "managerDirected": "Directed to a manager",
+      "clientManagers": "Client's managers: {{names}}",
+      "clientManagersNone": "The client has no managers assigned in IGDT."
     },
     "applications": "Applications",
     "noApplications": "This talent has not applied to any requirement yet.",
@@ -1246,7 +1258,8 @@
       "HIRE_START_CHANGED": "IGDT changed the start date from {{from}} to {{to}}",
       "HIRE_REVOKED": "The client revoked the hire in IGDT",
       "START_DATE": "Tentative start date: {{from}} → {{to}}",
-      "STAGE_START": "Moved from {{from}} to {{to}} · tentative start {{date}}"
+      "STAGE_START": "Moved from {{from}} to {{to}} · tentative start {{date}}",
+      "MANAGER": "Changed the directed IGDT manager"
     }
   },
   "tour": {

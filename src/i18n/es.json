@@ -1039,12 +1039,24 @@
       "confirmTitle": "Confirmar a {{name}}",
       "confirmIntro": "Al confirmar, la solicitud de ingreso se envía a IGDT con las condiciones del requerimiento y esta fecha.",
       "confirmAction": "Confirmar",
-      "editStartTitle": "Fecha tentativa de inicio · {{name}}",
+      "editStartTitle": "Condiciones del ingreso · {{name}}",
       "startShort": "Inicio tentativo: {{date}}",
       "noStart": "Sin fecha tentativa",
-      "editStart": "Cambiar la fecha tentativa de inicio",
-      "startSaved": "Fecha tentativa de inicio guardada.",
-      "startInvalid": "Elige una fecha entre {{min}} y {{max}}."
+      "editStart": "Cambiar la fecha tentativa de inicio o el gestor dirigido",
+      "startSaved": "Condiciones del ingreso guardadas.",
+      "startInvalid": "Elige una fecha entre {{min}} y {{max}}.",
+      "manager": "Dirigir a gestor (IGDT)",
+      "managerDefault": "Gestores del cliente",
+      "managerHint": "Opcional. Por defecto la solicitud de ingreso va a los gestores del cliente; puedes dirigirla a otro gestor de IGDT.",
+      "managerUnavailable": "No se pudo obtener la lista de gestores de IGDT: la solicitud irá a los gestores del cliente.",
+      "managerClientGroup": "Gestores del cliente",
+      "managerAllGroup": "Todos los gestores",
+      "managerPrimary": "principal",
+      "managerSecondary": "secundario",
+      "managerUnknown": "Gestor elegido antes (no figura en la lista)",
+      "managerDirected": "Dirigido a gestor",
+      "clientManagers": "Gestores del cliente: {{names}}",
+      "clientManagersNone": "El cliente no tiene gestores asignados en IGDT."
     },
     "applications": "Postulaciones",
     "noApplications": "Este talento aún no postula a requerimientos.",
@@ -1246,7 +1258,8 @@
       "HIRE_START_CHANGED": "IGDT cambió la fecha de inicio de {{from}} a {{to}}",
       "HIRE_REVOKED": "El cliente revocó el ingreso en IGDT",
       "START_DATE": "Fecha tentativa de inicio: {{from}} → {{to}}",
-      "STAGE_START": "Pasó de {{from}} a {{to}} · inicio tentativo {{date}}"
+      "STAGE_START": "Pasó de {{from}} a {{to}} · inicio tentativo {{date}}",
+      "MANAGER": "Cambió el gestor dirigido en IGDT"
     }
   },
   "tour": {

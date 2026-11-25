@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, CircleDashed, Clock, ExternalLink, FileText, RefreshCw, ShieldCheck, Upload, UserPlus, UserX, XCircle, ArrowRightLeft, BadgeCheck, CalendarClock } from 'lucide-react';
+import { CheckCircle2, CircleDashed, Clock, ExternalLink, FileText, RefreshCw, ShieldCheck, Upload, UserCheck, UserPlus, UserX, XCircle, ArrowRightLeft, BadgeCheck, CalendarClock } from 'lucide-react';
 import { useAuth } from '../../providers/auth';
 import { fetchFileBlob, useLabel } from '../../lib/talents';
 import { fullTalentName } from '../../lib/requirements';
@@ -194,7 +194,7 @@ function DocRow({ c, d, canAct }: { c: CandidateDetail; d: CandidateDetail['docu
 
 const EVENT_ICON: Record<CandidateEvent['type'], typeof CheckCircle2> = {
   ADDED: UserPlus, STAGE: ArrowRightLeft, DOC_UPLOADED: Upload, DOC_VERIFIED: CheckCircle2, DOC_REJECTED: XCircle, DOC_CHECK_FAILED: Clock, RESIGNED: UserX,
-  HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX, START_DATE: CalendarClock,
+  HIRED: BadgeCheck, HIRE_START_CHANGED: CalendarClock, HIRE_REVOKED: UserX, START_DATE: CalendarClock, MANAGER: UserCheck,
 };
 
 function Timeline({ c }: { c: CandidateDetail }) {
@@ -217,6 +217,7 @@ function Timeline({ c }: { c: CandidateDetail }) {
         : t('cand.ev.STAGE', { from: stageName(x.from), to: stageName(x.to) });
       // fecha tentativa de inicio de labores (Selección)
       case 'START_DATE': return t('cand.ev.START_DATE', { from: day(x.from) || '—', to: day(x.to) || '—' });
+      case 'MANAGER': return t('cand.ev.MANAGER');
       case 'RESIGNED': return t('cand.ev.RESIGNED');
       // eventos de ingreso que llegan de IGDT
       case 'HIRED': return x.startDate ? t('cand.ev.HIRED_START', { date: day(x.startDate) }) : t('cand.ev.HIRED');

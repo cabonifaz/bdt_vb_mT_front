@@ -179,6 +179,15 @@ test('reapertura por renuncia: se indica quién renunció y queda marcado en el 
     expect((await r.json()).error.code).toBe('VALIDATION');
   }
   expect((await admin.ctx.patch(candUrl, { headers: H, data: { stageId: id('CANDIDATE_STAGE', 'CONFIRMED'), startDate: today } })).ok()).toBeTruthy();
+  // condiciones del ingreso: gestor dirigido (uuid de IGDT o null = gestores del cliente) junto a la fecha
+  const mgr = crypto.randomUUID();
+  expect((await admin.ctx.put(`${candUrl}/hire`, { headers: H, data: { startDate: today, igdtManagerId: 'gestor' } })).status()).toBe(422);
+  expect((await admin.ctx.put(`${candUrl}/hire`, { headers: H, data: { startDate: today, igdtManagerId: mgr } })).ok()).toBeTruthy();
+  const saved = (await (await admin.ctx.get(`/api/v1/tenant/requirements/${rq}`, { headers: H })).json()).candidates.find((x: { id: string }) => x.id === cand);
+  expect(saved.igdtManagerId).toBe(mgr);
+  expect(saved.tentativeStartDate).toBe(today);
+  const mv = await (await admin.ctx.get(`/api/v1/tenant/igdt/managers?clientId=${client}`, { headers: H })).json();
+  expect(Array.isArray(mv.managers)).toBeTruthy(); // sin IGDT: available = false y lista vacía, sin error
   expect((await admin.ctx.patch(`/api/v1/tenant/requirements/${rq}/status`, { headers: H, data: { statusId: id('RQ_STATUS', 'ATTENDED') } })).ok()).toBeTruthy();
 
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -255,6 +264,9 @@ test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirm
   // al confirmar se pide la fecha tentativa de inicio de labores (obligatoria)
   const conf = page.getByRole('dialog', { name: `Confirmar a ${names[0]}` });
   await expect(conf.getByTestId('cand-start-save')).toBeDisabled();
+  // gestor dirigido opcional: por defecto, los gestores del cliente
+  await expect(conf.getByTestId('cand-manager')).toHaveValue('');
+  await expect(conf.getByTestId('cand-manager')).toContainText('Gestores del cliente');
   const start = new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10);
   await conf.getByTestId('cand-start-date').fill(start);
   await conf.getByTestId('cand-start-save').click();
@@ -264,11 +276,11 @@ test('pipeline de candidatos: agregar, arrastrar entre etapas, reglas de confirm
   // la fecha se puede corregir mientras IGDT no registre el ingreso
   const later = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
   await uno.getByTestId('cand-start').click();
-  const edit = page.getByRole('dialog', { name: /Fecha tentativa de inicio/ });
+  const edit = page.getByRole('dialog', { name: /Condiciones del ingreso/ });
   await expect(edit.getByTestId('cand-start-date')).toHaveValue(start);
   await edit.getByTestId('cand-start-date').fill(later);
   await edit.getByTestId('cand-start-save').click();
-  await expect(page.getByText('Fecha tentativa de inicio guardada.').last()).toBeVisible();
+  await expect(page.getByText('Condiciones del ingreso guardadas.').last()).toBeVisible();
 
   // la vacante tiene 1 puesto: el segundo no se confirma (menú "Mover a…")
   await dos.getByTestId('cand-move').click();
